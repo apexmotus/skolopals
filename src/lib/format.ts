@@ -6,7 +6,7 @@ export function money(cents: number) {
 }
 
 export function hourlyRate(cents: number) {
-  return `$${Math.round(cents / 100)}/hr`;
+  return `R${Math.round(cents / 100)}/hr`;
 }
 
 const fmt = (opts: Intl.DateTimeFormatOptions) =>

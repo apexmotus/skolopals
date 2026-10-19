@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { NavLink } from "@/components/nav-link";
+import { Logo } from "@/components/logo";
 import { initials } from "@/lib/format";
 import type { Profile, UserRole } from "@/lib/database.types";
 import { signOut } from "@/app/(auth)/actions";
@@ -78,8 +79,8 @@ export function AppShell({
   return (
     <div className="flex min-h-screen w-full flex-col md:flex-row">
       <aside className="flex w-full shrink-0 flex-col gap-[22px] bg-night p-5 md:sticky md:top-0 md:h-screen md:w-[220px]">
-        <Link href="/" className="text-[21px] font-extrabold text-white">
-          Skolopals
+        <Link href="/" className="w-fit">
+          <Logo height={38} />
         </Link>
         <span className="w-fit rounded-full bg-white/[0.09] px-[10px] py-[5px] text-[11px] text-white">
           {nav.workspace}

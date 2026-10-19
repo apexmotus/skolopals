@@ -6,9 +6,9 @@ export const SUBJECTS = ["Mathematics", "English", "Science", "Physics", "Langua
 export const GRADES = ["Grades 5–6", "Grades 7–9", "Grades 10–12", "GCSE", "A-Level"];
 export const LANGUAGES = ["English", "Spanish", "French"];
 export const PRICE_RANGES = [
-  { value: "0-4000", label: "Under $40/hr" },
-  { value: "4000-5000", label: "$40–$50/hr" },
-  { value: "5000-99999", label: "$50+/hr" },
+  { value: "0-4000", label: "Under R40/hr" },
+  { value: "4000-5000", label: "R40–$50/hr" },
+  { value: "5000-99999", label: "R50+/hr" },
 ];
 export const SORTS = [
   { value: "rating", label: "Highest rated" },

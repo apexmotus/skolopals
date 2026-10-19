@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui";
 import { NavLink } from "@/components/nav-link";
+import { Logo } from "@/components/logo";
 import { getProfile, homeFor } from "@/lib/auth";
 import { signOut } from "@/app/(auth)/actions";
 
@@ -20,8 +21,8 @@ export async function PublicNav() {
     <header className="w-full border-b border-line bg-white">
       <div className="flex min-h-[68px] flex-wrap items-center justify-between gap-x-8 gap-y-3 px-4 py-3 md:px-9">
         <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-          <Link href="/" className="text-[22px] font-extrabold text-brand">
-            Skolopals
+          <Link href="/" className="shrink-0">
+            <Logo height={40} priority />
           </Link>
           <nav aria-label="Main" className="flex flex-wrap items-center gap-x-6 gap-y-1 text-[13px] text-ink">
             {LINKS.map((l) => (
