@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge, DataTable, EmptyState, PageHeading, StatCard } from "@/components/ui";
 import { getAccount } from "@/lib/parent";
 import { INVOICE_STATE_LABEL, money, shortDate } from "@/lib/format";
@@ -32,7 +33,15 @@ export default async function AccountPage() {
           rows={invoices}
           rowKey={(i) => i.id ?? i.invoice_number ?? ""}
           columns={[
-            { header: "Invoice", cell: (i) => i.invoice_number ?? "", primary: true },
+            {
+                  header: "Invoice",
+                  primary: true,
+                  cell: (i) => (
+                    <Link href={`/parent/account/${i.id}`} className="text-brand hover:underline">
+                      {i.invoice_number ?? ""}
+                    </Link>
+                  ),
+                },
             { header: "Issued", cell: (i) => (i.issued_on ? shortDate(i.issued_on) : "") },
             { header: "Due", cell: (i) => (i.due_on ? shortDate(i.due_on) : "") },
             { header: "Total", cell: (i) => money(i.total_cents ?? 0) },

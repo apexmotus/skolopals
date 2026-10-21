@@ -17,7 +17,7 @@ export DATABASE_URL
 
 PSQL := psql "$(DATABASE_URL)" -v ON_ERROR_STOP=1
 
-.PHONY: help db-create db-drop bootstrap migrate seed reset verify test test-rls test-rules test-billing test-enrolment test-assessment psql types supabase-start check-pg
+.PHONY: help db-create db-drop bootstrap migrate seed reset verify test test-rls test-rules test-billing test-enrolment test-assessment test-month-close deploy-check psql types supabase-start check-pg
 
 help:
 	@echo "Skolopals database — $(DATABASE_URL)"
@@ -30,6 +30,7 @@ help:
 	@echo "  make seed           apply seed data (idempotent)"
 	@echo "  make verify         structural and curriculum assertions"
 	@echo "  make test           verify + RLS + business-rule tests"
+	@echo "  make deploy-check   rehearse a deploy on a throwaway database"
 	@echo "  make psql           open a psql shell"
 	@echo "  make types          regenerate TypeScript types into skolopals-web"
 	@echo "  make supabase-start full-parity local stack (needs Docker + Supabase CLI)"
@@ -82,13 +83,19 @@ test-enrolment: check-pg
 test-assessment: check-pg
 	@./scripts/test-assessment.sh
 
-test: verify test-rls test-rules test-billing test-enrolment test-assessment
+test-month-close: check-pg
+	@./scripts/test-month-close.sh
+
+test: verify test-rls test-rules test-billing test-enrolment test-assessment test-month-close
 	@echo
 	@echo "All suites passed."
 
 reset: db-create bootstrap migrate seed test
 	@echo
 	@echo "Database rebuilt: $(DATABASE_URL)"
+
+deploy-check: check-pg
+	@./scripts/deploy-check.sh
 
 psql: check-pg
 	@$(PSQL)

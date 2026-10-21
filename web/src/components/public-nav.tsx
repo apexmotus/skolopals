@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/ui";
 import { NavLink } from "@/components/nav-link";
 import { Logo } from "@/components/logo";
+import { CENTRE, CENTRE_ADDRESS } from "@/lib/centre";
 import { getSession, homeFor } from "@/lib/auth";
 import { signOut } from "@/app/(auth)/actions";
 
@@ -61,10 +62,21 @@ export async function PublicNav() {
 
 export function PublicFooter() {
   return (
-    <footer className="px-4 pb-8 text-center text-[12px] text-muted md:px-14">
-      <Link href="/about">About</Link> · <Link href="/safeguarding">Safeguarding</Link> ·{" "}
-      <Link href="/careers">Careers</Link> · <Link href="/contact">Help</Link> · <Link href="/terms">Terms</Link> ·{" "}
-      <Link href="/privacy">Privacy</Link> · © {new Date().getFullYear()} Skolopals
+    <footer className="flex flex-col gap-2 px-4 pb-8 text-center text-[12px] text-muted md:px-14">
+      <p className="text-ink">{CENTRE.name}</p>
+      <p>
+        {CENTRE_ADDRESS} ·{" "}
+        <a href={CENTRE.phoneLink} className="hover:text-brand hover:underline">
+          {CENTRE.phone}
+        </a>
+      </p>
+      <p>
+        <Link href="/about">About</Link> · <Link href="/subjects">Subjects</Link> ·{" "}
+        <Link href="/timetable">Timetable</Link> · <Link href="/pricing">Fees</Link> ·{" "}
+        <Link href="/safeguarding">Keeping learners safe</Link> · <Link href="/contact">Contact</Link> ·{" "}
+        <Link href="/terms">Terms</Link> · <Link href="/privacy">Privacy</Link>
+      </p>
+      <p>© {new Date().getFullYear()} {CENTRE.name}. {CENTRE.tagline}</p>
     </footer>
   );
 }

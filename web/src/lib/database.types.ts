@@ -1203,6 +1203,8 @@ export type Database = {
           quantity: number;
           unit_amount_cents: number;
           line_total_cents: number | null;
+          period_month: string | null;
+          late_fee_for_invoice_id: string | null;
         };
         Insert: {
           id?: string;
@@ -1215,6 +1217,8 @@ export type Database = {
           learner_id?: string | null;
           quantity?: number;
           unit_amount_cents: number;
+          period_month?: string | null;
+          late_fee_for_invoice_id?: string | null;
         };
         Update: {
           id?: string;
@@ -1227,6 +1231,8 @@ export type Database = {
           learner_id?: string | null;
           quantity?: number;
           unit_amount_cents?: number;
+          period_month?: string | null;
+          late_fee_for_invoice_id?: string | null;
         };
         Relationships: [
           {
@@ -1262,6 +1268,13 @@ export type Database = {
             columns: ["learner_id"];
             isOneToOne: false;
             referencedRelation: "learners";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "invoice_lines_late_fee_for_invoice_id_fkey";
+            columns: ["late_fee_for_invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoices";
             referencedColumns: ["id"];
           },
         ];
@@ -3236,6 +3249,19 @@ export type Database = {
         };
         Relationships: [];
       };
+      v_my_threads: {
+        Row: {
+          id: string | null;
+          subject: string | null;
+          learner_id: string | null;
+          learner_name: string | null;
+          created_at: string | null;
+          last_message_at: string | null;
+          last_message: string | null;
+          unread_count: number | null;
+        };
+        Relationships: [];
+      };
       v_operating_surplus: {
         Row: {
           month: string | null;
@@ -3305,16 +3331,21 @@ export type Database = {
     };
     Functions: {
       activate_enrolment: { Args: Record<string, unknown>; Returns: unknown };
+      apply_late_fees: { Args: Record<string, unknown>; Returns: unknown };
       create_learning_plan: { Args: Record<string, unknown>; Returns: unknown };
       create_tutor: { Args: Record<string, unknown>; Returns: unknown };
       generate_class_sessions: { Args: Record<string, unknown>; Returns: unknown };
       has_required_consents: { Args: Record<string, unknown>; Returns: unknown };
       invoice_late_fee_due: { Args: Record<string, unknown>; Returns: unknown };
+      mark_thread_read: { Args: Record<string, unknown>; Returns: unknown };
       package_price_on: { Args: Record<string, unknown>; Returns: unknown };
       record_assessment: { Args: Record<string, unknown>; Returns: unknown };
+      record_payment: { Args: Record<string, unknown>; Returns: unknown };
+      run_monthly_invoices: { Args: Record<string, unknown>; Returns: unknown };
       save_progress_report: { Args: Record<string, unknown>; Returns: unknown };
       set_tutor_competency: { Args: Record<string, unknown>; Returns: unknown };
       set_tutor_pay_rate: { Args: Record<string, unknown>; Returns: unknown };
+      start_thread: { Args: Record<string, unknown>; Returns: unknown };
       submit_enrolment: { Args: Record<string, unknown>; Returns: unknown };
     };
     Enums: {
@@ -3425,6 +3456,7 @@ export type VLearnerCounts = Database["public"]["Views"]["v_learner_counts"]["Ro
 export type VLearnerRetention = Database["public"]["Views"]["v_learner_retention"]["Row"];
 export type VMonthlyExpenses = Database["public"]["Views"]["v_monthly_expenses"]["Row"];
 export type VMonthlyRevenue = Database["public"]["Views"]["v_monthly_revenue"]["Row"];
+export type VMyThreads = Database["public"]["Views"]["v_my_threads"]["Row"];
 export type VOperatingSurplus = Database["public"]["Views"]["v_operating_surplus"]["Row"];
 export type VOutstandingFees = Database["public"]["Views"]["v_outstanding_fees"]["Row"];
 export type VPublicTimetable = Database["public"]["Views"]["v_public_timetable"]["Row"];

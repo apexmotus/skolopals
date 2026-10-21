@@ -308,7 +308,7 @@ Database and app work that this policy requires:
 - [ ] Marketing opt-out link on every bulk message
 - [ ] Parent-facing "Download my data" export
 - [ ] Breach register
-- [ ] `/privacy` renders Part A of this document
+- [x] `/privacy` renders Part A of this document — consent wording and retention periods are read from the database, so the notice and the enrolment form cannot disagree
 - [ ] Enable leaked-password protection in Supabase Auth
 
 Business actions outside the code:

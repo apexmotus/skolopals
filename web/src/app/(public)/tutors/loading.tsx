@@ -9,7 +9,7 @@ export default function LoadingTutors() {
     <div className="flex flex-col gap-5 p-4 md:p-7" aria-busy="true" aria-live="polite">
       <div className="flex flex-col gap-[5px]">
         <h1 className="text-[28px] text-ink">Find your tutor</h1>
-        <p className="text-[13px] text-muted">Finding verified tutors…</p>
+        <p className="text-[13px] text-muted">Loading our tutors…</p>
       </div>
       <div className="flex flex-col gap-6 md:flex-row md:items-start">
         <Card className="w-full shrink-0 md:w-[260px]">

@@ -63,10 +63,10 @@ end $$;
 insert into public.invoices (id, billing_account_id, invoice_number, period_start, period_end, issued_on, due_on, status) values
   ('2222aaaa-0000-0000-0000-000000000102','bbbb2222-0000-0000-0000-000000000014',
    'SKP-2026-0051','2026-10-18','2026-12-31','2026-11-15','2026-12-01','issued');
-insert into public.invoice_lines (invoice_id, line_type, description, enrolment_id, learner_id, unit_amount_cents) values
-  ('2222aaaa-0000-0000-0000-000000000102','package','October part month (18-31)','aaaa1111-0000-0000-0000-000000000013','11111111-0000-0000-0000-00000000000a', 40000),
-  ('2222aaaa-0000-0000-0000-000000000102','package','November tuition',          'aaaa1111-0000-0000-0000-000000000013','11111111-0000-0000-0000-00000000000a', 75000),
-  ('2222aaaa-0000-0000-0000-000000000102','package','December tuition',          'aaaa1111-0000-0000-0000-000000000013','11111111-0000-0000-0000-00000000000a', 75000);
+insert into public.invoice_lines (invoice_id, line_type, description, enrolment_id, learner_id, period_month, unit_amount_cents) values
+  ('2222aaaa-0000-0000-0000-000000000102','package','October part month (18-31)','aaaa1111-0000-0000-0000-000000000013','11111111-0000-0000-0000-00000000000a','2026-10-01', 40000),
+  ('2222aaaa-0000-0000-0000-000000000102','package','November tuition',          'aaaa1111-0000-0000-0000-000000000013','11111111-0000-0000-0000-00000000000a','2026-11-01', 75000),
+  ('2222aaaa-0000-0000-0000-000000000102','package','December tuition',          'aaaa1111-0000-0000-0000-000000000013','11111111-0000-0000-0000-00000000000a','2026-12-01', 75000);
 do $$ begin
   perform dev.assert((select total_cents from public.v_invoice_status
                       where id='2222aaaa-0000-0000-0000-000000000102') = 190000,
@@ -97,8 +97,8 @@ end $$;
 insert into public.invoices (id, billing_account_id, invoice_number, issued_on, due_on, status) values
   ('3333aaaa-0000-0000-0000-000000000103','bbbb2222-0000-0000-0000-000000000014',
    'SKP-2026-0052','2026-11-15','2026-12-01','issued');
-insert into public.invoice_lines (invoice_id, line_type, description, learner_id, unit_amount_cents) values
-  ('3333aaaa-0000-0000-0000-000000000103','package','November tuition','22222222-0000-0000-0000-00000000000b', 45000);
+insert into public.invoice_lines (invoice_id, line_type, description, learner_id, period_month, unit_amount_cents) values
+  ('3333aaaa-0000-0000-0000-000000000103','package','November tuition','22222222-0000-0000-0000-00000000000b','2026-11-01', 45000);
 
 insert into public.payments (id, billing_account_id, paid_on, amount_cents, method, reference) values
   ('4444aaaa-0000-0000-0000-000000000104','bbbb2222-0000-0000-0000-000000000014',
@@ -134,8 +134,8 @@ insert into public.payments (id, billing_account_id, paid_on, amount_cents, meth
 insert into public.invoices (id, billing_account_id, invoice_number, issued_on, due_on, status) values
   ('6666aaaa-0000-0000-0000-000000000106','bbbb2222-0000-0000-0000-000000000014',
    'SKP-2026-0053','2026-12-01','2027-01-01','issued');
-insert into public.invoice_lines (invoice_id, line_type, description, unit_amount_cents) values
-  ('6666aaaa-0000-0000-0000-000000000106','package','January tuition', 75000);
+insert into public.invoice_lines (invoice_id, line_type, description, period_month, unit_amount_cents) values
+  ('6666aaaa-0000-0000-0000-000000000106','package','January tuition','2027-01-01', 75000);
 
 select pg_temp.rejects($$
   insert into public.payment_allocations values

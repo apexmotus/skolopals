@@ -40,16 +40,6 @@ const PAGES: Record<string, { title: string; description: string; body: string[]
       "Our full written terms, including the payment policy and notice periods, are provided when your learner is registered.",
     ],
   },
-  privacy: {
-    title: "Privacy notice",
-    description: "How we handle your family's personal information.",
-    body: [
-      "Skolopals processes personal information about learners, parents and guardians in line with the Protection of Personal Information Act 4 of 2013 (POPIA).",
-      "Because most of the people we hold information about are children, we only process a learner's information with the written consent of a parent or legal guardian, requested separately for each purpose.",
-      "Our systems are hosted outside South Africa, in the United Kingdom, under protections substantially similar to POPIA. We keep learner records for five years after a learner leaves.",
-      "Our full privacy notice is being finalised for publication. To ask what we hold, to correct it, or to withdraw a consent, contact our Information Officer through the contact page.",
-    ],
-  },
 };
 
 export const dynamicParams = false;

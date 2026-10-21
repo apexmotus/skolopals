@@ -1,13 +1,19 @@
 import { PageHeading } from "@/components/ui";
-import { ComingSoon } from "@/components/coming-soon";
+import { MessagesView } from "@/components/messages/messages-view";
 
 export const metadata = { title: "Messages" };
 
-export default function MessagesPage() {
+export default async function TutorMessagesPage({ searchParams }: PageProps<"/tutor/messages">) {
+  const sp = await searchParams;
+  const thread = Array.isArray(sp.thread) ? sp.thread[0] : sp.thread;
+
   return (
     <>
-      <PageHeading title="Messages" description="Message parents about a learner's progress." />
-      <ComingSoon title="Not built yet" phase="Phase 6" description="The data model for this is complete and tested." />
+      <PageHeading
+        title="Messages"
+        description="Conversations with parents about the learners you teach."
+      />
+      <MessagesView openThreadId={thread} />
     </>
   );
 }

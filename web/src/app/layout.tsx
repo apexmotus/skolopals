@@ -10,8 +10,10 @@ const inter = Inter({
 /** Absolute base for social previews; falls back to the dev server locally. */
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
-const title = "Skolopals · Learning that clicks";
-const description = "Find verified one-to-one tutors for every subject and stage.";
+const title = "Skolopals Tutoring Centre · Damonsville, Brits";
+const description =
+  "Affordable after-school tutoring, homework support and reading intervention for Grade R to Grade 12, " +
+  "following the CAPS curriculum. Damonsville, Brits, North West.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

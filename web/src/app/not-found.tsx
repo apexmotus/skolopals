@@ -9,12 +9,12 @@ export default function NotFound() {
         <StatusState
           icon="/icons/help-circle.svg"
           title="We can’t find that page"
-          description="The link may be broken, or the page may have moved. Check the address or head back to find a tutor."
+          description="The link may be broken, or the page may have moved. Try the home page, or get in touch and we will point you the right way."
         >
           <ButtonLink href="/" variant="secondary">
             Go home
           </ButtonLink>
-          <ButtonLink href="/tutors">Find a tutor</ButtonLink>
+          <ButtonLink href="/">Back to the home page</ButtonLink>
         </StatusState>
       </div>
     </>

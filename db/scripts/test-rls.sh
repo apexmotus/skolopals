@@ -94,9 +94,9 @@ insert into public.billing_accounts (id, guardian_id) values
 insert into public.invoices (id, billing_account_id, invoice_number, issued_on, due_on, status) values
   ('1111aaaa-0000-0000-0000-000000000101','bbbb2222-0000-0000-0000-000000000014',
    'SKP-2026-0001','2026-10-18','2026-11-01','issued');
-insert into public.invoice_lines (invoice_id, line_type, description, learner_id, unit_amount_cents) values
+insert into public.invoice_lines (invoice_id, line_type, description, learner_id, period_month, unit_amount_cents) values
   ('1111aaaa-0000-0000-0000-000000000101','package','October tuition',
-   '11111111-0000-0000-0000-00000000000a', 75000);
+   '11111111-0000-0000-0000-00000000000a', '2026-10-01', 75000);
 insert into public.payments (id, billing_account_id, paid_on, amount_cents, method) values
   ('4444aaaa-0000-0000-0000-000000000104','bbbb2222-0000-0000-0000-000000000014','2026-10-20',75000,'eft');
 

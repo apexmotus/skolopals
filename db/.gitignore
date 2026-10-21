@@ -2,3 +2,4 @@
 seed/*test-users*
 .env
 .env.local
+backups/

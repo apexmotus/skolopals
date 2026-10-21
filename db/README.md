@@ -19,7 +19,7 @@ That creates the database, applies the local Supabase shim, runs every migration
 
 ```bash
 make psql     # open a shell
-make test     # verify + RLS + rules + billing + enrolment (226 assertions)
+make test     # verify + RLS + rules + billing + enrolment (253 assertions)
 make help     # everything else
 ```
 
@@ -172,6 +172,7 @@ make test
 | `verify.sh` | Structure, the 4NF array ban, RLS coverage, privilege boundaries, curriculum and pricing integrity |
 | `test-rls.sh` | Real queries as guardian / other guardian / tutor / learner / anon / admin. Proves a tutor is denied health notes, emergency contacts, collectors, billing and consents, and that one family cannot see another's data |
 | `test-rules.sh` | The business-rule triggers: teaching competency, operating hours, POPIA consent gating, subject allowance, class capacity, controlled collection, temporal overlap |
+| `test-month-close.sh` | A month closing: the 15th run bills one invoice per family across several children, catches up unbilled months, refuses to bill a month twice, allocates a payment oldest-first, charges the R150 late fee once onto the *next* invoice, and reports the surplus on cash collected |
 | `test-assessment.sh` | Tutor administration and the assessment cycle: create a tutor from an existing account, record competencies with their language of instruction, set pay rates that never overlap, record an assessment (achievement level derived from the mark), write a learning plan that supersedes the last, draft a report the parent cannot see, publish it, and have the parent acknowledge it |
 | `test-enrolment.sh` | The whole journey: a parent submits an enrolment, an admin activates it (billing account opened, registration invoice raised), the term's sessions are generated, a tutor marks the register, and the parent sees all of it |
 | `test-billing.sh` | The worked example from SPEC §9.3 end to end: invoice numbering and yearly reset, the R1,900 catch-up invoice, 3-day grace, one payment settling three invoices across two children, over-allocation guards, and the full assessment → learning plan → report → acknowledgement chain |

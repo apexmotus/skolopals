@@ -366,8 +366,8 @@ Tutors — create and manage staff, competencies, qualifications, documents, ref
 | ~~**3 — App: strip & re-base**~~ ✅ | Delete marketplace surfaces, ZAR + `Africa/Johannesburg`, CAPS vocabulary, regenerate types, parent/learner/tutor/admin shells | **Done** — build, lint and typecheck clean; 45 routes, no dead links |
 | ~~**4 — App: enrolment & timetable**~~ ✅ | `/enrol`, admin enrolment queue, timetable builder, tutor registers, parent timetable view | **Done** — the journey is covered end to end by `test-enrolment.sh` |
 | ~~**5 — App: assessment & reporting**~~ ✅ | Tutor administration, assessment capture, learning plans, termly reports, parent acknowledgement | **Done** — the §12 cycle is covered by `test-assessment.sh` |
-| **6 — App: billing & KPIs** | Invoice run, payment recording, late fees, statements, receipts, admin KPI dashboard | A month closes: invoices issued, payments recorded, surplus reported |
-| **7 — Public site & content** | Home, pricing, subjects, tutors, programmes, timetable, POPIA pages | Content review against the business plan |
+| ~~**6 — App: billing & KPIs**~~ ✅ | Invoice run, payment recording, late fees, statements, receipts, expenses, messaging, admin KPI dashboard | **Done** — a month closes end to end in `test-month-close.sh` |
+| ~~**7 — Public site & content**~~ ✅ | Home, pricing, subjects, tutors, programmes, timetable, contact, POPIA notice | **Done** — real centre details throughout; no marketplace copy remains |
 | **8 — Deploy** | Supabase rebuild, generated types, smoke test | Remote matches local |
 
 **Phases 0–2 are complete: the database is done.** 75 tables, 18 views, 157 RLS policies, 159 passing assertions. Phases 3–8 are application work.
