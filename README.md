@@ -1,46 +1,59 @@
 # Skolopals
 
-A tutoring marketplace built from the Skolopals Figma file. Students and parents find and book verified tutors, tutors apply and manage their teaching, and admins review applications.
+Skolopals Tutoring Centre — a community education centre in Damonsville, Brits, North West.
+Grade R–12, CAPS curriculum, monthly package enrolment.
 
-**Stack:** Next.js 16 (App Router, Server Actions) · Tailwind CSS 4 · Supabase (Postgres, Auth, Storage, row-level security)
+```
+skolopals/
+├─ web/    Next.js 16 app — public site and the parent, learner, tutor and admin portals
+├─ db/     PostgreSQL schema, migrations, seeds and tests. The source of truth
+└─ docs/   Business requirements, the rebuild specification and the POPIA policy
+```
 
 ## Getting started
 
+The database first — the app's generated types come from it.
+
 ```bash
-npm install
-cp .env.example .env.local   # fill in your Supabase URL and publishable key
-npm run dev
+cd db  && make reset      # build the database locally and run all test suites
+cd ../web && npm install && npm run dev
 ```
 
 Open http://localhost:3000.
 
-## Project layout
-
-| Path | What's there |
+| | |
 | --- | --- |
-| `src/app/(public)` | Marketing pages, Find a Tutor, tutor profiles, the 3-step booking flow, the tutor application |
-| `src/app/(auth)` | Login and sign-up |
-| `src/app/student` | Student workspace: overview, lessons, booking details and cancellation, messages, progress, resources |
-| `src/app/tutor` | Tutor workspace: overview, schedule, earnings, requests, history, messages, reviews, application status |
-| `src/app/admin` | Admin workspace: dashboard, application review, tutor accounts, notifications, reports |
-| `src/components/ui.tsx` | Shared design-system components (buttons, cards, fields, tables, badges, states) |
-| `src/app/globals.css` | Design tokens taken from Figma |
-| `src/proxy.ts` | Refreshes the Supabase session and redirects signed-out users away from protected routes |
-| `supabase/migrations` | Database schema, RLS policies and RPCs, in the order they were applied |
-| `supabase/seed.sql` | Demo tutors, reviews and two weeks of availability |
+| **Local database** | `postgresql://$(whoami)@localhost:5432/skolopals_dev` |
+| **Supabase project** | `dhmjzshlznhqohvkdcpz` (eu-west-2) |
+| **Regenerate types** | `cd db && make types` → writes `web/src/lib/database.types.ts` |
 
-## How it works
+## Documentation
 
-- **Roles.** `profiles.role` is `student`, `tutor` or `admin`. Sign-up can only choose student or tutor. Each workspace layout checks the role, and RLS enforces it in the database.
-- **Booking.** `book_lesson()` locks the slot, creates the booking and payment in one transaction, and rejects double-bookings. `cancel_booking()` refunds the payment and frees the slot.
-- **Payment split.** `payments.platform_fee_cents` (40%) and `tutor_payout_cents` (60%) are generated columns.
-- **Applications.** Applicants upload documents straight to the private `tutor-documents` bucket, which only admins can read. `review_application()` approves, declines or requests more information. Approval creates the tutor's public listing and notifies them.
+| Document | What it is |
+| --- | --- |
+| [`docs/BRS-skolopals-2026.md`](docs/BRS-skolopals-2026.md) | Business requirements, traced to the business plan |
+| [`docs/SPEC-2026-centre-rebuild.md`](docs/SPEC-2026-centre-rebuild.md) | The implementation specification and delivery phases |
+| [`docs/POPIA-policy.md`](docs/POPIA-policy.md) | Privacy notice and compliance annex |
+| [`db/docs/4nf-audit.md`](db/docs/4nf-audit.md) | Why each table is shaped the way it is |
+| [`db/docs/ERD.md`](db/docs/ERD.md) | Entity relationship diagrams |
 
-## Not production-ready yet
+## Deploying
 
-- **Payments are simulated.** Card numbers never leave the browser; only the last four digits are sent. A card ending in `0002` simulates a decline. Swap in a payment provider (e.g. Stripe) before taking real money.
-- **No emails are sent.** Booking confirmations and application decisions show up in the app only.
-- **Making an admin.** Run this in the Supabase SQL editor:
-  `update profiles set role = 'admin' where id = (select id from auth.users where email = 'you@example.com');`
-- Turn on leaked-password protection under Supabase → Authentication → Passwords.
-- `supabase/seed.test-users.sql` creates dev-only test accounts. It's git-ignored; never run it in production.
+> **The app lives in `web/`, not at the repo root.** Vercel's **Root Directory**
+> must be set to `web` or builds will fail with "no package.json found".
+> See `docs/SPEC-2026-centre-rebuild.md` §5.
+
+```bash
+cd db && make migrate DATABASE_URL="postgresql://...@db.<ref>.supabase.co:5432/postgres"
+```
+
+## Status
+
+| Phase | Scope | State |
+| --- | --- | --- |
+| 0–2 | Database: schema, RLS, seeds, 159 tests | **Done** |
+| 3 | App: marketplace stripped, ZAR, CAPS, portal shells | **Done** |
+| 4 | Enrolment flow, admin queue, timetable builder, registers | Next |
+| 5 | Assessment, learning plans, termly reports | |
+| 6 | Billing run, payments, statements, messaging | |
+| 7–8 | Public content, deploy | |

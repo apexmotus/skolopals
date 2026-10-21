@@ -1,0 +1,4 @@
+# Local-only test accounts. Never run against a deployed database.
+seed/*test-users*
+.env
+.env.local
