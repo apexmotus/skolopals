@@ -10,7 +10,7 @@ Get your database password from
 
 ```bash
 cd skolopals/db
-make migrate seed DATABASE_URL="postgresql://postgres.dhmjzshlznhqohvkdcpz:YOUR_PASSWORD@aws-0-eu-west-2.pooler.supabase.com:5432/postgres"
+make migrate seed DATABASE_URL="postgresql://postgres.clnlvmnfhzyumykbzrjz:YOUR_PASSWORD@aws-0-eu-west-2.pooler.supabase.com:5432/postgres"
 ```
 
 `migrate.sh` reads `public.schema_migrations`, sees `001`–`003` are done, and
@@ -44,7 +44,7 @@ The Supabase CLI does the same thing and does **not** need Docker:
 ```bash
 brew install supabase/tap/supabase
 cd skolopals/db
-supabase link --project-ref dhmjzshlznhqohvkdcpz
+supabase link --project-ref clnlvmnfhzyumykbzrjz
 supabase db push
 ```
 

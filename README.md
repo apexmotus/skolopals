@@ -24,7 +24,7 @@ Open http://localhost:3000.
 | | |
 | --- | --- |
 | **Local database** | `postgresql://$(whoami)@localhost:5432/skolopals_dev` |
-| **Supabase project** | `dhmjzshlznhqohvkdcpz` (eu-west-2) |
+| **Supabase project** | `clnlvmnfhzyumykbzrjz` (eu-west-2) |
 | **Regenerate types** | `cd db && make types` → writes `web/src/lib/database.types.ts` |
 
 ## Documentation
@@ -53,7 +53,8 @@ cd db && make migrate DATABASE_URL="postgresql://...@db.<ref>.supabase.co:5432/p
 | --- | --- | --- |
 | 0–2 | Database: schema, RLS, seeds, 159 tests | **Done** |
 | 3 | App: marketplace stripped, ZAR, CAPS, portal shells | **Done** |
-| 4 | Enrolment flow, admin queue, timetable builder, registers | Next |
-| 5 | Assessment, learning plans, termly reports | |
-| 6 | Billing run, payments, statements, messaging | |
-| 7–8 | Public content, deploy | |
+| 4 | Enrolment flow, admin queue, timetable builder, registers | **Done** |
+| 5 | Assessment, learning plans, termly reports | **Done** |
+| 6 | Billing run, payments, statements, messaging | **Done** |
+| 7 | Public content | **Done** |
+| 8 | Deploy — push schema to the live Supabase project, regenerate types, smoke test | Next |

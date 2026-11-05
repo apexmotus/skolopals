@@ -183,6 +183,12 @@ create unique index class_enrolment_active on public.class_enrolments (class_gro
 create index on public.class_enrolments (learner_id);
 
 -- Placement may not exceed the class capacity.
+--
+-- Locks the class_groups row for the duration of the check so two concurrent
+-- enrolments into the same near-full class serialise against each other:
+-- the second transaction's `for update` blocks until the first commits (or
+-- rolls back) and then re-counts against the up-to-date state, rather than
+-- both reading the same stale count under READ COMMITTED and both passing.
 create or replace function private.check_class_capacity()
 returns trigger
 language plpgsql security definer set search_path = ''
@@ -194,7 +200,8 @@ begin
   if new.left_on is not null then return new; end if;
 
   select capacity into v_capacity
-  from public.class_groups where id = new.class_group_id;
+  from public.class_groups where id = new.class_group_id
+  for update;
 
   select count(*) into v_taken
   from public.class_enrolments

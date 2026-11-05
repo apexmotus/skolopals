@@ -126,7 +126,7 @@ make migrate DATABASE_URL="postgresql://...@db.<ref>.supabase.co:5432/postgres"
 
 `local/` is not applied. Run `make verify` against the target afterwards.
 
-Current project: `dhmjzshlznhqohvkdcpz` (eu-west-2). Note that this puts learner data outside South Africa — see `../docs/POPIA-policy.md` §B3.
+Current project: `clnlvmnfhzyumykbzrjz` (eu-west-2). Note that this puts learner data outside South Africa — see `../docs/POPIA-policy.md` §B3.
 
 ---
 

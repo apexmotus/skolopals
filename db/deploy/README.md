@@ -1,6 +1,6 @@
 # Deploying to Supabase
 
-Project: `dhmjzshlznhqohvkdcpz` (eu-west-2)
+Project: `clnlvmnfhzyumykbzrjz` (eu-west-2)
 
 The first deploy replaces the old marketplace schema. Every later deploy is
 additive — migrations are append-only once anything is live.
@@ -30,7 +30,7 @@ Expected result: `tables_left = 0`, `auth_users_preserved = 6`.
 Either via the Supabase CLI:
 
 ```bash
-cd db && supabase link --project-ref dhmjzshlznhqohvkdcpz && supabase db push
+cd db && supabase link --project-ref clnlvmnfhzyumykbzrjz && supabase db push
 ```
 
 …or by running each file in `db/migrations/` in filename order in the SQL

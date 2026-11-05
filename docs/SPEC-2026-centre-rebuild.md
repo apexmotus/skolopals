@@ -1,7 +1,7 @@
 # Skolopals — 2026 Rebuild Specification
 
 **Status:** Draft for approval · **Date:** 2026-10-20
-**Sources:** `Skolopals_Tutoring_Centre_Detailed_Business_Plan_2026_2030.docx`, the delivered app in `web/`, Supabase project `dhmjzshlznhqohvkdcpz`
+**Sources:** `Skolopals_Tutoring_Centre_Detailed_Business_Plan_2026_2030.docx`, the delivered app in `web/`, Supabase project `clnlvmnfhzyumykbzrjz`
 
 ---
 
@@ -302,7 +302,7 @@ Same migration files, real Auth and Storage. The README documents this as the pr
 
 ### Deploying to Supabase
 
-`supabase db push` from `db/`, or `apply_migration` via MCP against `dhmjzshlznhqohvkdcpz`. Because only seed data exists remotely, the first deploy drops and rebuilds the public schema.
+`supabase db push` from `db/`, or `apply_migration` via MCP against `clnlvmnfhzyumykbzrjz`. Because only seed data exists remotely, the first deploy drops and rebuilds the public schema.
 
 ---
 

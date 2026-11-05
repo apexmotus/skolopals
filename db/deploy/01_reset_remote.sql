@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Skolopals — remove the old marketplace schema before the first deploy
 --
--- RUN THIS ONCE, in the Supabase SQL Editor for project dhmjzshlznhqohvkdcpz.
+-- RUN THIS ONCE, in the Supabase SQL Editor for project clnlvmnfhzyumykbzrjz.
 --
 -- WHAT IT DELETES
 --   The 12 tables, 4 enum types and 8 functions of the old marketplace

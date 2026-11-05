@@ -214,7 +214,7 @@ Each operator must be under a **written contract** obliging them to process only
 
 ### B3. Cross-border transfer assessment (s72)
 
-**Finding.** The Supabase project `dhmjzshlznhqohvkdcpz` is in **eu-west-2 (London)**. All learner data — including children's health information — is stored outside South Africa.
+**Finding.** The Supabase project `clnlvmnfhzyumykbzrjz` is in **eu-west-2 (London)** — ⚠️ **[TO CONFIRM: re-verify region for this project]** — see note below. All learner data — including children's health information — is stored outside South Africa (if the region holds).
 
 **This is lawful but must be documented.** Section 72 permits the transfer on three independent grounds, and we rely on all three:
 
