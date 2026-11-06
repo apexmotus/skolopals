@@ -19,7 +19,8 @@
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:e2e": "vitest run --config ./vitest.config.e2e.mts",
-    "verify:rls": "tsx scripts/rls-spike.ts"
+    "verify:rls": "tsx scripts/rls-spike.ts",
+    "verify:people-rls": "tsx scripts/people-rls-spike.ts"
   },
   "dependencies": {
     "@fastify/compress": "^9.3.0",

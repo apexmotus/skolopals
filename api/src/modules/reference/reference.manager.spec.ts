@@ -22,16 +22,14 @@ function makeCache(initial: Record<string, unknown> = {}) {
 describe('ReferenceManager', () => {
   it('listGrades caches on a miss and returns mapped DTOs', async () => {
     const cache = makeCache();
-    const listGrades = vi
-      .fn()
-      .mockResolvedValue([
-        {
-          code: 'grade_7',
-          name: 'Grade 7',
-          phase_code: 'senior',
-          sort_order: 7,
-        },
-      ]);
+    const listGrades = vi.fn().mockResolvedValue([
+      {
+        code: 'grade_7',
+        name: 'Grade 7',
+        phase_code: 'senior',
+        sort_order: 7,
+      },
+    ]);
     const repo = { listGrades } as unknown as ReferenceRepository;
     const manager = new ReferenceManager(
       repo,
@@ -93,15 +91,13 @@ describe('ReferenceManager', () => {
 
   it('createTerm invalidates the terms cache after writing', async () => {
     const cache = makeCache({ [referenceCacheKeys.terms]: [{ stale: true }] });
-    const createTerm = vi
-      .fn()
-      .mockResolvedValue({
-        id: 't1',
-        year: 2027,
-        term_number: 1,
-        starts_on: '2027-01-13',
-        ends_on: '2027-03-19',
-      });
+    const createTerm = vi.fn().mockResolvedValue({
+      id: 't1',
+      year: 2027,
+      term_number: 1,
+      starts_on: '2027-01-13',
+      ends_on: '2027-03-19',
+    });
     const repo = { createTerm } as unknown as ReferenceRepository;
     const manager = new ReferenceManager(
       repo,
@@ -127,14 +123,12 @@ describe('ReferenceManager', () => {
 
   it('createRoom invalidates the rooms cache after writing', async () => {
     const cache = makeCache({ [referenceCacheKeys.rooms]: [{ stale: true }] });
-    const createRoom = vi
-      .fn()
-      .mockResolvedValue({
-        id: 'r1',
-        name: 'Room A',
-        capacity: 5,
-        is_active: true,
-      });
+    const createRoom = vi.fn().mockResolvedValue({
+      id: 'r1',
+      name: 'Room A',
+      capacity: 5,
+      is_active: true,
+    });
     const repo = { createRoom } as unknown as ReferenceRepository;
     const manager = new ReferenceManager(
       repo,

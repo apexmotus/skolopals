@@ -6,6 +6,7 @@ import { AppConfigModule } from './config/config.module';
 import { CommonModule } from './common/common.module';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
+import { PeopleModule } from './modules/people/people.module';
 import { ReferenceModule } from './modules/reference/reference.module';
 
 @Module({
@@ -37,6 +38,7 @@ import { ReferenceModule } from './modules/reference/reference.module';
     CommonModule,
     HealthModule,
     ReferenceModule,
+    PeopleModule,
   ],
 })
 export class AppModule {}
