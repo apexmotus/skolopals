@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import type { FastifyRequest } from 'fastify';
 import { ClsService } from 'nestjs-cls';
 import type { EnvConfig } from '../../config/env.schema';
+import { UserRolesRepository } from '../../modules/auth/user-roles.repository';
 import type { AppClsStore } from '../types/app-cls-store';
 import type { AuthUser } from '../types/auth-user';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
@@ -22,15 +23,12 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
  * against the Supabase dashboard's JWT settings before relying on this in
  * an environment that might have switched to asymmetric/JWKS signing.
  *
- * **Phase 2 follow-up, deliberately not done here**: `roles` is left `[]`.
- * There is no Postgres auth hook injecting roles into the token (confirmed
- * by grepping `db/migrations/` for one), so a real role list requires a
- * lookup against `public.user_roles` — which needs an actual repository
- * call once an `auth`/`people` module exists, not inline SQL from a guard
- * (hard rule: no inline SQL outside the health check). `RolesGuard` will
- * reject every `@Roles(...)`-gated route until that lookup is wired in
- * Phase 2; Phase 1 has no such routes yet, so this doesn't block anything
- * today.
+ * Roles come from a `public.user_roles` lookup (`UserRolesRepository`) —
+ * confirmed there is no Postgres auth hook injecting them into the token
+ * (grepped `db/migrations/` for one; see 06-phase2-auth.md item 1). The CLS
+ * actor is set *before* that lookup runs, because the lookup itself goes
+ * through `StoredProcRunner`/RLS and needs `auth.uid()` to already resolve
+ * to this actor's `sub`.
  */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -41,6 +39,7 @@ export class JwtAuthGuard implements CanActivate {
     private readonly jwtService: JwtService,
     private readonly config: ConfigService<EnvConfig, true>,
     private readonly cls: ClsService<AppClsStore>,
+    private readonly userRoles: UserRolesRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -59,6 +58,19 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
+    const user = await this.verify(token);
+    if (!user) {
+      if (isPublic) return true; // best-effort: proceed anonymously rather than block a public route
+      throw new UnauthorizedException();
+    }
+
+    request.user = user;
+    this.cls.set('actor', user);
+    user.roles = await this.userRoles.listForUser(user.id);
+    return true;
+  }
+
+  private async verify(token: string): Promise<AuthUser | undefined> {
     try {
       const claims = await this.jwtService.verifyAsync<Record<string, unknown>>(
         token,
@@ -71,17 +83,12 @@ export class JwtAuthGuard implements CanActivate {
       );
       const sub = claims.sub;
       if (typeof sub !== 'string') throw new Error('Token has no sub claim');
-
-      const user: AuthUser = { id: sub, roles: [], claims };
-      request.user = user;
-      this.cls.set('actor', user);
-      return true;
+      return { id: sub, roles: [], claims };
     } catch (err) {
-      if (isPublic) return true; // best-effort: proceed anonymously rather than block a public route
       this.logger.debug(
         `Rejected token: ${err instanceof Error ? err.message : String(err)}`,
       );
-      throw new UnauthorizedException();
+      return undefined;
     }
   }
 

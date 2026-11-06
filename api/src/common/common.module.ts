@@ -5,6 +5,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ClsModule } from 'nestjs-cls';
 import { ConfigService } from '@nestjs/config';
 import type { EnvConfig } from '../config/env.schema';
+import { AuthModule } from '../modules/auth/auth.module';
 import { AllExceptionsFilter } from './filters/all-exceptions.filter';
 import { FileStorageModule } from './file-storage/file-storage.module';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -32,6 +33,7 @@ import { RedisModule } from './redis/redis.module';
     }),
     RedisModule,
     FileStorageModule,
+    AuthModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

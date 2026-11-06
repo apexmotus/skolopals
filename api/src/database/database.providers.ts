@@ -1,8 +1,22 @@
 import { Logger, type Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Pool } from 'pg';
+import { Pool, types } from 'pg';
 import type { EnvConfig } from '../config/env.schema';
 import { PG_POOL } from './database.constants';
+
+/**
+ * Postgres `date` (OID 1082) has no time-of-day or timezone component, but
+ * `pg`'s default parser still converts it to a JS `Date` at **local**
+ * midnight — so `.toISOString()` on it silently shifts by a day for any
+ * non-UTC-0 host timezone (confirmed against this app's own `/reference/terms`
+ * endpoint while sanity-checking Phase 3a: Africa/Johannesburg is UTC+2, so
+ * `2027-01-13` round-tripped as `2027-01-12`). Disabling the parser for this
+ * one OID makes `date` columns come back as the raw `'YYYY-MM-DD'` string
+ * Postgres sent, which is the only representation a pure calendar date can
+ * have without inventing a timezone for it. `timestamptz` is unaffected —
+ * it's a real instant and `pg` parses it to a correct UTC-aware `Date`.
+ */
+types.setTypeParser(types.builtins.DATE, (value: string) => value);
 
 /**
  * Direct Postgres connection to the existing Supabase project (port 5432,

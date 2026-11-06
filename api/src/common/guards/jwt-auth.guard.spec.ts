@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import type { ClsService } from 'nestjs-cls';
 import type { Mock } from 'vitest';
 import type { EnvConfig } from '../../config/env.schema';
+import type { UserRolesRepository } from '../../modules/auth/user-roles.repository';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 const SECRET = 'a'.repeat(32);
@@ -29,9 +30,11 @@ describe('JwtAuthGuard', () => {
     true
   >;
   let cls: { set: Mock };
+  let userRoles: { listForUser: Mock };
 
   beforeEach(() => {
     cls = { set: vi.fn() };
+    userRoles = { listForUser: vi.fn().mockResolvedValue(['parent']) };
   });
 
   function makeGuard(reflector: Reflector): JwtAuthGuard {
@@ -40,6 +43,7 @@ describe('JwtAuthGuard', () => {
       jwtService,
       config,
       cls as unknown as ClsService<never>,
+      userRoles as unknown as UserRolesRepository,
     );
   }
 
@@ -55,11 +59,32 @@ describe('JwtAuthGuard', () => {
     const guard = makeGuard(reflector);
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
-    expect(request.user).toMatchObject({ id: 'user-1', roles: [] });
+    expect(request.user).toMatchObject({ id: 'user-1', roles: ['parent'] });
     expect(cls.set).toHaveBeenCalledWith(
       'actor',
       expect.objectContaining({ id: 'user-1' }),
     );
+    expect(userRoles.listForUser).toHaveBeenCalledWith('user-1');
+  });
+
+  it('sets the CLS actor before looking up roles, so the lookup runs under the right RLS identity', async () => {
+    const token = jwtService.sign(
+      { sub: 'user-1' },
+      { secret: SECRET, algorithm: 'HS256' },
+    );
+    const { context, reflector } = makeContext(
+      { authorization: `Bearer ${token}` },
+      false,
+    );
+    const guard = makeGuard(reflector);
+
+    await guard.canActivate(context);
+
+    const setOrder = cls.set.mock.invocationCallOrder[0] ?? Number.NaN;
+    const lookupOrder =
+      userRoles.listForUser.mock.invocationCallOrder[0] ?? Number.NaN;
+    expect(Number.isNaN(setOrder) || Number.isNaN(lookupOrder)).toBe(false);
+    expect(setOrder).toBeLessThan(lookupOrder);
   });
 
   it('rejects an expired token on a protected route', async () => {

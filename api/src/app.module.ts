@@ -6,6 +6,7 @@ import { AppConfigModule } from './config/config.module';
 import { CommonModule } from './common/common.module';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
+import { ReferenceModule } from './modules/reference/reference.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { HealthModule } from './modules/health/health.module';
     DatabaseModule,
     CommonModule,
     HealthModule,
+    ReferenceModule,
   ],
 })
 export class AppModule {}
