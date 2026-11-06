@@ -1,2 +1,3 @@
 # Repo-level only. The app and the database each have their own .gitignore.
 .DS_Store
+/api/node_modules

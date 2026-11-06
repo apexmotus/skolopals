@@ -1,0 +1,26 @@
+# Development compose. Only `api` and `redis` — there is no local Postgres
+# container: the database is the existing Supabase project (or a Supabase
+# branch), reached directly via DATABASE_URL in .env. See
+# docs/nestjs-api-plan/05-phase1-scaffold-infrastructure.md task 7.
+services:
+  api:
+    build:
+      context: .
+      target: runtime
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:8-alpine
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5

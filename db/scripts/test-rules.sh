@@ -159,6 +159,20 @@ select pg_temp.rejects($$
 $$, 'a 3rd learner into a capacity-2 class');
 
 \echo ''
+\echo '=== Programme capacity ==='
+insert into public.programmes (id, name, programme_type, starts_on, ends_on, capacity, price_cents, delivery_mode, room_id) values
+  ('eeee5555-0000-0000-0000-00000000001e','Holiday Catch-Up','holiday','2026-12-07','2026-12-11',2,45000,'in_centre',
+   '77777777-0000-0000-0000-000000000010');
+insert into public.programme_enrolments (programme_id, learner_id) values
+  ('eeee5555-0000-0000-0000-00000000001e','11111111-0000-0000-0000-00000000000a'),
+  ('eeee5555-0000-0000-0000-00000000001e','22222222-0000-0000-0000-00000000000b');
+do $$ begin perform dev.assert(true, 'accepted: 2 learners booked into a capacity-2 programme'); end $$;
+select pg_temp.rejects($$
+  insert into public.programme_enrolments (programme_id, learner_id) values
+    ('eeee5555-0000-0000-0000-00000000001e','33333333-0000-0000-0000-00000000000c');
+$$, 'a 3rd learner booked into a capacity-2 programme');
+
+\echo ''
 \echo '=== Safeguarding: controlled collection (BP section 22) ==='
 insert into public.class_sessions (id, class_group_id, session_date, starts_at, ends_at) values
   ('99999999-0000-0000-0000-000000000012','88888888-0000-0000-0000-000000000011',
