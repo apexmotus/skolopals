@@ -3,6 +3,7 @@ import { StoredProcRunner } from '../../database/stored-proc.runner';
 import type { AchievementLevelRow } from './rows/achievement-level.row';
 import type { AssessmentDomainRow } from './rows/assessment-domain.row';
 import type { AssessmentTypeRow } from './rows/assessment-type.row';
+import type { ConsentTypeRow } from './rows/consent-type.row';
 import type { GradeRow } from './rows/grade.row';
 import type { LanguageRow } from './rows/language.row';
 import type { OperatingHourRow } from './rows/operating-hour.row';
@@ -74,6 +75,12 @@ export class ReferenceRepository {
   listAssessmentDomains(): Promise<AssessmentDomainRow[]> {
     return this.sp.selectMany<AssessmentDomainRow>(
       'select code, name, description, sort_order from public.assessment_domains order by sort_order',
+    );
+  }
+
+  listConsentTypes(): Promise<ConsentTypeRow[]> {
+    return this.sp.selectMany<ConsentTypeRow>(
+      'select code, name, description, statute_ref, is_required, sort_order from public.consent_types order by sort_order',
     );
   }
 

@@ -21,7 +21,9 @@
     "test:e2e": "vitest run --config ./vitest.config.e2e.mts",
     "verify:rls": "tsx scripts/rls-spike.ts",
     "verify:people-rls": "tsx scripts/people-rls-spike.ts",
-    "verify:billing": "tsx scripts/billing-smoke.ts"
+    "verify:billing": "tsx scripts/billing-smoke.ts",
+    "verify:phase3e": "tsx scripts/phase3e-smoke.ts",
+    "verify:finance": "tsx scripts/finance-smoke.ts"
   },
   "dependencies": {
     "@fastify/compress": "^9.3.0",

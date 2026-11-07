@@ -145,4 +145,64 @@ describe('TutorsRepository', () => {
     expect(sql).toContain('slug ilike $1');
     expect(values).toEqual(['%Maya%', 20, 0]);
   });
+
+  it('getRating reads tutor_rating_summary scoped to the tutor', async () => {
+    const selectOne = vi.fn().mockResolvedValue(undefined);
+    const repo = new TutorsRepository(makeSp({ selectOne }));
+
+    await repo.getRating('t1');
+
+    const [sql, values] = selectOne.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('from public.tutor_rating_summary where tutor_id = $1');
+    expect(values).toEqual(['t1']);
+  });
+
+  it('addQualification defaults institution to empty and passes a null yearAwarded through when omitted', async () => {
+    const executeRaw = vi.fn().mockResolvedValue({
+      rows: [{ id: 'q1', tutor_id: 't1', qualification_type: 'degree', title: 'BEd', institution: '', year_awarded: null, verified_at: null, verified_by: null }],
+      rowCount: 1,
+    });
+    const repo = new TutorsRepository(makeSp({ executeRaw }));
+
+    await repo.addQualification('t1', { qualificationType: 'degree', title: 'BEd' });
+
+    const [sql, values] = executeRaw.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain("coalesce($4, '')");
+    expect(values).toEqual(['t1', 'degree', 'BEd', null, null]);
+  });
+
+  it('addQualification throws if the insert unexpectedly returns no row', async () => {
+    const executeRaw = vi.fn().mockResolvedValue({ rows: [], rowCount: 0 });
+    const repo = new TutorsRepository(makeSp({ executeRaw }));
+
+    await expect(repo.addQualification('t1', { qualificationType: 'degree', title: 'BEd' })).rejects.toThrow(
+      'INSERT ... RETURNING unexpectedly returned no row',
+    );
+  });
+
+  it('createDocumentRecord inserts the tutor/docType/storagePath triple', async () => {
+    const executeRaw = vi.fn().mockResolvedValue({
+      rows: [{ id: 'd1', tutor_id: 't1', doc_type: 'id_document', storage_path: 't1/id_document/x.pdf', uploaded_at: new Date(), verified_at: null, verified_by: null }],
+      rowCount: 1,
+    });
+    const repo = new TutorsRepository(makeSp({ executeRaw }));
+
+    await repo.createDocumentRecord('t1', 'id_document', 't1/id_document/x.pdf');
+
+    const [sql, values] = executeRaw.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('insert into public.tutor_documents');
+    expect(values).toEqual(['t1', 'id_document', 't1/id_document/x.pdf']);
+  });
+
+  it('recordReferenceOutcome scopes the update to both the tutor and the reference', async () => {
+    const executeRaw = vi.fn().mockResolvedValue({ rows: [], rowCount: 0 });
+    const repo = new TutorsRepository(makeSp({ executeRaw }));
+
+    const row = await repo.recordReferenceOutcome('t1', 'ref-1', 'positive', 'admin-1');
+
+    const [sql, values] = executeRaw.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('where tutor_id = $1 and id = $2');
+    expect(values).toEqual(['t1', 'ref-1', 'positive', 'admin-1']);
+    expect(row).toBeUndefined();
+  });
 });

@@ -18,6 +18,15 @@ import { Pool, type PoolClient } from 'pg';
 import type { AppClsStore } from '../src/common/types/app-cls-store';
 import { BusinessRuleException } from '../src/common/exceptions/business-rule.exception';
 import type { AuthUser } from '../src/common/types/auth-user';
+// Side-effecting import: registers the global `date` (OID 1082) type parser
+// that makes `date` columns (issuedOn/dueOn/paidOn below) arrive as raw
+// 'YYYY-MM-DD' strings instead of a local-midnight `Date` — see that file's
+// own doc comment. The real app gets this for free through `DatabaseModule`'s
+// bootstrap; a standalone script must trigger it explicitly. This script's
+// own assertions never happened to do strict value comparisons on a bare
+// `date` field, so the gap was silent here — found only while writing
+// `finance-smoke.ts`, which did.
+import '../src/database/database.providers';
 import { applyRlsContext } from '../src/database/rls-context';
 import { StoredProcRunner } from '../src/database/stored-proc.runner';
 import { TransactionContext } from '../src/database/transaction.context';

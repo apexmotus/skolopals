@@ -59,6 +59,35 @@ only their own row. This is the load-bearing proof for the whole "direct Postgre
 instead of PostgREST" pivot (see `../docs/nestjs-api-plan/04-phase0-schema-port-and-cutover-strategy.md`).
 Everything the script inserts lives inside one rolled-back transaction; it never touches real data.
 
+### Module-specific live smoke scripts
+
+Same one-rolled-back-transaction discipline as the RLS spike above, but driving a real
+`Manager`/`Repository` pair (not reimplemented SQL) for the modules where a mocked unit test
+can't catch a real schema mismatch or a genuine RLS gap — and has caught several real bugs this
+way (see `scripts/*.ts`'s own doc comments and `02-sp-catalogue.md`/the project's own memory for
+specifics): `pnpm run verify:billing`, `pnpm run verify:phase3e` (consent/enquiries/communication/
+resources/reviews), `pnpm run verify:finance`. Each needs `DATABASE_URL` set the same way as above.
+
+## Creating the first admin account
+
+There is no admin-grant API endpoint by design (`../docs/nestjs-api-plan/06-phase2-auth.md`
+"First admin account") — an admin account is never self-service. After the person has a normal
+Supabase Auth account (so `auth.users`/`public.profiles` already have their row), grant the role
+directly:
+
+```sql
+insert into public.user_roles (user_id, role) values ('<their auth.users.id>', 'admin');
+```
+
+Run it against the target Supabase project's SQL console, or via `psql "$DATABASE_URL"` locally.
+No seed script or bootstrap endpoint exists for this, and none is planned — it's a rare,
+one-person, one-time action, not a workflow worth automating.
+
+## Load test
+
+`test/load/smoke.js` ([k6](https://k6.io), a standalone binary — not run by `pnpm test`). See
+`docs/load-test.md` for the environment variables it needs and what it actually exercises.
+
 ## Docker
 
 ```bash
@@ -100,7 +129,9 @@ Module → tests → register in `AppModule`.
 
 ### Error handling
 
-Every Postgres error is mapped by `src/database/sql-error.mapper.ts`:
+Full contract (every real Postgres function this API calls, its parameters/return shape, plus
+this table) lives in `docs/sp-contract.md`. Quick reference — every Postgres error is mapped by
+`src/database/sql-error.mapper.ts`:
 
 | SQLSTATE | Meaning (this project's convention) | HTTP | Code |
 |---|---|---|---|

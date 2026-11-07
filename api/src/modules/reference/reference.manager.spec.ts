@@ -139,4 +139,173 @@ describe('ReferenceManager', () => {
 
     expect(cache.store.has(referenceCacheKeys.rooms)).toBe(false);
   });
+
+  it('listPhases caches on a miss and maps the row', async () => {
+    const cache = makeCache();
+    const listPhases = vi.fn().mockResolvedValue([{ code: 'foundation', name: 'Foundation', sort_order: 1 }]);
+    const repo = { listPhases } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listPhases();
+
+    expect(dtos).toEqual([{ code: 'foundation', name: 'Foundation', sortOrder: 1 }]);
+    expect(cache.store.has(referenceCacheKeys.phases)).toBe(true);
+  });
+
+  it('listSubjects caches on a miss and maps the row', async () => {
+    const cache = makeCache();
+    const listSubjects = vi
+      .fn()
+      .mockResolvedValue([{ code: 'maths', name: 'Mathematics', description: '', is_language: false, sort_order: 1 }]);
+    const repo = { listSubjects } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listSubjects();
+
+    expect(dtos).toEqual([
+      { code: 'maths', name: 'Mathematics', description: '', isLanguage: false, sortOrder: 1 },
+    ]);
+    expect(cache.store.has(referenceCacheKeys.subjects)).toBe(true);
+  });
+
+  it('listLanguages caches on a miss and maps the row', async () => {
+    const cache = makeCache();
+    const listLanguages = vi.fn().mockResolvedValue([{ code: 'english', name: 'English', sort_order: 1 }]);
+    const repo = { listLanguages } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listLanguages();
+
+    expect(dtos).toEqual([{ code: 'english', name: 'English', sortOrder: 1 }]);
+    expect(cache.store.has(referenceCacheKeys.languages)).toBe(true);
+  });
+
+  it('listAchievementLevels caches on a miss and maps the row', async () => {
+    const cache = makeCache();
+    const listAchievementLevels = vi
+      .fn()
+      .mockResolvedValue([{ code: 7, label: 'Outstanding', description: '', min_percent: 80, max_percent: 100 }]);
+    const repo = { listAchievementLevels } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listAchievementLevels();
+
+    expect(dtos).toEqual([
+      { code: 7, label: 'Outstanding', description: '', minPercent: 80, maxPercent: 100 },
+    ]);
+    expect(cache.store.has(referenceCacheKeys.achievementLevels)).toBe(true);
+  });
+
+  it('listAssessmentTypes caches on a miss and maps the row', async () => {
+    const cache = makeCache();
+    const listAssessmentTypes = vi
+      .fn()
+      .mockResolvedValue([{ code: 'initial', name: 'Initial', description: '', sort_order: 1 }]);
+    const repo = { listAssessmentTypes } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listAssessmentTypes();
+
+    expect(dtos).toEqual([{ code: 'initial', name: 'Initial', description: '', sortOrder: 1 }]);
+    expect(cache.store.has(referenceCacheKeys.assessmentTypes)).toBe(true);
+  });
+
+  it('listAssessmentDomains caches on a miss and maps the row', async () => {
+    const cache = makeCache();
+    const listAssessmentDomains = vi
+      .fn()
+      .mockResolvedValue([{ code: 'reading', name: 'Reading', description: '', sort_order: 1 }]);
+    const repo = { listAssessmentDomains } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listAssessmentDomains();
+
+    expect(dtos).toEqual([{ code: 'reading', name: 'Reading', description: '', sortOrder: 1 }]);
+    expect(cache.store.has(referenceCacheKeys.assessmentDomains)).toBe(true);
+  });
+
+  it('listConsentTypes caches on a miss and maps the row, including isRequired', async () => {
+    const cache = makeCache();
+    const listConsentTypes = vi.fn().mockResolvedValue([
+      {
+        code: 'enrolment_s35',
+        name: 'Enrolment consent',
+        description: '',
+        statute_ref: 's35',
+        is_required: true,
+        sort_order: 1,
+      },
+    ]);
+    const repo = { listConsentTypes } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listConsentTypes();
+
+    expect(dtos).toEqual([
+      {
+        code: 'enrolment_s35',
+        name: 'Enrolment consent',
+        description: '',
+        statuteRef: 's35',
+        isRequired: true,
+        sortOrder: 1,
+      },
+    ]);
+    expect(cache.store.has(referenceCacheKeys.consentTypes)).toBe(true);
+  });
+
+  it('listTerms caches on a miss and maps the row', async () => {
+    const cache = makeCache();
+    const listTerms = vi
+      .fn()
+      .mockResolvedValue([{ id: 't1', year: 2027, term_number: 1, starts_on: '2027-01-13', ends_on: '2027-03-19' }]);
+    const repo = { listTerms } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listTerms();
+
+    expect(dtos).toEqual([
+      { id: 't1', year: 2027, termNumber: 1, startsOn: '2027-01-13', endsOn: '2027-03-19' },
+    ]);
+    expect(cache.store.has(referenceCacheKeys.terms)).toBe(true);
+  });
+
+  it('listOperatingHours caches on a miss and maps the row', async () => {
+    const cache = makeCache();
+    const listOperatingHours = vi
+      .fn()
+      .mockResolvedValue([{ day_of_week: 1, opens_at: '13:00', closes_at: '17:00', purpose: 'lessons' }]);
+    const repo = { listOperatingHours } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listOperatingHours();
+
+    expect(dtos).toEqual([{ dayOfWeek: 1, opensAt: '13:00', closesAt: '17:00', purpose: 'lessons' }]);
+    expect(cache.store.has(referenceCacheKeys.operatingHours)).toBe(true);
+  });
+
+  it('listRooms caches on a miss and maps the row', async () => {
+    const cache = makeCache();
+    const listRooms = vi.fn().mockResolvedValue([{ id: 'r1', name: 'Room A', capacity: 5, is_active: true }]);
+    const repo = { listRooms } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listRooms();
+
+    expect(dtos).toEqual([{ id: 'r1', name: 'Room A', capacity: 5, isActive: true }]);
+    expect(cache.store.has(referenceCacheKeys.rooms)).toBe(true);
+  });
+
+  it('every list* method returns the cached value on a hit, without calling the repository (spot-check on a representative method)', async () => {
+    const cached = [{ code: 'maths', name: 'Mathematics', description: '', isLanguage: false, sortOrder: 1 }];
+    const cache = makeCache({ [referenceCacheKeys.subjects]: cached });
+    const listSubjects = vi.fn();
+    const repo = { listSubjects } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listSubjects();
+
+    expect(dtos).toBe(cached);
+    expect(listSubjects).not.toHaveBeenCalled();
+  });
 });

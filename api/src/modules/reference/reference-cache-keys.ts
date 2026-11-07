@@ -11,6 +11,7 @@ export const referenceCacheKeys = {
   achievementLevels: 'skolopals:reference:achievementLevels',
   assessmentTypes: 'skolopals:reference:assessmentTypes',
   assessmentDomains: 'skolopals:reference:assessmentDomains',
+  consentTypes: 'skolopals:reference:consentTypes',
   terms: 'skolopals:reference:terms',
   operatingHours: 'skolopals:reference:operatingHours',
   rooms: 'skolopals:reference:rooms',

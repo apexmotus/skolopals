@@ -347,3 +347,293 @@ describe('TutorsManager — references', () => {
     ).rejects.toBeInstanceOf(NotFoundException);
   });
 });
+
+describe('TutorsManager.listPublic', () => {
+  it('wraps the repository\'s paged result, mapping every row', async () => {
+    const listPublic = vi.fn().mockResolvedValue({ rows: [TUTOR_ROW], totalCount: 1 });
+    const repo = { listPublic } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    const result = await manager.listPublic({ page: 1, pageSize: 20, sortDir: 'asc' });
+
+    expect(listPublic).toHaveBeenCalledWith({ page: 1, pageSize: 20, search: undefined });
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0]?.slug).toBe('maya-thompson');
+    expect(result.totalCount).toBe(1);
+  });
+});
+
+describe('TutorsManager.getMyProfile', () => {
+  it('404s when the actor has no tutor profile', async () => {
+    const repo = { getByProfileId: vi.fn().mockResolvedValue(undefined) } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    await expect(
+      manager.getMyProfile({ id: 'profile-1', roles: ['tutor'], claims: {} }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('returns the mapped profile with its rating when found', async () => {
+    const repo = {
+      getByProfileId: vi.fn().mockResolvedValue(TUTOR_ROW),
+      getRating: vi.fn().mockResolvedValue({ tutor_id: 't1', review_count: '4', rating: '4.5' }),
+    } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    const dto = await manager.getMyProfile({ id: 'profile-1', roles: ['tutor'], claims: {} });
+
+    expect(dto.rating).toBe(4.5);
+    expect(dto.reviewCount).toBe(4);
+  });
+});
+
+describe('TutorsManager.listCompetencies', () => {
+  it('caches on a miss and maps every row', async () => {
+    const cache = makeCache();
+    const listCompetencies = vi.fn().mockResolvedValue([
+      { id: 'c1', tutor_id: 't1', subject_code: 'maths', grade_code: 'grade_8', media_language_codes: ['english'] },
+    ]);
+    const repo = { listCompetencies } as unknown as TutorsRepository;
+    const manager = new TutorsManager(repo, cache as unknown as CacheService, makeUow(), {} as FileStorageService);
+
+    const dtos = await manager.listCompetencies('t1');
+
+    expect(dtos).toEqual([
+      { id: 'c1', tutorId: 't1', subjectCode: 'maths', gradeCode: 'grade_8', mediaLanguageCodes: ['english'] },
+    ]);
+    expect(listCompetencies).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns the cached value on a hit, without calling the repository', async () => {
+    const cached = [{ id: 'c1', tutorId: 't1', subjectCode: 'maths', gradeCode: 'grade_8', mediaLanguageCodes: [] }];
+    const cache = makeCache();
+    cache.store.set('skolopals:tutors:competencies:t1', cached);
+    const listCompetencies = vi.fn();
+    const repo = { listCompetencies } as unknown as TutorsRepository;
+    const manager = new TutorsManager(repo, cache as unknown as CacheService, makeUow(), {} as FileStorageService);
+
+    const dtos = await manager.listCompetencies('t1');
+
+    expect(dtos).toBe(cached);
+    expect(listCompetencies).not.toHaveBeenCalled();
+  });
+});
+
+describe('TutorsManager.listSpokenLanguages', () => {
+  it('maps every row (uncached, always live)', async () => {
+    const listSpokenLanguages = vi.fn().mockResolvedValue([{ tutor_id: 't1', language_code: 'english' }]);
+    const repo = { listSpokenLanguages } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    const dtos = await manager.listSpokenLanguages('t1');
+
+    expect(dtos).toEqual([{ languageCode: 'english' }]);
+  });
+});
+
+describe('TutorsManager.listQualifications', () => {
+  it('caches on a miss and maps every row', async () => {
+    const cache = makeCache();
+    const listQualifications = vi.fn().mockResolvedValue([
+      {
+        id: 'q1',
+        tutor_id: 't1',
+        qualification_type: 'degree',
+        title: 'BEd',
+        institution: 'UCT',
+        year_awarded: 2015,
+        verified_at: null,
+      },
+    ]);
+    const repo = { listQualifications } as unknown as TutorsRepository;
+    const manager = new TutorsManager(repo, cache as unknown as CacheService, makeUow(), {} as FileStorageService);
+
+    const dtos = await manager.listQualifications('t1');
+
+    expect(dtos[0]).toEqual({
+      id: 'q1',
+      tutorId: 't1',
+      qualificationType: 'degree',
+      title: 'BEd',
+      institution: 'UCT',
+      yearAwarded: 2015,
+      verifiedAt: undefined,
+    });
+    expect(cache.store.has('skolopals:tutors:qualifications:t1')).toBe(true);
+  });
+});
+
+describe('TutorsManager.addQualification', () => {
+  it('invalidates the qualifications cache after writing', async () => {
+    const cache = makeCache();
+    cache.store.set('skolopals:tutors:qualifications:t1', [{ stale: true }]);
+    const addQualification = vi.fn().mockResolvedValue({
+      id: 'q1',
+      tutor_id: 't1',
+      qualification_type: 'degree',
+      title: 'BEd',
+      institution: 'UCT',
+      year_awarded: null,
+      verified_at: null,
+    });
+    const repo = { addQualification } as unknown as TutorsRepository;
+    const manager = new TutorsManager(repo, cache as unknown as CacheService, makeUow(), {} as FileStorageService);
+
+    await manager.addQualification('t1', { qualificationType: 'degree', title: 'BEd', institution: 'UCT' });
+
+    expect(cache.store.has('skolopals:tutors:qualifications:t1')).toBe(false);
+  });
+});
+
+describe('TutorsManager — references', () => {
+  it('listReferences maps every row', async () => {
+    const listReferences = vi.fn().mockResolvedValue([
+      {
+        id: 'r1',
+        tutor_id: 't1',
+        full_name: 'Jane Doe',
+        relationship: 'Former employer',
+        phone: '',
+        email: '',
+        checked_at: null,
+        outcome: null,
+      },
+    ]);
+    const repo = { listReferences } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    const dtos = await manager.listReferences('t1');
+
+    expect(dtos[0]?.fullName).toBe('Jane Doe');
+    expect(dtos[0]?.outcome).toBeUndefined();
+  });
+
+  it('addReference maps the newly-created row', async () => {
+    const addReference = vi.fn().mockResolvedValue({
+      id: 'r1',
+      tutor_id: 't1',
+      full_name: 'Jane Doe',
+      relationship: 'Former employer',
+      phone: '',
+      email: '',
+      checked_at: null,
+      outcome: null,
+    });
+    const repo = { addReference } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    const dto = await manager.addReference('t1', { fullName: 'Jane Doe', relationship: 'Former employer' });
+
+    expect(addReference).toHaveBeenCalledWith('t1', { fullName: 'Jane Doe', relationship: 'Former employer' });
+    expect(dto.id).toBe('r1');
+  });
+});
+
+describe('TutorsManager — pay rates', () => {
+  it('listPayRates maps every row', async () => {
+    const listPayRates = vi.fn().mockResolvedValue([
+      {
+        id: 'pr1',
+        tutor_id: 't1',
+        pay_basis: 'per_session',
+        amount_cents: 15000,
+        effective_from: '2026-01-01',
+        effective_to: null,
+      },
+    ]);
+    const repo = { listPayRates } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    const dtos = await manager.listPayRates('t1');
+
+    expect(dtos[0]).toEqual({
+      id: 'pr1',
+      tutorId: 't1',
+      payBasis: 'per_session',
+      amountCents: 15000,
+      effectiveFrom: '2026-01-01',
+      effectiveTo: undefined,
+    });
+  });
+
+  it('setPayRate re-reads the freshly-set rate for the response', async () => {
+    const setPayRate = vi.fn().mockResolvedValue('pr1');
+    const getPayRateById = vi.fn().mockResolvedValue({
+      id: 'pr1',
+      tutor_id: 't1',
+      pay_basis: 'per_session',
+      amount_cents: 15000,
+      effective_from: '2026-01-01',
+      effective_to: null,
+    });
+    const repo = { setPayRate, getPayRateById } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    const dto = await manager.setPayRate('t1', { payBasis: 'per_session', amountCents: 15000 });
+
+    expect(setPayRate).toHaveBeenCalledWith({
+      tutorId: 't1',
+      payBasis: 'per_session',
+      amountCents: 15000,
+      effectiveFrom: undefined,
+    });
+    expect(dto.id).toBe('pr1');
+  });
+
+  it('setPayRate throws if the freshly-set rate cannot be re-read', async () => {
+    const repo = {
+      setPayRate: vi.fn().mockResolvedValue('pr1'),
+      getPayRateById: vi.fn().mockResolvedValue(undefined),
+    } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    await expect(manager.setPayRate('t1', { payBasis: 'per_session', amountCents: 15000 })).rejects.toThrow(
+      'Freshly set pay rate could not be re-read',
+    );
+  });
+});

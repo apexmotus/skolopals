@@ -19,6 +19,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { AchievementLevelDto } from './dto/achievement-level.dto';
 import { AssessmentDomainDto } from './dto/assessment-domain.dto';
 import { AssessmentTypeDto } from './dto/assessment-type.dto';
+import { ConsentTypeDto } from './dto/consent-type.dto';
 import { GradeDto } from './dto/grade.dto';
 import { LanguageDto } from './dto/language.dto';
 import { OperatingHourDto } from './dto/operating-hour.dto';
@@ -102,6 +103,14 @@ export class ReferenceController {
   @ApiOkResponse({ type: AssessmentDomainDto, isArray: true })
   listAssessmentDomains(): Promise<AssessmentDomainDto[]> {
     return this.manager.listAssessmentDomains();
+  }
+
+  @Get('consent-types')
+  @Public()
+  @ApiOperation({ summary: 'List consent types the enrolment form renders' })
+  @ApiOkResponse({ type: ConsentTypeDto, isArray: true })
+  listConsentTypes(): Promise<ConsentTypeDto[]> {
+    return this.manager.listConsentTypes();
   }
 
   @Get('terms')
