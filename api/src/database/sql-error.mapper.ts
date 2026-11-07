@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   GatewayTimeoutException,
   InternalServerErrorException,
   Logger,
@@ -19,6 +20,12 @@ import { ERROR_CODES } from '../common/error-codes';
  * `raise exception` site:
  * - `check_violation` (23514): a trigger enforcing a business rule with a
  *   client-safe message (capacity, tutor competency, package subject count).
+ * - `insufficient_privilege` (42501): a literal, Repository-authored INSERT/UPDATE/DELETE
+ *   (`executeRaw`) denied by the target row's own RLS policy — e.g. a tutor
+ *   INSERTing into `attendance_records` for a session they don't teach.
+ *   Found live (2026-11-07, `attendance` module): previously fell through to
+ *   the `default` 500 branch, which is wrong — RLS denying the actor is a
+ *   403, not a server fault.
  * - `P0001` (plain `raise exception 'msg'`, no explicit errcode): used for
  *   everything from "not signed in" to "administrators only" to "only a
  *   pending enrolment can be activated" — three different HTTP statuses
@@ -65,6 +72,12 @@ export class SqlErrorMapper {
           return new BadRequestException({
             code: ERROR_CODES.VALIDATION_FAILED,
             message: 'Invalid input.',
+          });
+
+        case '42501': // insufficient_privilege — an RLS policy denied this row
+          return new ForbiddenException({
+            code: ERROR_CODES.FORBIDDEN,
+            message: 'You are not permitted to perform this action.',
           });
 
         case '40001': // serialization_failure

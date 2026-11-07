@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   GatewayTimeoutException,
   InternalServerErrorException,
   ServiceUnavailableException,
@@ -23,6 +24,7 @@ describe('SqlErrorMapper', () => {
     ['23P01', ConflictException],
     ['23502', BadRequestException],
     ['22P02', BadRequestException],
+    ['42501', ForbiddenException],
     ['40001', ServiceUnavailableException],
     ['40P01', ServiceUnavailableException],
   ])('maps SQLSTATE %s to %p', (code, expectedClass) => {
@@ -31,6 +33,20 @@ describe('SqlErrorMapper', () => {
       'public.some_fn',
     );
     expect(result).toBeInstanceOf(expectedClass);
+  });
+
+  it('maps 42501 (RLS denial on a plain INSERT/UPDATE/DELETE) to Forbidden, not a 500, without leaking the policy name', () => {
+    const result = SqlErrorMapper.map(
+      makeDatabaseError(
+        '42501',
+        'new row violates row-level security policy for table "attendance_records"',
+      ),
+      'public.some_fn',
+    );
+    expect(result).toBeInstanceOf(ForbiddenException);
+    expect(
+      JSON.stringify((result as HttpException).getResponse()),
+    ).not.toContain('attendance_records');
   });
 
   it('maps 23514 (check_violation) to a BusinessRuleException carrying the trigger message', () => {
