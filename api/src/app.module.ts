@@ -5,7 +5,9 @@ import type { EnvConfig } from './config/env.schema';
 import { AppConfigModule } from './config/config.module';
 import { CommonModule } from './common/common.module';
 import { DatabaseModule } from './database/database.module';
+import { EnrolmentModule } from './modules/enrolment/enrolment.module';
 import { HealthModule } from './modules/health/health.module';
+import { PackagesModule } from './modules/packages/packages.module';
 import { PeopleModule } from './modules/people/people.module';
 import { ReferenceModule } from './modules/reference/reference.module';
 import { TutorsModule } from './modules/tutors/tutors.module';
@@ -41,6 +43,8 @@ import { TutorsModule } from './modules/tutors/tutors.module';
     ReferenceModule,
     PeopleModule,
     TutorsModule,
+    PackagesModule,
+    EnrolmentModule,
   ],
 })
 export class AppModule {}
