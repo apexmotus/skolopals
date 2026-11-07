@@ -5,6 +5,7 @@ import type { EnvConfig } from './config/env.schema';
 import { AppConfigModule } from './config/config.module';
 import { AssessmentModule } from './modules/assessment/assessment.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
+import { BillingModule } from './modules/billing/billing.module';
 import { CommonModule } from './common/common.module';
 import { DatabaseModule } from './database/database.module';
 import { EnrolmentModule } from './modules/enrolment/enrolment.module';
@@ -55,6 +56,7 @@ import { TutorsModule } from './modules/tutors/tutors.module';
     ProgrammesModule,
     AssessmentModule,
     ProgressReportModule,
+    BillingModule,
   ],
 })
 export class AppModule {}
