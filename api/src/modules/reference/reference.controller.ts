@@ -17,6 +17,8 @@ import {
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { AchievementLevelDto } from './dto/achievement-level.dto';
+import { AssessmentDomainDto } from './dto/assessment-domain.dto';
+import { AssessmentTypeDto } from './dto/assessment-type.dto';
 import { GradeDto } from './dto/grade.dto';
 import { LanguageDto } from './dto/language.dto';
 import { OperatingHourDto } from './dto/operating-hour.dto';
@@ -84,6 +86,22 @@ export class ReferenceController {
   @ApiOkResponse({ type: AchievementLevelDto, isArray: true })
   listAchievementLevels(): Promise<AchievementLevelDto[]> {
     return this.manager.listAchievementLevels();
+  }
+
+  @Get('assessment-types')
+  @Public()
+  @ApiOperation({ summary: 'List assessment types (e.g. initial, termly, baseline)' })
+  @ApiOkResponse({ type: AssessmentTypeDto, isArray: true })
+  listAssessmentTypes(): Promise<AssessmentTypeDto[]> {
+    return this.manager.listAssessmentTypes();
+  }
+
+  @Get('assessment-domains')
+  @Public()
+  @ApiOperation({ summary: 'List the domains an assessment can score (e.g. reading, numeracy)' })
+  @ApiOkResponse({ type: AssessmentDomainDto, isArray: true })
+  listAssessmentDomains(): Promise<AssessmentDomainDto[]> {
+    return this.manager.listAssessmentDomains();
   }
 
   @Get('terms')

@@ -5,6 +5,8 @@ import {
   REFERENCE_CACHE_TTL_SECONDS,
 } from './reference-cache-keys';
 import type { AchievementLevelDto } from './dto/achievement-level.dto';
+import type { AssessmentDomainDto } from './dto/assessment-domain.dto';
+import type { AssessmentTypeDto } from './dto/assessment-type.dto';
 import type { GradeDto } from './dto/grade.dto';
 import type { LanguageDto } from './dto/language.dto';
 import type { OperatingHourDto } from './dto/operating-hour.dto';
@@ -106,6 +108,38 @@ export class ReferenceManager {
     );
     await this.cache.set(
       referenceCacheKeys.achievementLevels,
+      dtos,
+      REFERENCE_CACHE_TTL_SECONDS,
+    );
+    return dtos;
+  }
+
+  async listAssessmentTypes(): Promise<AssessmentTypeDto[]> {
+    const cached = await this.cache.get<AssessmentTypeDto[]>(
+      referenceCacheKeys.assessmentTypes,
+    );
+    if (cached) return cached;
+    const dtos = (await this.repo.listAssessmentTypes()).map((row) =>
+      ReferenceMapper.assessmentTypeToDto(row),
+    );
+    await this.cache.set(
+      referenceCacheKeys.assessmentTypes,
+      dtos,
+      REFERENCE_CACHE_TTL_SECONDS,
+    );
+    return dtos;
+  }
+
+  async listAssessmentDomains(): Promise<AssessmentDomainDto[]> {
+    const cached = await this.cache.get<AssessmentDomainDto[]>(
+      referenceCacheKeys.assessmentDomains,
+    );
+    if (cached) return cached;
+    const dtos = (await this.repo.listAssessmentDomains()).map((row) =>
+      ReferenceMapper.assessmentDomainToDto(row),
+    );
+    await this.cache.set(
+      referenceCacheKeys.assessmentDomains,
       dtos,
       REFERENCE_CACHE_TTL_SECONDS,
     );

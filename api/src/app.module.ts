@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import type { EnvConfig } from './config/env.schema';
 import { AppConfigModule } from './config/config.module';
+import { AssessmentModule } from './modules/assessment/assessment.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { CommonModule } from './common/common.module';
 import { DatabaseModule } from './database/database.module';
@@ -11,6 +12,7 @@ import { HealthModule } from './modules/health/health.module';
 import { PackagesModule } from './modules/packages/packages.module';
 import { PeopleModule } from './modules/people/people.module';
 import { ProgrammesModule } from './modules/programmes/programmes.module';
+import { ProgressReportModule } from './modules/progress-reports/progress-report.module';
 import { ReferenceModule } from './modules/reference/reference.module';
 import { TimetableModule } from './modules/timetable/timetable.module';
 import { TutorsModule } from './modules/tutors/tutors.module';
@@ -51,6 +53,8 @@ import { TutorsModule } from './modules/tutors/tutors.module';
     TimetableModule,
     AttendanceModule,
     ProgrammesModule,
+    AssessmentModule,
+    ProgressReportModule,
   ],
 })
 export class AppModule {}

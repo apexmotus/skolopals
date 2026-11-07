@@ -9,6 +9,8 @@ export const referenceCacheKeys = {
     `skolopals:reference:subjectOfferings:${gradeCode ?? 'all'}`,
   languages: 'skolopals:reference:languages',
   achievementLevels: 'skolopals:reference:achievementLevels',
+  assessmentTypes: 'skolopals:reference:assessmentTypes',
+  assessmentDomains: 'skolopals:reference:assessmentDomains',
   terms: 'skolopals:reference:terms',
   operatingHours: 'skolopals:reference:operatingHours',
   rooms: 'skolopals:reference:rooms',

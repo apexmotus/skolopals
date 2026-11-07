@@ -1,4 +1,6 @@
 import type { AchievementLevelDto } from './dto/achievement-level.dto';
+import type { AssessmentDomainDto } from './dto/assessment-domain.dto';
+import type { AssessmentTypeDto } from './dto/assessment-type.dto';
 import type { GradeDto } from './dto/grade.dto';
 import type { LanguageDto } from './dto/language.dto';
 import type { OperatingHourDto } from './dto/operating-hour.dto';
@@ -8,6 +10,8 @@ import type { SubjectOfferingDto } from './dto/subject-offering.dto';
 import type { SubjectDto } from './dto/subject.dto';
 import type { TermDto } from './dto/term.dto';
 import type { AchievementLevelRow } from './rows/achievement-level.row';
+import type { AssessmentDomainRow } from './rows/assessment-domain.row';
+import type { AssessmentTypeRow } from './rows/assessment-type.row';
 import type { GradeRow } from './rows/grade.row';
 import type { LanguageRow } from './rows/language.row';
 import type { OperatingHourRow } from './rows/operating-hour.row';
@@ -56,6 +60,24 @@ export class ReferenceMapper {
       description: row.description,
       minPercent: row.min_percent,
       maxPercent: row.max_percent,
+    };
+  }
+
+  static assessmentTypeToDto(row: AssessmentTypeRow): AssessmentTypeDto {
+    return {
+      code: row.code,
+      name: row.name,
+      description: row.description,
+      sortOrder: row.sort_order,
+    };
+  }
+
+  static assessmentDomainToDto(row: AssessmentDomainRow): AssessmentDomainDto {
+    return {
+      code: row.code,
+      name: row.name,
+      description: row.description,
+      sortOrder: row.sort_order,
     };
   }
 

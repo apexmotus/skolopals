@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { StoredProcRunner } from '../../database/stored-proc.runner';
 import type { AchievementLevelRow } from './rows/achievement-level.row';
+import type { AssessmentDomainRow } from './rows/assessment-domain.row';
+import type { AssessmentTypeRow } from './rows/assessment-type.row';
 import type { GradeRow } from './rows/grade.row';
 import type { LanguageRow } from './rows/language.row';
 import type { OperatingHourRow } from './rows/operating-hour.row';
@@ -60,6 +62,18 @@ export class ReferenceRepository {
   listAchievementLevels(): Promise<AchievementLevelRow[]> {
     return this.sp.selectMany<AchievementLevelRow>(
       'select code, label, description, min_percent, max_percent from public.achievement_levels order by code desc',
+    );
+  }
+
+  listAssessmentTypes(): Promise<AssessmentTypeRow[]> {
+    return this.sp.selectMany<AssessmentTypeRow>(
+      'select code, name, description, sort_order from public.assessment_types order by sort_order',
+    );
+  }
+
+  listAssessmentDomains(): Promise<AssessmentDomainRow[]> {
+    return this.sp.selectMany<AssessmentDomainRow>(
+      'select code, name, description, sort_order from public.assessment_domains order by sort_order',
     );
   }
 
