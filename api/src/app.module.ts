@@ -10,6 +10,7 @@ import { HealthModule } from './modules/health/health.module';
 import { PackagesModule } from './modules/packages/packages.module';
 import { PeopleModule } from './modules/people/people.module';
 import { ReferenceModule } from './modules/reference/reference.module';
+import { TimetableModule } from './modules/timetable/timetable.module';
 import { TutorsModule } from './modules/tutors/tutors.module';
 
 @Module({
@@ -45,6 +46,7 @@ import { TutorsModule } from './modules/tutors/tutors.module';
     TutorsModule,
     PackagesModule,
     EnrolmentModule,
+    TimetableModule,
   ],
 })
 export class AppModule {}
