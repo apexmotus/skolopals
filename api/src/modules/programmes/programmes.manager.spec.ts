@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
-import type { CacheService } from '../../common/cache/cache.service';
-import { ProgrammesManager } from './programmes.manager';
-import type { ProgrammesRepository } from './programmes.repository';
+import type { CacheService } from '../../common/cache/cache.service.js';
+import { ProgrammesManager } from './programmes.manager.js';
+import type { ProgrammesRepository } from './programmes.repository.js';
 
 function makeCache() {
   const store = new Map<string, unknown>();

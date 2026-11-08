@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { p } from '../../database/sp-param';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { BillingSettingsRow } from './rows/billing-settings.row';
-import type { PackagePriceRow } from './rows/package-price.row';
-import type { PackageRow } from './rows/package.row';
+import { p } from '../../database/sp-param.js';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { BillingSettingsRow } from './rows/billing-settings.row.js';
+import type { PackagePriceRow } from './rows/package-price.row.js';
+import type { PackageRow } from './rows/package.row.js';
 
 const PACKAGE_COLUMNS =
   'code, name, description, service_type, billing_period, subject_allowance, is_active, sort_order';

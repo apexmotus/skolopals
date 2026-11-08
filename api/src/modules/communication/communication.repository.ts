@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { p } from '../../database/sp-param';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { NotificationRow } from './rows/notification.row';
-import type { MessageRow, ThreadParticipantRow, ThreadRow } from './rows/thread.row';
+import { p } from '../../database/sp-param.js';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { NotificationRow } from './rows/notification.row.js';
+import type { MessageRow, ThreadParticipantRow, ThreadRow } from './rows/thread.row.js';
 
 const MESSAGE_COLUMNS = 'id, thread_id, sender_id, body, created_at';
 

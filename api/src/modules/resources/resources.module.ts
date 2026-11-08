@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ResourcesController } from './resources.controller';
-import { ResourcesManager } from './resources.manager';
-import { ResourcesRepository } from './resources.repository';
+import { ResourcesController } from './resources.controller.js';
+import { ResourcesManager } from './resources.manager.js';
+import { ResourcesRepository } from './resources.repository.js';
 
 @Module({
   controllers: [ResourcesController],

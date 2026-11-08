@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { FastifyRequest } from 'fastify';
-import { ROLES_KEY } from '../decorators/roles.decorator';
-import type { AuthUser } from '../types/auth-user';
+import { ROLES_KEY } from '../decorators/roles.decorator.js';
+import type { AuthUser } from '../types/auth-user.js';
 
 /** Registered after `JwtAuthGuard`. No `@Roles(...)` on the route = any authenticated (or public) user is allowed through. */
 @Injectable()

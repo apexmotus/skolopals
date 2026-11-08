@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CacheService } from '../../common/cache/cache.service';
-import type { AuthUser } from '../../common/types/auth-user';
+import { CacheService } from '../../common/cache/cache.service.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import type {
   MarkProgrammeAttendanceDto,
   ProgrammeAttendanceDto,
-} from './dto/programme-attendance.dto';
-import type { BookProgrammeDto, ProgrammeEnrolmentDto } from './dto/programme-enrolment.dto';
-import type { AddProgrammeSessionDto, ProgrammeSessionDto } from './dto/programme-session.dto';
-import type { CreateProgrammeDto, ProgrammeDto, UpdateProgrammeDto } from './dto/programme.dto';
-import { programmesCacheKeys, PROGRAMMES_CACHE_TTL_SECONDS } from './programmes-cache-keys';
-import { ProgrammesMapper } from './programmes.mapper';
-import { ProgrammesRepository } from './programmes.repository';
+} from './dto/programme-attendance.dto.js';
+import type { BookProgrammeDto, ProgrammeEnrolmentDto } from './dto/programme-enrolment.dto.js';
+import type { AddProgrammeSessionDto, ProgrammeSessionDto } from './dto/programme-session.dto.js';
+import type { CreateProgrammeDto, ProgrammeDto, UpdateProgrammeDto } from './dto/programme.dto.js';
+import { programmesCacheKeys, PROGRAMMES_CACHE_TTL_SECONDS } from './programmes-cache-keys.js';
+import { ProgrammesMapper } from './programmes.mapper.js';
+import { ProgrammesRepository } from './programmes.repository.js';
 
 @Injectable()
 export class ProgrammesManager {

@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { AuthUser } from '../../common/types/auth-user';
-import { ConsentMapper } from './consent.mapper';
-import { ConsentRepository } from './consent.repository';
-import type { ConsentDto } from './dto/consent.dto';
-import type { RecordRetentionActionDto, RetentionDueDto, RetentionLogDto } from './dto/retention.dto';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { ConsentMapper } from './consent.mapper.js';
+import { ConsentRepository } from './consent.repository.js';
+import type { ConsentDto } from './dto/consent.dto.js';
+import type { RecordRetentionActionDto, RetentionDueDto, RetentionLogDto } from './dto/retention.dto.js';
 
 /**
  * No caching anywhere — consent state gates enrolment activation and must

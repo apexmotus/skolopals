@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, ValidateNested } from 'class-validator';
-import { SubmitSubjectDto } from './submit-enrolment.dto';
+import { SubmitSubjectDto } from './submit-enrolment.dto.js';
 
 export class UpdateEnrolmentSubjectsDto {
   @ApiProperty({

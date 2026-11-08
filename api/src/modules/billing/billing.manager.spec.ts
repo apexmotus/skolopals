@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
-import type { UnitOfWork } from '../../database/unit-of-work';
-import { BillingManager } from './billing.manager';
-import type { BillingRepository } from './billing.repository';
+import type { UnitOfWork } from '../../database/unit-of-work.js';
+import { BillingManager } from './billing.manager.js';
+import type { BillingRepository } from './billing.repository.js';
 
 function makeUow(): UnitOfWork {
   return {

@@ -1,5 +1,5 @@
 import type { ValidationError } from 'class-validator';
-import type { FieldError } from '../exceptions/validation-failed.exception';
+import type { FieldError } from '../exceptions/validation-failed.exception.js';
 
 /** Flattens class-validator's `ValidationError[]` (which nests via `.children`) into one entry per field path, e.g. `guardian.email`. */
 export function formatValidationErrors(

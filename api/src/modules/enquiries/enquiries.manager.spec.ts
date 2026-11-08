@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
-import { EnquiriesManager } from './enquiries.manager';
-import type { EnquiriesRepository } from './enquiries.repository';
+import { EnquiriesManager } from './enquiries.manager.js';
+import type { EnquiriesRepository } from './enquiries.repository.js';
 
 const ENQUIRY_ROW = {
   id: 'e1',

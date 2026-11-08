@@ -1,8 +1,8 @@
 import type { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient } from '@supabase/supabase-js';
-import type { EnvConfig } from '../../config/env.schema';
-import { SUPABASE_STORAGE_CLIENT } from './file-storage.constants';
+import type { EnvConfig } from '../../config/env.schema.js';
+import { SUPABASE_STORAGE_CLIENT } from './file-storage.constants.js';
 
 /**
  * Service-role client, scoped to Storage only — per

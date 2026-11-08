@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
-import { CreateResourceDto, ResourceDto, UpdateResourceDto } from './dto/resource.dto';
-import { ResourcesManager } from './resources.manager';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { CreateResourceDto, ResourceDto, UpdateResourceDto } from './dto/resource.dto.js';
+import { ResourcesManager } from './resources.manager.js';
 
 @ApiTags('resources')
 @ApiBearerAuth()

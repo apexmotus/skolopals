@@ -1,16 +1,16 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import {
   CreateExpenseCategoryDto,
   ExpenseCategoryDto,
   ExpenseDto,
   ListExpensesQueryDto,
   RecordExpenseDto,
-} from './dto/expense.dto';
-import { KpiRangeQueryDto, TutorSessionLoadQueryDto } from './dto/kpi-range.dto';
+} from './dto/expense.dto.js';
+import { KpiRangeQueryDto, TutorSessionLoadQueryDto } from './dto/kpi-range.dto.js';
 import {
   AssessmentImprovementDto,
   AttendanceRateDto,
@@ -23,8 +23,8 @@ import {
   OperatingSurplusDto,
   RevenuePerLearnerDto,
   TutorSessionLoadDto,
-} from './dto/kpi.dto';
-import { FinanceManager } from './finance.manager';
+} from './dto/kpi.dto.js';
+import { FinanceManager } from './finance.manager.js';
 
 /** Every route here is admin-only — this module owns no write path except the two expense-recording endpoints, and never writes to another module's tables. */
 @ApiTags('finance')

@@ -1,18 +1,18 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Public } from '../../common/decorators/public.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Public } from '../../common/decorators/public.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import {
   ConvertEnquiryDto,
   EnquiryDto,
   ListEnquiriesQueryDto,
   SubmitEnquiryDto,
   UpdateEnquiryStatusDto,
-} from './dto/enquiry.dto';
-import { EnquiriesManager } from './enquiries.manager';
+} from './dto/enquiry.dto.js';
+import { EnquiriesManager } from './enquiries.manager.js';
 
 @ApiTags('enquiries')
 @Controller('enquiries')

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ProgressReportController } from './progress-report.controller';
-import { ProgressReportManager } from './progress-report.manager';
-import { ProgressReportRepository } from './progress-report.repository';
+import { ProgressReportController } from './progress-report.controller.js';
+import { ProgressReportManager } from './progress-report.manager.js';
+import { ProgressReportRepository } from './progress-report.repository.js';
 
 @Module({
   controllers: [ProgressReportController],

@@ -1,5 +1,5 @@
-import type { SubmitEnrolmentDto } from './dto/submit-enrolment.dto';
-import { EnrolmentMapper } from './enrolment.mapper';
+import type { SubmitEnrolmentDto } from './dto/submit-enrolment.dto.js';
+import { EnrolmentMapper } from './enrolment.mapper.js';
 
 /**
  * `08-phase3b-...md` task 2: the DTO→jsonb assembly for `submit_enrolment`

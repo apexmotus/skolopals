@@ -1,9 +1,9 @@
 import { Global, Module } from '@nestjs/common';
-import { DatabaseShutdownService } from './database-shutdown.service';
-import { pgPoolProvider } from './database.providers';
-import { StoredProcRunner } from './stored-proc.runner';
-import { TransactionContext } from './transaction.context';
-import { UnitOfWork } from './unit-of-work';
+import { DatabaseShutdownService } from './database-shutdown.service.js';
+import { pgPoolProvider } from './database.providers.js';
+import { StoredProcRunner } from './stored-proc.runner.js';
+import { TransactionContext } from './transaction.context.js';
+import { UnitOfWork } from './unit-of-work.js';
 
 @Global()
 @Module({

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { ProgrammeAttendanceRow } from './rows/programme-attendance.row';
-import type { ProgrammeEnrolmentRow } from './rows/programme-enrolment.row';
-import type { ProgrammeSessionRow } from './rows/programme-session.row';
-import type { ProgrammeRow } from './rows/programme.row';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { ProgrammeAttendanceRow } from './rows/programme-attendance.row.js';
+import type { ProgrammeEnrolmentRow } from './rows/programme-enrolment.row.js';
+import type { ProgrammeSessionRow } from './rows/programme-session.row.js';
+import type { ProgrammeRow } from './rows/programme.row.js';
 
 const PROGRAMME_COLUMNS =
   'id, name, description, programme_type, starts_on, ends_on, capacity, price_cents, delivery_mode, room_id, is_published, created_at';

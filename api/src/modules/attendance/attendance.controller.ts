@@ -1,11 +1,11 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
-import { AttendanceManager } from './attendance.manager';
-import { AttendanceRecordDto, CorrectAttendanceDto, MarkAttendanceDto } from './dto/attendance-record.dto';
-import { RecordCheckInDto, SessionCheckInDto, SignOutCheckInDto } from './dto/session-check-in.dto';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { AttendanceManager } from './attendance.manager.js';
+import { AttendanceRecordDto, CorrectAttendanceDto, MarkAttendanceDto } from './dto/attendance-record.dto.js';
+import { RecordCheckInDto, SessionCheckInDto, SignOutCheckInDto } from './dto/session-check-in.dto.js';
 
 @ApiTags('attendance')
 @ApiBearerAuth()

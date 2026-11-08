@@ -1,15 +1,15 @@
-import type { AccountStatementEntryDto } from './dto/account-statement.dto';
-import type { BillingAccountDto } from './dto/billing-account.dto';
-import type { CreditNoteDto } from './dto/credit-note.dto';
-import type { InvoiceDto, InvoiceLineDto, RunMonthlyInvoicesResultItemDto } from './dto/invoice.dto';
-import type { OutstandingFeeDto } from './dto/outstanding-fee.dto';
-import type { PaymentDto } from './dto/payment.dto';
-import type { AccountStatementRow } from './rows/account-statement.row';
-import type { BillingAccountRow } from './rows/billing-account.row';
-import type { CreditNoteRow } from './rows/credit-note.row';
-import type { InvoiceLineRow, InvoiceRow, RunMonthlyInvoicesRow } from './rows/invoice.row';
-import type { OutstandingFeeRow } from './rows/outstanding-fee.row';
-import type { PaymentRow } from './rows/payment.row';
+import type { AccountStatementEntryDto } from './dto/account-statement.dto.js';
+import type { BillingAccountDto } from './dto/billing-account.dto.js';
+import type { CreditNoteDto } from './dto/credit-note.dto.js';
+import type { InvoiceDto, InvoiceLineDto, RunMonthlyInvoicesResultItemDto } from './dto/invoice.dto.js';
+import type { OutstandingFeeDto } from './dto/outstanding-fee.dto.js';
+import type { PaymentDto } from './dto/payment.dto.js';
+import type { AccountStatementRow } from './rows/account-statement.row.js';
+import type { BillingAccountRow } from './rows/billing-account.row.js';
+import type { CreditNoteRow } from './rows/credit-note.row.js';
+import type { InvoiceLineRow, InvoiceRow, RunMonthlyInvoicesRow } from './rows/invoice.row.js';
+import type { OutstandingFeeRow } from './rows/outstanding-fee.row.js';
+import type { PaymentRow } from './rows/payment.row.js';
 
 export class BillingMapper {
   static accountToDto(row: BillingAccountRow): BillingAccountDto {

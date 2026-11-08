@@ -1,6 +1,6 @@
 import { ForbiddenException, type ExecutionContext } from '@nestjs/common';
 import type { Reflector } from '@nestjs/core';
-import { RolesGuard } from './roles.guard';
+import { RolesGuard } from './roles.guard.js';
 
 function makeContext(
   requiredRoles: string[] | undefined,

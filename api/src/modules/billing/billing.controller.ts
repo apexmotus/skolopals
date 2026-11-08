@@ -1,20 +1,20 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
-import { AccountStatementEntryDto } from './dto/account-statement.dto';
-import { BillingAccountDto } from './dto/billing-account.dto';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { AccountStatementEntryDto } from './dto/account-statement.dto.js';
+import { BillingAccountDto } from './dto/billing-account.dto.js';
 import {
   ApplyLateFeesDto,
   ApplyLateFeesResultDto,
   RunMonthlyInvoicesDto,
-} from './dto/billing-run.dto';
-import { CreditNoteDto, IssueCreditNoteDto } from './dto/credit-note.dto';
-import { InvoiceDto, RunMonthlyInvoicesResultItemDto } from './dto/invoice.dto';
-import { OutstandingFeeDto } from './dto/outstanding-fee.dto';
-import { PaymentDto, RecordPaymentDto } from './dto/payment.dto';
-import { BillingManager } from './billing.manager';
+} from './dto/billing-run.dto.js';
+import { CreditNoteDto, IssueCreditNoteDto } from './dto/credit-note.dto.js';
+import { InvoiceDto, RunMonthlyInvoicesResultItemDto } from './dto/invoice.dto.js';
+import { OutstandingFeeDto } from './dto/outstanding-fee.dto.js';
+import { PaymentDto, RecordPaymentDto } from './dto/payment.dto.js';
+import { BillingManager } from './billing.manager.js';
 
 /** Tutors have zero access to this entire module — every route carries an explicit `@Roles(...)` that never includes `'tutor'`, so `RolesGuard` returns 403 before any RLS-filtered query runs. */
 @ApiTags('billing')

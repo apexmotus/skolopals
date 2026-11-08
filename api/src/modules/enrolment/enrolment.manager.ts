@@ -1,19 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PagedResult } from '../../common/types/paged-result';
-import type { AuthUser } from '../../common/types/auth-user';
-import { UnitOfWork } from '../../database/unit-of-work';
+import { PagedResult } from '../../common/types/paged-result.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { UnitOfWork } from '../../database/unit-of-work.js';
 import type {
   ActivateEnrolmentDto,
   ActivateEnrolmentResultDto,
-} from './dto/activate-enrolment.dto';
-import type { EnrolmentDto, ListEnrolmentsQueryDto } from './dto/enrolment.dto';
-import type { SubmitEnrolmentDto } from './dto/submit-enrolment.dto';
+} from './dto/activate-enrolment.dto.js';
+import type { EnrolmentDto, ListEnrolmentsQueryDto } from './dto/enrolment.dto.js';
+import type { SubmitEnrolmentDto } from './dto/submit-enrolment.dto.js';
 import type {
   EnrolmentSubjectDto,
   UpdateEnrolmentSubjectsDto,
-} from './dto/update-enrolment-subjects.dto';
-import { EnrolmentMapper } from './enrolment.mapper';
-import { EnrolmentRepository } from './enrolment.repository';
+} from './dto/update-enrolment-subjects.dto.js';
+import { EnrolmentMapper } from './enrolment.mapper.js';
+import { EnrolmentRepository } from './enrolment.repository.js';
 
 @Injectable()
 export class EnrolmentManager {

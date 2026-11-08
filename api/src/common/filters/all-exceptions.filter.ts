@@ -8,12 +8,12 @@ import {
 } from '@nestjs/common';
 import { STATUS_CODES } from 'node:http';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { ERROR_CODES, type ErrorCode } from '../error-codes';
-import { BusinessRuleException } from '../exceptions/business-rule.exception';
+import { ERROR_CODES, type ErrorCode } from '../error-codes.js';
+import { BusinessRuleException } from '../exceptions/business-rule.exception.js';
 import {
   ValidationFailedException,
   type FieldError,
-} from '../exceptions/validation-failed.exception';
+} from '../exceptions/validation-failed.exception.js';
 
 interface ErrorBody {
   status: number;

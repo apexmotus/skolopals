@@ -1,6 +1,6 @@
 import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
 import { RequestMethod } from '@nestjs/common';
-import { CommunicationController } from './communication.controller';
+import { CommunicationController } from './communication.controller.js';
 
 function getHandler(methodName: string): object {
   const handler = (CommunicationController.prototype as unknown as Record<string, object>)[methodName];

@@ -1,4 +1,4 @@
-import type { ExpenseCategoryDto, ExpenseDto } from './dto/expense.dto';
+import type { ExpenseCategoryDto, ExpenseDto } from './dto/expense.dto.js';
 import type {
   AssessmentImprovementDto,
   AttendanceRateDto,
@@ -11,8 +11,8 @@ import type {
   OperatingSurplusDto,
   RevenuePerLearnerDto,
   TutorSessionLoadDto,
-} from './dto/kpi.dto';
-import type { ExpenseCategoryRow, ExpenseRow } from './rows/expense.row';
+} from './dto/kpi.dto.js';
+import type { ExpenseCategoryRow, ExpenseRow } from './rows/expense.row.js';
 import type {
   AssessmentImprovementRow,
   AttendanceRateRow,
@@ -25,7 +25,7 @@ import type {
   OperatingSurplusRow,
   RevenuePerLearnerRow,
   TutorSessionLoadRow,
-} from './rows/kpi.row';
+} from './rows/kpi.row.js';
 
 /** `Number(null)` is `0`, never used here: every nullable source field is explicitly guarded with `?? null` first, so a genuinely absent figure stays `undefined` on the DTO rather than becoming a misleading `0`. */
 function toNumber(value: string): number;

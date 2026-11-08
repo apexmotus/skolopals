@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { ConsentRow } from './rows/consent.row';
-import type { RetentionDueRow, RetentionLogRow } from './rows/retention.row';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { ConsentRow } from './rows/consent.row.js';
+import type { RetentionDueRow, RetentionLogRow } from './rows/retention.row.js';
 
 const CONSENT_COLUMNS =
   'id, consent_type_code, guardian_id, learner_id, granted, granted_at, withdrawn_at, policy_version';

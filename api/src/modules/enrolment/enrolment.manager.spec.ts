@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
-import type { UnitOfWork } from '../../database/unit-of-work';
-import { EnrolmentManager } from './enrolment.manager';
-import type { EnrolmentRepository } from './enrolment.repository';
+import type { UnitOfWork } from '../../database/unit-of-work.js';
+import { EnrolmentManager } from './enrolment.manager.js';
+import type { EnrolmentRepository } from './enrolment.repository.js';
 
 function makeUow(): UnitOfWork {
   return {

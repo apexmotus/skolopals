@@ -1,4 +1,4 @@
-import { TimetableMapper } from './timetable.mapper';
+import { TimetableMapper } from './timetable.mapper.js';
 
 describe('TimetableMapper.publicEntryToDto', () => {
   it('maps every column straight through', () => {

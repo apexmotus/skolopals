@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
-import { AssessmentManager } from './assessment.manager';
-import type { AssessmentRepository } from './assessment.repository';
+import { AssessmentManager } from './assessment.manager.js';
+import type { AssessmentRepository } from './assessment.repository.js';
 
 const ASSESSMENT_ROW = {
   id: 'a-1',

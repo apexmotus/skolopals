@@ -1,5 +1,5 @@
-import type { StoredProcRunner } from '../../database/stored-proc.runner';
-import { ConsentRepository } from './consent.repository';
+import type { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import { ConsentRepository } from './consent.repository.js';
 
 function makeSp(overrides: Partial<Record<keyof StoredProcRunner, unknown>> = {}): StoredProcRunner {
   return {

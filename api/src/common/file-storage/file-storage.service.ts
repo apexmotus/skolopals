@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   SUPABASE_STORAGE_CLIENT,
   TUTOR_DOCUMENTS_BUCKET,
-} from './file-storage.constants';
+} from './file-storage.constants.js';
 
 const DEFAULT_SIGNED_URL_TTL_SECONDS = 300;
 

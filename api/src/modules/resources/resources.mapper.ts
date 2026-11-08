@@ -1,5 +1,5 @@
-import type { ResourceAudienceDto, ResourceDto } from './dto/resource.dto';
-import type { ResourceAudienceRow, ResourceRow } from './rows/resource.row';
+import type { ResourceAudienceDto, ResourceDto } from './dto/resource.dto.js';
+import type { ResourceAudienceRow, ResourceRow } from './rows/resource.row.js';
 
 export class ResourcesMapper {
   static audienceToDto(row: ResourceAudienceRow): ResourceAudienceDto {

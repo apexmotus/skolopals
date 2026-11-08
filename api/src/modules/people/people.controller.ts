@@ -5,10 +5,10 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
-import { MyProfileDto, UpdateMyProfileDto } from './dto/profile.dto';
-import { PeopleManager } from './people.manager';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { MyProfileDto, UpdateMyProfileDto } from './dto/profile.dto.js';
+import { PeopleManager } from './people.manager.js';
 
 @ApiTags('people')
 @ApiBearerAuth()

@@ -14,25 +14,25 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public } from '../../common/decorators/public.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { AchievementLevelDto } from './dto/achievement-level.dto';
-import { AssessmentDomainDto } from './dto/assessment-domain.dto';
-import { AssessmentTypeDto } from './dto/assessment-type.dto';
-import { ConsentTypeDto } from './dto/consent-type.dto';
-import { DataRetentionPolicyDto } from './dto/data-retention-policy.dto';
-import { GradeDto } from './dto/grade.dto';
-import { LanguageDto } from './dto/language.dto';
-import { OperatingHourDto } from './dto/operating-hour.dto';
-import { CreateRoomDto, RoomDto } from './dto/room.dto';
-import { SchoolPhaseDto } from './dto/school-phase.dto';
+import { Public } from '../../common/decorators/public.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import { AchievementLevelDto } from './dto/achievement-level.dto.js';
+import { AssessmentDomainDto } from './dto/assessment-domain.dto.js';
+import { AssessmentTypeDto } from './dto/assessment-type.dto.js';
+import { ConsentTypeDto } from './dto/consent-type.dto.js';
+import { DataRetentionPolicyDto } from './dto/data-retention-policy.dto.js';
+import { GradeDto } from './dto/grade.dto.js';
+import { LanguageDto } from './dto/language.dto.js';
+import { OperatingHourDto } from './dto/operating-hour.dto.js';
+import { CreateRoomDto, RoomDto } from './dto/room.dto.js';
+import { SchoolPhaseDto } from './dto/school-phase.dto.js';
 import {
   ListSubjectOfferingsQueryDto,
   SubjectOfferingDto,
-} from './dto/subject-offering.dto';
-import { SubjectDto } from './dto/subject.dto';
-import { CreateTermDto, TermDto } from './dto/term.dto';
-import { ReferenceManager } from './reference.manager';
+} from './dto/subject-offering.dto.js';
+import { SubjectDto } from './dto/subject.dto.js';
+import { CreateTermDto, TermDto } from './dto/term.dto.js';
+import { ReferenceManager } from './reference.manager.js';
 
 @ApiTags('reference')
 @ApiBearerAuth()

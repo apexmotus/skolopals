@@ -18,25 +18,25 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Public } from '../../common/decorators/public.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
-import { ClassEnrolmentDto, PlaceLearnerDto } from './dto/class-enrolment.dto';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Public } from '../../common/decorators/public.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { ClassEnrolmentDto, PlaceLearnerDto } from './dto/class-enrolment.dto.js';
 import {
   ClassGroupDto,
   CreateClassGroupDto,
   ListClassGroupsQueryDto,
   UpdateClassGroupDto,
-} from './dto/class-group.dto';
-import { AddClassScheduleDto, ClassScheduleDto } from './dto/class-schedule.dto';
+} from './dto/class-group.dto.js';
+import { AddClassScheduleDto, ClassScheduleDto } from './dto/class-schedule.dto.js';
 import {
   ClassSessionDto,
   ListClassSessionsQueryDto,
   UpdateClassSessionStatusDto,
-} from './dto/class-session.dto';
-import { PublicTimetableEntryDto } from './dto/public-timetable.dto';
-import { TimetableManager } from './timetable.manager';
+} from './dto/class-session.dto.js';
+import { PublicTimetableEntryDto } from './dto/public-timetable.dto.js';
+import { TimetableManager } from './timetable.manager.js';
 
 @ApiTags('timetable')
 @ApiBearerAuth()

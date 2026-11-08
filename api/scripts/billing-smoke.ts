@@ -15,9 +15,9 @@ import { NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type { ClsService } from 'nestjs-cls';
 import { Pool, type PoolClient } from 'pg';
-import type { AppClsStore } from '../src/common/types/app-cls-store';
-import { BusinessRuleException } from '../src/common/exceptions/business-rule.exception';
-import type { AuthUser } from '../src/common/types/auth-user';
+import type { AppClsStore } from '../src/common/types/app-cls-store.js';
+import { BusinessRuleException } from '../src/common/exceptions/business-rule.exception.js';
+import type { AuthUser } from '../src/common/types/auth-user.js';
 // Side-effecting import: registers the global `date` (OID 1082) type parser
 // that makes `date` columns (issuedOn/dueOn/paidOn below) arrive as raw
 // 'YYYY-MM-DD' strings instead of a local-midnight `Date` — see that file's
@@ -26,13 +26,13 @@ import type { AuthUser } from '../src/common/types/auth-user';
 // own assertions never happened to do strict value comparisons on a bare
 // `date` field, so the gap was silent here — found only while writing
 // `finance-smoke.ts`, which did.
-import '../src/database/database.providers';
-import { applyRlsContext } from '../src/database/rls-context';
-import { StoredProcRunner } from '../src/database/stored-proc.runner';
-import { TransactionContext } from '../src/database/transaction.context';
-import { UnitOfWork } from '../src/database/unit-of-work';
-import { BillingManager } from '../src/modules/billing/billing.manager';
-import { BillingRepository } from '../src/modules/billing/billing.repository';
+import '../src/database/database.providers.js';
+import { applyRlsContext } from '../src/database/rls-context.js';
+import { StoredProcRunner } from '../src/database/stored-proc.runner.js';
+import { TransactionContext } from '../src/database/transaction.context.js';
+import { UnitOfWork } from '../src/database/unit-of-work.js';
+import { BillingManager } from '../src/modules/billing/billing.manager.js';
+import { BillingRepository } from '../src/modules/billing/billing.repository.js';
 
 function assert(condition: boolean, message: string): void {
   if (!condition) throw new Error(`FAILED: ${message}`);

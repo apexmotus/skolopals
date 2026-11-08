@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { ReviewRow } from './rows/review.row';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { ReviewRow } from './rows/review.row.js';
 
 const REVIEW_COLUMNS =
   'id, tutor_id, guardian_id, learner_id, rating, comment, status, created_at, published_at, moderated_by';

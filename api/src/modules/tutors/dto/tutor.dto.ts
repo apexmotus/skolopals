@@ -7,7 +7,7 @@ import {
   IsUrl,
   MaxLength,
 } from 'class-validator';
-import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
+import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto.js';
 
 const EMPLOYMENT_TYPES = ['salaried', 'sessional'] as const;
 

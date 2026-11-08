@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { AuthUser } from '../../common/types/auth-user';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import {
   ConvertEnquiryDto,
   EnquiryDto,
   SubmitEnquiryDto,
   UpdateEnquiryStatusDto,
-} from './dto/enquiry.dto';
-import { EnquiriesMapper } from './enquiries.mapper';
-import { EnquiriesRepository } from './enquiries.repository';
+} from './dto/enquiry.dto.js';
+import { EnquiriesMapper } from './enquiries.mapper.js';
+import { EnquiriesRepository } from './enquiries.repository.js';
 
 @Injectable()
 export class EnquiriesManager {

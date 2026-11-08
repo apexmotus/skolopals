@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { ERROR_CODES } from '../error-codes';
+import { ERROR_CODES } from '../error-codes.js';
 
 /**
  * A rule the domain enforces, with a message safe to show the client —

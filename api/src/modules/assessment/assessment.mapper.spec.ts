@@ -1,8 +1,8 @@
-import { AssessmentMapper } from './assessment.mapper';
-import type { RecordAssessmentDto } from './dto/assessment.dto';
-import type { CreateLearningPlanDto } from './dto/learning-plan.dto';
-import type { AssessmentRow } from './rows/assessment.row';
-import type { LearningPlanRow } from './rows/learning-plan.row';
+import { AssessmentMapper } from './assessment.mapper.js';
+import type { RecordAssessmentDto } from './dto/assessment.dto.js';
+import type { CreateLearningPlanDto } from './dto/learning-plan.dto.js';
+import type { AssessmentRow } from './rows/assessment.row.js';
+import type { LearningPlanRow } from './rows/learning-plan.row.js';
 
 describe('AssessmentMapper.toScoresPayload', () => {
   it('maps every score field to its snake_case jsonb key, preserving order', () => {

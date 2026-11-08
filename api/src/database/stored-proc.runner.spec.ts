@@ -2,10 +2,10 @@ import type { ClsService } from 'nestjs-cls';
 import { DatabaseError } from 'pg';
 import type { Pool, PoolClient } from 'pg';
 import type { Mock, Mocked } from 'vitest';
-import type { AppClsStore } from '../common/types/app-cls-store';
-import { p } from './sp-param';
-import { StoredProcRunner } from './stored-proc.runner';
-import { TransactionContext } from './transaction.context';
+import type { AppClsStore } from '../common/types/app-cls-store.js';
+import { p } from './sp-param.js';
+import { StoredProcRunner } from './stored-proc.runner.js';
+import { TransactionContext } from './transaction.context.js';
 
 function makeClient(queryImpl: Mock): Mocked<PoolClient> {
   return {

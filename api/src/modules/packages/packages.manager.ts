@@ -1,21 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CacheService } from '../../common/cache/cache.service';
-import type { AuthUser } from '../../common/types/auth-user';
+import { CacheService } from '../../common/cache/cache.service.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import type {
   CreateBillingSettingsDto,
   BillingSettingsDto,
-} from './dto/billing-settings.dto';
+} from './dto/billing-settings.dto.js';
 import type {
   SetPackagePriceDto,
   PackagePriceDto,
-} from './dto/package-price.dto';
-import type { CreatePackageDto, PackageDto } from './dto/package.dto';
+} from './dto/package-price.dto.js';
+import type { CreatePackageDto, PackageDto } from './dto/package.dto.js';
 import {
   packagesCacheKeys,
   PACKAGES_CACHE_TTL_SECONDS,
-} from './packages-cache-keys';
-import { PackagesMapper } from './packages.mapper';
-import { PackagesRepository } from './packages.repository';
+} from './packages-cache-keys.js';
+import { PackagesMapper } from './packages.mapper.js';
+import { PackagesRepository } from './packages.repository.js';
 
 @Injectable()
 export class PackagesManager {

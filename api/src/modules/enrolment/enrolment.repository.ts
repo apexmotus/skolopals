@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { p } from '../../database/sp-param';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { EnrolmentRow, EnrolmentSubjectRow } from './rows/enrolment.row';
+import { p } from '../../database/sp-param.js';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { EnrolmentRow, EnrolmentSubjectRow } from './rows/enrolment.row.js';
 
 const ENROLMENT_COLUMNS =
   'id, learner_id, package_code, status, preferred_tutor_id, assigned_tutor_id, start_date, end_date, ' +

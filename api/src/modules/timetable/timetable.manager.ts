@@ -1,29 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CacheService } from '../../common/cache/cache.service';
-import { BusinessRuleException } from '../../common/exceptions/business-rule.exception';
-import { PagedResult } from '../../common/types/paged-result';
-import type { AuthUser } from '../../common/types/auth-user';
-import { UnitOfWork } from '../../database/unit-of-work';
+import { CacheService } from '../../common/cache/cache.service.js';
+import { BusinessRuleException } from '../../common/exceptions/business-rule.exception.js';
+import { PagedResult } from '../../common/types/paged-result.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { UnitOfWork } from '../../database/unit-of-work.js';
 import type {
   ClassEnrolmentDto,
   PlaceLearnerDto,
-} from './dto/class-enrolment.dto';
+} from './dto/class-enrolment.dto.js';
 import type {
   ClassGroupDto,
   CreateClassGroupDto,
   ListClassGroupsQueryDto,
   UpdateClassGroupDto,
-} from './dto/class-group.dto';
-import type { AddClassScheduleDto, ClassScheduleDto } from './dto/class-schedule.dto';
+} from './dto/class-group.dto.js';
+import type { AddClassScheduleDto, ClassScheduleDto } from './dto/class-schedule.dto.js';
 import type {
   ClassSessionDto,
   ListClassSessionsQueryDto,
   UpdateClassSessionStatusDto,
-} from './dto/class-session.dto';
-import type { PublicTimetableEntryDto } from './dto/public-timetable.dto';
-import { timetableCacheKeys, TIMETABLE_CACHE_TTL_SECONDS } from './timetable-cache-keys';
-import { TimetableMapper } from './timetable.mapper';
-import { TimetableRepository } from './timetable.repository';
+} from './dto/class-session.dto.js';
+import type { PublicTimetableEntryDto } from './dto/public-timetable.dto.js';
+import { timetableCacheKeys, TIMETABLE_CACHE_TTL_SECONDS } from './timetable-cache-keys.js';
+import { TimetableMapper } from './timetable.mapper.js';
+import { TimetableRepository } from './timetable.repository.js';
 
 @Injectable()
 export class TimetableManager {

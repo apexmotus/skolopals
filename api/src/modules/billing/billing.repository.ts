@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { p } from '../../database/sp-param';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { AccountStatementRow } from './rows/account-statement.row';
-import type { BillingAccountRow } from './rows/billing-account.row';
-import type { CreditNoteRow } from './rows/credit-note.row';
-import type { InvoiceRow, RunMonthlyInvoicesRow } from './rows/invoice.row';
-import type { OutstandingFeeRow } from './rows/outstanding-fee.row';
-import type { PaymentRow } from './rows/payment.row';
+import { p } from '../../database/sp-param.js';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { AccountStatementRow } from './rows/account-statement.row.js';
+import type { BillingAccountRow } from './rows/billing-account.row.js';
+import type { CreditNoteRow } from './rows/credit-note.row.js';
+import type { InvoiceRow, RunMonthlyInvoicesRow } from './rows/invoice.row.js';
+import type { OutstandingFeeRow } from './rows/outstanding-fee.row.js';
+import type { PaymentRow } from './rows/payment.row.js';
 
 const BILLING_ACCOUNT_COLUMNS = 'id, guardian_id, status, created_at';
 

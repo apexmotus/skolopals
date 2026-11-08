@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { CacheModule } from '../../common/cache/cache.module';
-import { ReferenceController } from './reference.controller';
-import { ReferenceManager } from './reference.manager';
-import { ReferenceRepository } from './reference.repository';
+import { CacheModule } from '../../common/cache/cache.module.js';
+import { ReferenceController } from './reference.controller.js';
+import { ReferenceManager } from './reference.manager.js';
+import { ReferenceRepository } from './reference.repository.js';
 
 @Module({
   imports: [CacheModule],

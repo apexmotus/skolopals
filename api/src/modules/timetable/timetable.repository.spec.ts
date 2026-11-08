@@ -1,5 +1,5 @@
-import type { StoredProcRunner } from '../../database/stored-proc.runner';
-import { TimetableRepository } from './timetable.repository';
+import type { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import { TimetableRepository } from './timetable.repository.js';
 
 function makeSp(
   overrides: Partial<Record<keyof StoredProcRunner, unknown>> = {},

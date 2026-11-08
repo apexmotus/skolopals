@@ -1,5 +1,5 @@
 import { validate } from 'class-validator';
-import { CreateResourceDto } from './resource.dto';
+import { CreateResourceDto } from './resource.dto.js';
 
 /**
  * `MatchesAudienceType` ports `resource_audiences`' own CHECK constraint

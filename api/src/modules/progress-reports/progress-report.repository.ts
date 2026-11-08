@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { p } from '../../database/sp-param';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { ProgressReportRow } from './rows/progress-report.row';
+import { p } from '../../database/sp-param.js';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { ProgressReportRow } from './rows/progress-report.row.js';
 
 const REPORT_COLUMNS_WITH_DETAIL = `
   r.id, r.learner_id, r.term_id, r.tutor_id, r.summary, r.attendance_note,

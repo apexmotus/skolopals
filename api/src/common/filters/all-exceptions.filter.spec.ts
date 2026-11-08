@@ -3,9 +3,9 @@ import {
   ConflictException,
   type ArgumentsHost,
 } from '@nestjs/common';
-import { BusinessRuleException } from '../exceptions/business-rule.exception';
-import { ValidationFailedException } from '../exceptions/validation-failed.exception';
-import { AllExceptionsFilter } from './all-exceptions.filter';
+import { BusinessRuleException } from '../exceptions/business-rule.exception.js';
+import { ValidationFailedException } from '../exceptions/validation-failed.exception.js';
+import { AllExceptionsFilter } from './all-exceptions.filter.js';
 
 function makeHost(request: Record<string, unknown>) {
   const reply = {

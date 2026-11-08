@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
-import type { UnitOfWork } from '../../database/unit-of-work';
-import { ResourcesManager } from './resources.manager';
-import type { ResourcesRepository } from './resources.repository';
+import type { UnitOfWork } from '../../database/unit-of-work.js';
+import { ResourcesManager } from './resources.manager.js';
+import type { ResourcesRepository } from './resources.repository.js';
 
 function makeUow(): UnitOfWork {
   return { run: vi.fn((fn: () => Promise<unknown>) => fn()) } as unknown as UnitOfWork;

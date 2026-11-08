@@ -1,11 +1,11 @@
-import type { ProgrammeAttendanceDto } from './dto/programme-attendance.dto';
-import type { ProgrammeEnrolmentDto } from './dto/programme-enrolment.dto';
-import type { ProgrammeSessionDto } from './dto/programme-session.dto';
-import type { ProgrammeDto } from './dto/programme.dto';
-import type { ProgrammeAttendanceRow } from './rows/programme-attendance.row';
-import type { ProgrammeEnrolmentRow } from './rows/programme-enrolment.row';
-import type { ProgrammeSessionRow } from './rows/programme-session.row';
-import type { ProgrammeRow } from './rows/programme.row';
+import type { ProgrammeAttendanceDto } from './dto/programme-attendance.dto.js';
+import type { ProgrammeEnrolmentDto } from './dto/programme-enrolment.dto.js';
+import type { ProgrammeSessionDto } from './dto/programme-session.dto.js';
+import type { ProgrammeDto } from './dto/programme.dto.js';
+import type { ProgrammeAttendanceRow } from './rows/programme-attendance.row.js';
+import type { ProgrammeEnrolmentRow } from './rows/programme-enrolment.row.js';
+import type { ProgrammeSessionRow } from './rows/programme-session.row.js';
+import type { ProgrammeRow } from './rows/programme.row.js';
 
 export class ProgrammesMapper {
   static toDto(row: ProgrammeRow): ProgrammeDto {

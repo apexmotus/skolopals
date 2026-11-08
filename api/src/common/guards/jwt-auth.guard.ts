@@ -10,11 +10,11 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { FastifyRequest } from 'fastify';
 import { ClsService } from 'nestjs-cls';
-import type { EnvConfig } from '../../config/env.schema';
-import { UserRolesRepository } from '../../modules/auth/user-roles.repository';
-import type { AppClsStore } from '../types/app-cls-store';
-import type { AuthUser } from '../types/auth-user';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import type { EnvConfig } from '../../config/env.schema.js';
+import { UserRolesRepository } from '../../modules/auth/user-roles.repository.js';
+import type { AppClsStore } from '../types/app-cls-store.js';
+import type { AuthUser } from '../types/auth-user.js';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
 
 /**
  * Verifies a Supabase-issued access token — this API never issues or

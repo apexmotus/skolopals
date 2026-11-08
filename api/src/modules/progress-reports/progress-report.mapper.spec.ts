@@ -1,6 +1,6 @@
-import { ProgressReportMapper } from './progress-report.mapper';
-import type { SaveProgressReportDto } from './dto/progress-report.dto';
-import type { ProgressReportRow } from './rows/progress-report.row';
+import { ProgressReportMapper } from './progress-report.mapper.js';
+import type { SaveProgressReportDto } from './dto/progress-report.dto.js';
+import type { ProgressReportRow } from './rows/progress-report.row.js';
 
 describe('ProgressReportMapper.toSubjectsPayload', () => {
   it('maps every subject field to its snake_case jsonb key, defaulting omitted text fields to empty strings', () => {

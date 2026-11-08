@@ -1,9 +1,9 @@
 import { Global, Logger, Module, type Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Redis } from 'ioredis';
-import type { EnvConfig } from '../../config/env.schema';
-import { REDIS_CLIENT } from './redis.constants';
-import { RedisShutdownService } from './redis-shutdown.service';
+import type { EnvConfig } from '../../config/env.schema.js';
+import { REDIS_CLIENT } from './redis.constants.js';
+import { RedisShutdownService } from './redis-shutdown.service.js';
 
 const redisClientProvider: Provider = {
   provide: REDIS_CLIENT,

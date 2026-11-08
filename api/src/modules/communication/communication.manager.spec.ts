@@ -1,6 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CommunicationManager } from './communication.manager';
-import type { CommunicationRepository } from './communication.repository';
+import { CommunicationManager } from './communication.manager.js';
+import type { CommunicationRepository } from './communication.repository.js';
 
 const THREAD_ROW = {
   id: 't1',

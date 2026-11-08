@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { AuthorisedCollectorRow } from './rows/authorised-collector.row';
-import type { EmergencyContactRow } from './rows/emergency-contact.row';
-import type { LearnerGuardianRow } from './rows/learner-guardian.row';
-import type { LearnerRow } from './rows/learner.row';
-import type { MedicalNotesRow } from './rows/medical-notes.row';
-import type { ProfileRow } from './rows/profile.row';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { AuthorisedCollectorRow } from './rows/authorised-collector.row.js';
+import type { EmergencyContactRow } from './rows/emergency-contact.row.js';
+import type { LearnerGuardianRow } from './rows/learner-guardian.row.js';
+import type { LearnerRow } from './rows/learner.row.js';
+import type { MedicalNotesRow } from './rows/medical-notes.row.js';
+import type { ProfileRow } from './rows/profile.row.js';
 
 interface ListLearnersFilter {
   page: number;

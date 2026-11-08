@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { CacheModule } from '../../common/cache/cache.module';
-import { FinanceController } from './finance.controller';
-import { FinanceManager } from './finance.manager';
-import { FinanceRepository } from './finance.repository';
+import { CacheModule } from '../../common/cache/cache.module.js';
+import { FinanceController } from './finance.controller.js';
+import { FinanceManager } from './finance.manager.js';
+import { FinanceRepository } from './finance.repository.js';
 
 @Module({
   imports: [CacheModule],

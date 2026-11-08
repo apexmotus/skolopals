@@ -1,15 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { AuthUser } from '../../common/types/auth-user';
-import { UnitOfWork } from '../../database/unit-of-work';
-import { BillingMapper } from './billing.mapper';
-import { BillingRepository } from './billing.repository';
-import type { AccountStatementEntryDto } from './dto/account-statement.dto';
-import type { BillingAccountDto } from './dto/billing-account.dto';
-import { ApplyLateFeesDto, ApplyLateFeesResultDto, RunMonthlyInvoicesDto } from './dto/billing-run.dto';
-import type { CreditNoteDto, IssueCreditNoteDto } from './dto/credit-note.dto';
-import type { InvoiceDto, RunMonthlyInvoicesResultItemDto } from './dto/invoice.dto';
-import type { OutstandingFeeDto } from './dto/outstanding-fee.dto';
-import type { PaymentDto, RecordPaymentDto } from './dto/payment.dto';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { UnitOfWork } from '../../database/unit-of-work.js';
+import { BillingMapper } from './billing.mapper.js';
+import { BillingRepository } from './billing.repository.js';
+import type { AccountStatementEntryDto } from './dto/account-statement.dto.js';
+import type { BillingAccountDto } from './dto/billing-account.dto.js';
+import { ApplyLateFeesDto, ApplyLateFeesResultDto, RunMonthlyInvoicesDto } from './dto/billing-run.dto.js';
+import type { CreditNoteDto, IssueCreditNoteDto } from './dto/credit-note.dto.js';
+import type { InvoiceDto, RunMonthlyInvoicesResultItemDto } from './dto/invoice.dto.js';
+import type { OutstandingFeeDto } from './dto/outstanding-fee.dto.js';
+import type { PaymentDto, RecordPaymentDto } from './dto/payment.dto.js';
 
 /**
  * No caching anywhere in this module (`03-endpoints-and-business-rules.md`

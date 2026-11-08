@@ -7,10 +7,10 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import type { Redis } from 'ioredis';
 import type { Pool } from 'pg';
-import { Public } from '../../common/decorators/public.decorator';
-import { RawResponse } from '../../common/decorators/raw-response.decorator';
-import { PG_POOL } from '../../database/database.constants';
-import { REDIS_CLIENT } from '../../common/redis/redis.constants';
+import { Public } from '../../common/decorators/public.decorator.js';
+import { RawResponse } from '../../common/decorators/raw-response.decorator.js';
+import { PG_POOL } from '../../database/database.constants.js';
+import { REDIS_CLIENT } from '../../common/redis/redis.constants.js';
 
 @ApiTags('health')
 @Controller({ path: 'health', version: VERSION_NEUTRAL })

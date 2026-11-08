@@ -1,9 +1,9 @@
 import type { ClsService } from 'nestjs-cls';
 import type { Pool, PoolClient } from 'pg';
 import type { Mocked } from 'vitest';
-import type { AppClsStore } from '../common/types/app-cls-store';
-import { TransactionContext } from './transaction.context';
-import { UnitOfWork } from './unit-of-work';
+import type { AppClsStore } from '../common/types/app-cls-store.js';
+import { TransactionContext } from './transaction.context.js';
+import { UnitOfWork } from './unit-of-work.js';
 
 function makeClient(): Mocked<PoolClient> {
   return {

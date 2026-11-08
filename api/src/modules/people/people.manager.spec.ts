@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
-import type { AuthUser } from '../../common/types/auth-user';
-import { BusinessRuleException } from '../../common/exceptions/business-rule.exception';
-import { PeopleManager } from './people.manager';
-import type { PeopleRepository } from './people.repository';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { BusinessRuleException } from '../../common/exceptions/business-rule.exception.js';
+import { PeopleManager } from './people.manager.js';
+import type { PeopleRepository } from './people.repository.js';
 
 const LEARNER_ROW = {
   id: 'learner-1',

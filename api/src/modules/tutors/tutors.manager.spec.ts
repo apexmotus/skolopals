@@ -1,10 +1,10 @@
 import { NotFoundException } from '@nestjs/common';
-import type { CacheService } from '../../common/cache/cache.service';
-import { BusinessRuleException } from '../../common/exceptions/business-rule.exception';
-import type { FileStorageService } from '../../common/file-storage/file-storage.service';
-import type { UnitOfWork } from '../../database/unit-of-work';
-import { TutorsManager } from './tutors.manager';
-import type { TutorsRepository } from './tutors.repository';
+import type { CacheService } from '../../common/cache/cache.service.js';
+import { BusinessRuleException } from '../../common/exceptions/business-rule.exception.js';
+import type { FileStorageService } from '../../common/file-storage/file-storage.service.js';
+import type { UnitOfWork } from '../../database/unit-of-work.js';
+import { TutorsManager } from './tutors.manager.js';
+import type { TutorsRepository } from './tutors.repository.js';
 
 function makeCache() {
   const store = new Map<string, unknown>();

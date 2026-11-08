@@ -2,18 +2,18 @@ import type {
   AssessmentDto,
   AssessmentScoreDto,
   RecordAssessmentDto,
-} from './dto/assessment.dto';
+} from './dto/assessment.dto.js';
 import type {
   CreateLearningPlanDto,
   LearningPlanDto,
   LearningPlanGoalDto,
-} from './dto/learning-plan.dto';
-import type { AssessmentRow, AssessmentScoreRow } from './rows/assessment.row';
+} from './dto/learning-plan.dto.js';
+import type { AssessmentRow, AssessmentScoreRow } from './rows/assessment.row.js';
 import type {
   LearningPlanGoalRow,
   LearningPlanGoalUpdateRow,
   LearningPlanRow,
-} from './rows/learning-plan.row';
+} from './rows/learning-plan.row.js';
 
 export class AssessmentMapper {
   /** Pure DTO→jsonb assembly, unit-tested in isolation, same reasoning as `EnrolmentMapper.toSubmitPayload`. */

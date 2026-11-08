@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
-import { AttendanceManager } from './attendance.manager';
-import type { AttendanceRepository } from './attendance.repository';
+import { AttendanceManager } from './attendance.manager.js';
+import type { AttendanceRepository } from './attendance.repository.js';
 
 const ACTOR = { id: 'profile-1', roles: ['tutor'], claims: {} };
 

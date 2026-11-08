@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
-import { ProgressReportManager } from './progress-report.manager';
-import type { ProgressReportRepository } from './progress-report.repository';
+import { ProgressReportManager } from './progress-report.manager.js';
+import type { ProgressReportRepository } from './progress-report.repository.js';
 
 const ACTOR = { id: 'guardian-1', roles: ['parent'], claims: {} };
 

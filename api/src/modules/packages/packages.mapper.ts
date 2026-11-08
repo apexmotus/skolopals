@@ -1,9 +1,9 @@
-import type { BillingSettingsDto } from './dto/billing-settings.dto';
-import type { PackagePriceDto } from './dto/package-price.dto';
-import type { PackageDto } from './dto/package.dto';
-import type { BillingSettingsRow } from './rows/billing-settings.row';
-import type { PackagePriceRow } from './rows/package-price.row';
-import type { PackageRow } from './rows/package.row';
+import type { BillingSettingsDto } from './dto/billing-settings.dto.js';
+import type { PackagePriceDto } from './dto/package-price.dto.js';
+import type { PackageDto } from './dto/package.dto.js';
+import type { BillingSettingsRow } from './rows/billing-settings.row.js';
+import type { PackagePriceRow } from './rows/package-price.row.js';
+import type { PackageRow } from './rows/package.row.js';
 
 export class PackagesMapper {
   static toDto(row: PackageRow): PackageDto {

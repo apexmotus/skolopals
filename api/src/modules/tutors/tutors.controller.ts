@@ -18,40 +18,40 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Public } from '../../common/decorators/public.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Public } from '../../common/decorators/public.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import {
   AddDocumentDto,
   TutorDocumentDto,
   UploadDocumentResponseDto,
-} from './dto/tutor-document.dto';
+} from './dto/tutor-document.dto.js';
 import {
   AddQualificationDto,
   TutorQualificationDto,
-} from './dto/tutor-qualification.dto';
+} from './dto/tutor-qualification.dto.js';
 import {
   AddReferenceDto,
   RecordOutcomeDto,
   TutorReferenceDto,
-} from './dto/tutor-reference.dto';
-import { SetPayRateDto, TutorPayRateDto } from './dto/tutor-pay-rate.dto';
+} from './dto/tutor-reference.dto.js';
+import { SetPayRateDto, TutorPayRateDto } from './dto/tutor-pay-rate.dto.js';
 import {
   SetSpokenLanguagesDto,
   TutorSpokenLanguageDto,
-} from './dto/tutor-spoken-language.dto';
+} from './dto/tutor-spoken-language.dto.js';
 import {
   SetCompetencyDto,
   TutorCompetencyDto,
-} from './dto/tutor-competency.dto';
+} from './dto/tutor-competency.dto.js';
 import {
   CreateTutorDto,
   ListPublicTutorsQueryDto,
   TutorDto,
   UpdateMyTutorProfileDto,
-} from './dto/tutor.dto';
-import { TutorsManager } from './tutors.manager';
+} from './dto/tutor.dto.js';
+import { TutorsManager } from './tutors.manager.js';
 
 @ApiTags('tutors')
 @ApiBearerAuth()

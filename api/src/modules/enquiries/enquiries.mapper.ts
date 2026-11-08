@@ -1,5 +1,5 @@
-import type { EnquiryDto } from './dto/enquiry.dto';
-import type { EnquiryRow } from './rows/enquiry.row';
+import type { EnquiryDto } from './dto/enquiry.dto.js';
+import type { EnquiryRow } from './rows/enquiry.row.js';
 
 export class EnquiriesMapper {
   static toDto(row: EnquiryRow): EnquiryDto {

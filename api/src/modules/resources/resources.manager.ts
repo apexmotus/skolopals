@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { AuthUser } from '../../common/types/auth-user';
-import { UnitOfWork } from '../../database/unit-of-work';
-import type { CreateResourceDto, ResourceDto, UpdateResourceDto } from './dto/resource.dto';
-import { ResourcesMapper } from './resources.mapper';
-import { ResourcesRepository } from './resources.repository';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { UnitOfWork } from '../../database/unit-of-work.js';
+import type { CreateResourceDto, ResourceDto, UpdateResourceDto } from './dto/resource.dto.js';
+import { ResourcesMapper } from './resources.mapper.js';
+import { ResourcesRepository } from './resources.repository.js';
 
 /** No caching — targeting is per-actor (`03-endpoints-and-business-rules.md` §resources). */
 @Injectable()

@@ -1,17 +1,17 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Public } from '../../common/decorators/public.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Public } from '../../common/decorators/public.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import {
   MarkProgrammeAttendanceDto,
   ProgrammeAttendanceDto,
-} from './dto/programme-attendance.dto';
-import { BookProgrammeDto, ProgrammeEnrolmentDto } from './dto/programme-enrolment.dto';
-import { AddProgrammeSessionDto, ProgrammeSessionDto } from './dto/programme-session.dto';
-import { CreateProgrammeDto, ProgrammeDto, UpdateProgrammeDto } from './dto/programme.dto';
-import { ProgrammesManager } from './programmes.manager';
+} from './dto/programme-attendance.dto.js';
+import { BookProgrammeDto, ProgrammeEnrolmentDto } from './dto/programme-enrolment.dto.js';
+import { AddProgrammeSessionDto, ProgrammeSessionDto } from './dto/programme-session.dto.js';
+import { CreateProgrammeDto, ProgrammeDto, UpdateProgrammeDto } from './dto/programme.dto.js';
+import { ProgrammesManager } from './programmes.manager.js';
 
 @ApiTags('programmes')
 @ApiBearerAuth()

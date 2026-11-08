@@ -1,7 +1,7 @@
-import type { ConsentDto } from './dto/consent.dto';
-import type { RetentionDueDto, RetentionLogDto } from './dto/retention.dto';
-import type { ConsentRow } from './rows/consent.row';
-import type { RetentionDueRow, RetentionLogRow } from './rows/retention.row';
+import type { ConsentDto } from './dto/consent.dto.js';
+import type { RetentionDueDto, RetentionLogDto } from './dto/retention.dto.js';
+import type { ConsentRow } from './rows/consent.row.js';
+import type { RetentionDueRow, RetentionLogRow } from './rows/retention.row.js';
 
 export class ConsentMapper {
   static toDto(row: ConsentRow): ConsentDto {

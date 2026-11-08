@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { p } from '../../database/sp-param';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { AssessmentRow } from './rows/assessment.row';
+import { p } from '../../database/sp-param.js';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { AssessmentRow } from './rows/assessment.row.js';
 import type {
   LearningPlanGoalUpdateRow,
   LearningPlanRow,
-} from './rows/learning-plan.row';
+} from './rows/learning-plan.row.js';
 
 const ASSESSMENT_COLUMNS_WITH_SCORES = `
   a.id, a.learner_id, a.assessment_type_code, a.subject_code, a.grade_code, a.term_id,

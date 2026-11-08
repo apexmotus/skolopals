@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { AssessmentMapper } from './assessment.mapper';
-import { AssessmentRepository } from './assessment.repository';
-import type { AssessmentDto, RecordAssessmentDto } from './dto/assessment.dto';
+import { AssessmentMapper } from './assessment.mapper.js';
+import { AssessmentRepository } from './assessment.repository.js';
+import type { AssessmentDto, RecordAssessmentDto } from './dto/assessment.dto.js';
 import type {
   CreateLearningPlanDto,
   LearningPlanDto,
   LearningPlanGoalDto,
   UpdateGoalStatusDto,
-} from './dto/learning-plan.dto';
+} from './dto/learning-plan.dto.js';
 
 @Injectable()
 export class AssessmentManager {

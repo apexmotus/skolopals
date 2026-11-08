@@ -15,21 +15,21 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Public } from '../../common/decorators/public.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Public } from '../../common/decorators/public.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import {
   BillingSettingsDto,
   CreateBillingSettingsDto,
-} from './dto/billing-settings.dto';
+} from './dto/billing-settings.dto.js';
 import {
   GetPriceOnQueryDto,
   PackagePriceDto,
   SetPackagePriceDto,
-} from './dto/package-price.dto';
-import { CreatePackageDto, PackageDto } from './dto/package.dto';
-import { PackagesManager } from './packages.manager';
+} from './dto/package-price.dto.js';
+import { CreatePackageDto, PackageDto } from './dto/package.dto.js';
+import { PackagesManager } from './packages.manager.js';
 
 @ApiTags('packages')
 @ApiBearerAuth()

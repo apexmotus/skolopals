@@ -19,9 +19,9 @@
 import { randomUUID } from 'node:crypto';
 import { Pool, type PoolClient } from 'pg';
 import type { ClsService } from 'nestjs-cls';
-import { applyRlsContext } from '../src/database/rls-context';
-import type { AppClsStore } from '../src/common/types/app-cls-store';
-import type { AuthUser } from '../src/common/types/auth-user';
+import { applyRlsContext } from '../src/database/rls-context.js';
+import type { AppClsStore } from '../src/common/types/app-cls-store.js';
+import type { AuthUser } from '../src/common/types/auth-user.js';
 
 function clsFor(actor: AuthUser | undefined): ClsService<AppClsStore> {
   const store: AppClsStore = { actor } as AppClsStore;

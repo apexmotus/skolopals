@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { AchievementLevelRow } from './rows/achievement-level.row';
-import type { AssessmentDomainRow } from './rows/assessment-domain.row';
-import type { AssessmentTypeRow } from './rows/assessment-type.row';
-import type { ConsentTypeRow } from './rows/consent-type.row';
-import type { DataRetentionPolicyRow } from './rows/data-retention-policy.row';
-import type { GradeRow } from './rows/grade.row';
-import type { LanguageRow } from './rows/language.row';
-import type { OperatingHourRow } from './rows/operating-hour.row';
-import type { RoomRow } from './rows/room.row';
-import type { SchoolPhaseRow } from './rows/school-phase.row';
-import type { SubjectOfferingRow } from './rows/subject-offering.row';
-import type { SubjectRow } from './rows/subject.row';
-import type { TermRow } from './rows/term.row';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { AchievementLevelRow } from './rows/achievement-level.row.js';
+import type { AssessmentDomainRow } from './rows/assessment-domain.row.js';
+import type { AssessmentTypeRow } from './rows/assessment-type.row.js';
+import type { ConsentTypeRow } from './rows/consent-type.row.js';
+import type { DataRetentionPolicyRow } from './rows/data-retention-policy.row.js';
+import type { GradeRow } from './rows/grade.row.js';
+import type { LanguageRow } from './rows/language.row.js';
+import type { OperatingHourRow } from './rows/operating-hour.row.js';
+import type { RoomRow } from './rows/room.row.js';
+import type { SchoolPhaseRow } from './rows/school-phase.row.js';
+import type { SubjectOfferingRow } from './rows/subject-offering.row.js';
+import type { SubjectRow } from './rows/subject.row.js';
+import type { TermRow } from './rows/term.row.js';
 
 /**
  * Plain parameterized reads/writes against the `reference` tables

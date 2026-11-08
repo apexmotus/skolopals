@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { EnquiryRow } from './rows/enquiry.row';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { EnquiryRow } from './rows/enquiry.row.js';
 
 const ENQUIRY_COLUMNS =
   'id, full_name, email, phone, topic, message, source, status, handled_by, handled_at, converted_learner_id, created_at';

@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { AuthUser } from '../../common/types/auth-user';
-import { AttendanceMapper } from './attendance.mapper';
-import { AttendanceRepository } from './attendance.repository';
-import type { AttendanceRecordDto, CorrectAttendanceDto, MarkAttendanceDto } from './dto/attendance-record.dto';
-import type { RecordCheckInDto, SessionCheckInDto, SignOutCheckInDto } from './dto/session-check-in.dto';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { AttendanceMapper } from './attendance.mapper.js';
+import { AttendanceRepository } from './attendance.repository.js';
+import type { AttendanceRecordDto, CorrectAttendanceDto, MarkAttendanceDto } from './dto/attendance-record.dto.js';
+import type { RecordCheckInDto, SessionCheckInDto, SignOutCheckInDto } from './dto/session-check-in.dto.js';
 
 @Injectable()
 export class AttendanceManager {

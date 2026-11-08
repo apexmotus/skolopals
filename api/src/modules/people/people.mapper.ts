@@ -1,15 +1,15 @@
-import type { AuthorisedCollectorDto } from './dto/authorised-collector.dto';
-import type { EmergencyContactDto } from './dto/emergency-contact.dto';
-import type { LearnerGuardianDto } from './dto/learner-guardian.dto';
-import type { LearnerDto } from './dto/learner.dto';
-import type { MedicalNotesDto } from './dto/medical-notes.dto';
-import type { MyProfileDto } from './dto/profile.dto';
-import type { AuthorisedCollectorRow } from './rows/authorised-collector.row';
-import type { EmergencyContactRow } from './rows/emergency-contact.row';
-import type { LearnerGuardianRow } from './rows/learner-guardian.row';
-import type { LearnerRow } from './rows/learner.row';
-import type { MedicalNotesRow } from './rows/medical-notes.row';
-import type { ProfileRow } from './rows/profile.row';
+import type { AuthorisedCollectorDto } from './dto/authorised-collector.dto.js';
+import type { EmergencyContactDto } from './dto/emergency-contact.dto.js';
+import type { LearnerGuardianDto } from './dto/learner-guardian.dto.js';
+import type { LearnerDto } from './dto/learner.dto.js';
+import type { MedicalNotesDto } from './dto/medical-notes.dto.js';
+import type { MyProfileDto } from './dto/profile.dto.js';
+import type { AuthorisedCollectorRow } from './rows/authorised-collector.row.js';
+import type { EmergencyContactRow } from './rows/emergency-contact.row.js';
+import type { LearnerGuardianRow } from './rows/learner-guardian.row.js';
+import type { LearnerRow } from './rows/learner.row.js';
+import type { MedicalNotesRow } from './rows/medical-notes.row.js';
+import type { ProfileRow } from './rows/profile.row.js';
 
 export class PeopleMapper {
   static profileToMyProfileDto(

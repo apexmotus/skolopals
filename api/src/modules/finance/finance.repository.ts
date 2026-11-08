@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { ExpenseCategoryRow, ExpenseRow } from './rows/expense.row';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { ExpenseCategoryRow, ExpenseRow } from './rows/expense.row.js';
 import type {
   AssessmentImprovementRow,
   AttendanceRateRow,
@@ -13,7 +13,7 @@ import type {
   OperatingSurplusRow,
   RevenuePerLearnerRow,
   TutorSessionLoadRow,
-} from './rows/kpi.row';
+} from './rows/kpi.row.js';
 
 export interface DateRange {
   from?: string;

@@ -19,33 +19,33 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import {
   AddCollectorDto,
   AuthorisedCollectorDto,
-} from './dto/authorised-collector.dto';
+} from './dto/authorised-collector.dto.js';
 import {
   AddEmergencyContactDto,
   EmergencyContactDto,
-} from './dto/emergency-contact.dto';
+} from './dto/emergency-contact.dto.js';
 import {
   AddGuardianDto,
   LearnerGuardianDto,
   SetContactFlagsDto,
-} from './dto/learner-guardian.dto';
+} from './dto/learner-guardian.dto.js';
 import {
   CreateLearnerDto,
   LearnerDto,
   ListLearnersQueryDto,
   UpdateLearnerDto,
-} from './dto/learner.dto';
+} from './dto/learner.dto.js';
 import {
   MedicalNotesDto,
   UpsertMedicalNotesDto,
-} from './dto/medical-notes.dto';
-import { PeopleManager } from './people.manager';
+} from './dto/medical-notes.dto.js';
+import { PeopleManager } from './people.manager.js';
 
 @ApiTags('learners')
 @ApiBearerAuth()

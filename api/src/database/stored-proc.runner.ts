@@ -6,12 +6,12 @@ import {
   type PoolClient,
   type QueryResultRow,
 } from 'pg';
-import type { AppClsStore } from '../common/types/app-cls-store';
-import { PG_POOL } from './database.constants';
-import { applyRlsContext } from './rls-context';
-import type { SpParam } from './sp-param';
-import { SqlErrorMapper } from './sql-error.mapper';
-import { TransactionContext } from './transaction.context';
+import type { AppClsStore } from '../common/types/app-cls-store.js';
+import { PG_POOL } from './database.constants.js';
+import { applyRlsContext } from './rls-context.js';
+import type { SpParam } from './sp-param.js';
+import { SqlErrorMapper } from './sql-error.mapper.js';
+import { TransactionContext } from './transaction.context.js';
 
 export interface SpResult<T> {
   rows: T[];

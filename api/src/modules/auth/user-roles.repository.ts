@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
 
 interface UserRoleRow {
   role: string;

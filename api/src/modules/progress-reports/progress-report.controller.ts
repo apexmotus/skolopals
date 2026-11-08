@@ -16,15 +16,15 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import {
   AcknowledgeReportDto,
   ProgressReportDto,
   SaveProgressReportDto,
-} from './dto/progress-report.dto';
-import { ProgressReportManager } from './progress-report.manager';
+} from './dto/progress-report.dto.js';
+import { ProgressReportManager } from './progress-report.manager.js';
 
 @ApiTags('progress-reports')
 @ApiBearerAuth()

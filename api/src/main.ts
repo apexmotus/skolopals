@@ -13,10 +13,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compress from '@fastify/compress';
 import helmet from '@fastify/helmet';
 import { Logger } from 'nestjs-pino';
-import { AppModule } from './app.module';
-import { formatValidationErrors } from './common/validation/format-validation-errors';
-import { ValidationFailedException } from './common/exceptions/validation-failed.exception';
-import type { EnvConfig } from './config/env.schema';
+import { AppModule } from './app.module.js';
+import { formatValidationErrors } from './common/validation/format-validation-errors.js';
+import { ValidationFailedException } from './common/exceptions/validation-failed.exception.js';
+import type { EnvConfig } from './config/env.schema.js';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(

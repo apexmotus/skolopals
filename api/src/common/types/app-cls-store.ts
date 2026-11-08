@@ -1,5 +1,5 @@
 import type { ClsStore } from 'nestjs-cls';
-import type { AuthUser } from './auth-user';
+import type { AuthUser } from './auth-user.js';
 
 /**
  * Per-request context, propagated via `nestjs-cls` (AsyncLocalStorage under

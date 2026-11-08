@@ -1,17 +1,17 @@
-import type { TutorDocumentDto } from './dto/tutor-document.dto';
-import type { TutorPayRateDto } from './dto/tutor-pay-rate.dto';
-import type { TutorQualificationDto } from './dto/tutor-qualification.dto';
-import type { TutorReferenceDto } from './dto/tutor-reference.dto';
-import type { TutorSpokenLanguageDto } from './dto/tutor-spoken-language.dto';
-import type { TutorCompetencyDto } from './dto/tutor-competency.dto';
-import type { TutorDto } from './dto/tutor.dto';
-import type { TutorCompetencyRow } from './rows/tutor-competency.row';
-import type { TutorDocumentRow } from './rows/tutor-document.row';
-import type { TutorPayRateRow } from './rows/tutor-pay-rate.row';
-import type { TutorQualificationRow } from './rows/tutor-qualification.row';
-import type { TutorReferenceRow } from './rows/tutor-reference.row';
-import type { TutorSpokenLanguageRow } from './rows/tutor-spoken-language.row';
-import type { TutorRatingRow, TutorRow } from './rows/tutor.row';
+import type { TutorDocumentDto } from './dto/tutor-document.dto.js';
+import type { TutorPayRateDto } from './dto/tutor-pay-rate.dto.js';
+import type { TutorQualificationDto } from './dto/tutor-qualification.dto.js';
+import type { TutorReferenceDto } from './dto/tutor-reference.dto.js';
+import type { TutorSpokenLanguageDto } from './dto/tutor-spoken-language.dto.js';
+import type { TutorCompetencyDto } from './dto/tutor-competency.dto.js';
+import type { TutorDto } from './dto/tutor.dto.js';
+import type { TutorCompetencyRow } from './rows/tutor-competency.row.js';
+import type { TutorDocumentRow } from './rows/tutor-document.row.js';
+import type { TutorPayRateRow } from './rows/tutor-pay-rate.row.js';
+import type { TutorQualificationRow } from './rows/tutor-qualification.row.js';
+import type { TutorReferenceRow } from './rows/tutor-reference.row.js';
+import type { TutorSpokenLanguageRow } from './rows/tutor-spoken-language.row.js';
+import type { TutorRatingRow, TutorRow } from './rows/tutor.row.js';
 
 export class TutorsMapper {
   static toDto(row: TutorRow, rating?: TutorRatingRow): TutorDto {

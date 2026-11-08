@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { EnrolmentController } from './enrolment.controller';
-import { EnrolmentManager } from './enrolment.manager';
-import { EnrolmentRepository } from './enrolment.repository';
+import { EnrolmentController } from './enrolment.controller.js';
+import { EnrolmentManager } from './enrolment.manager.js';
+import { EnrolmentRepository } from './enrolment.repository.js';
 
 @Module({
   controllers: [EnrolmentController],

@@ -1,6 +1,6 @@
-import type { CacheService } from '../../common/cache/cache.service';
-import { FinanceManager } from './finance.manager';
-import type { FinanceRepository } from './finance.repository';
+import type { CacheService } from '../../common/cache/cache.service.js';
+import { FinanceManager } from './finance.manager.js';
+import type { FinanceRepository } from './finance.repository.js';
 
 function makeCache() {
   const store = new Map<string, unknown>();

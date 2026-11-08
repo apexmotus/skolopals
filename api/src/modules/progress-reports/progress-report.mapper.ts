@@ -3,12 +3,12 @@ import type {
   ProgressReportSubjectDto,
   ReportAcknowledgementDto,
   SaveProgressReportDto,
-} from './dto/progress-report.dto';
+} from './dto/progress-report.dto.js';
 import type {
   ProgressReportRow,
   ProgressReportSubjectRow,
   ReportAcknowledgementRow,
-} from './rows/progress-report.row';
+} from './rows/progress-report.row.js';
 
 export class ProgressReportMapper {
   /** Pure DTO→jsonb assembly, unit-tested in isolation, same reasoning as `EnrolmentMapper.toSubmitPayload`. */

@@ -1,5 +1,5 @@
-import type { StoredProcRunner } from '../../database/stored-proc.runner';
-import { UserRolesRepository } from './user-roles.repository';
+import type { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import { UserRolesRepository } from './user-roles.repository.js';
 
 describe('UserRolesRepository', () => {
   it('selects role names for exactly the given user id', async () => {

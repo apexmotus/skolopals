@@ -1,5 +1,5 @@
-import type { ReviewDto } from './dto/review.dto';
-import type { ReviewRow } from './rows/review.row';
+import type { ReviewDto } from './dto/review.dto.js';
+import type { ReviewRow } from './rows/review.row.js';
 
 export class ReviewsMapper {
   static toDto(row: ReviewRow): ReviewDto {

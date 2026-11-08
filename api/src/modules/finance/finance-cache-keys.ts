@@ -1,4 +1,4 @@
-import type { DateRange } from './finance.repository';
+import type { DateRange } from './finance.repository.js';
 
 /**
  * `03-endpoints-and-business-rules.md` §finance: every KPI endpoint, 5-15

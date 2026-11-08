@@ -4,9 +4,9 @@ import type { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { ClsService } from 'nestjs-cls';
 import type { Mock } from 'vitest';
-import type { EnvConfig } from '../../config/env.schema';
-import type { UserRolesRepository } from '../../modules/auth/user-roles.repository';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import type { EnvConfig } from '../../config/env.schema.js';
+import type { UserRolesRepository } from '../../modules/auth/user-roles.repository.js';
+import { JwtAuthGuard } from './jwt-auth.guard.js';
 
 const SECRET = 'a'.repeat(32);
 

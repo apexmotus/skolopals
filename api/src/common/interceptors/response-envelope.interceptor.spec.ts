@@ -1,8 +1,8 @@
 import type { CallHandler, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { of, type Observable } from 'rxjs';
-import { PagedResult } from '../types/paged-result';
-import { ResponseEnvelopeInterceptor } from './response-envelope.interceptor';
+import { PagedResult } from '../types/paged-result.js';
+import { ResponseEnvelopeInterceptor } from './response-envelope.interceptor.js';
 
 function makeContext(): ExecutionContext {
   return {

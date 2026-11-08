@@ -1,13 +1,13 @@
-import type { ClassGroupDto } from './dto/class-group.dto';
-import type { ClassScheduleDto } from './dto/class-schedule.dto';
-import type { ClassSessionDto } from './dto/class-session.dto';
-import type { ClassEnrolmentDto } from './dto/class-enrolment.dto';
-import type { PublicTimetableEntryDto } from './dto/public-timetable.dto';
-import type { ClassGroupRow } from './rows/class-group.row';
-import type { ClassScheduleRow } from './rows/class-schedule.row';
-import type { ClassSessionRow } from './rows/class-session.row';
-import type { ClassEnrolmentRow } from './rows/class-enrolment.row';
-import type { PublicTimetableRow } from './rows/public-timetable.row';
+import type { ClassGroupDto } from './dto/class-group.dto.js';
+import type { ClassScheduleDto } from './dto/class-schedule.dto.js';
+import type { ClassSessionDto } from './dto/class-session.dto.js';
+import type { ClassEnrolmentDto } from './dto/class-enrolment.dto.js';
+import type { PublicTimetableEntryDto } from './dto/public-timetable.dto.js';
+import type { ClassGroupRow } from './rows/class-group.row.js';
+import type { ClassScheduleRow } from './rows/class-schedule.row.js';
+import type { ClassSessionRow } from './rows/class-session.row.js';
+import type { ClassEnrolmentRow } from './rows/class-enrolment.row.js';
+import type { PublicTimetableRow } from './rows/public-timetable.row.js';
 
 export class TimetableMapper {
   static publicEntryToDto(row: PublicTimetableRow): PublicTimetableEntryDto {

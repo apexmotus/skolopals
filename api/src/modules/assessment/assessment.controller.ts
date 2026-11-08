@@ -16,15 +16,15 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { AssessmentManager } from './assessment.manager';
-import { AssessmentDto, RecordAssessmentDto } from './dto/assessment.dto';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import { AssessmentManager } from './assessment.manager.js';
+import { AssessmentDto, RecordAssessmentDto } from './dto/assessment.dto.js';
 import {
   CreateLearningPlanDto,
   LearningPlanDto,
   LearningPlanGoalDto,
   UpdateGoalStatusDto,
-} from './dto/learning-plan.dto';
+} from './dto/learning-plan.dto.js';
 
 @ApiTags('assessment')
 @ApiBearerAuth()

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { EnquiriesController } from './enquiries.controller';
-import { EnquiriesManager } from './enquiries.manager';
-import { EnquiriesRepository } from './enquiries.repository';
+import { EnquiriesController } from './enquiries.controller.js';
+import { EnquiriesManager } from './enquiries.manager.js';
+import { EnquiriesRepository } from './enquiries.repository.js';
 
 @Module({
   controllers: [EnquiriesController],

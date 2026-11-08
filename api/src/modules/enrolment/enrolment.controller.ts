@@ -17,20 +17,20 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import {
   ActivateEnrolmentDto,
   ActivateEnrolmentResultDto,
-} from './dto/activate-enrolment.dto';
-import { EnrolmentDto, ListEnrolmentsQueryDto } from './dto/enrolment.dto';
-import { SubmitEnrolmentDto } from './dto/submit-enrolment.dto';
+} from './dto/activate-enrolment.dto.js';
+import { EnrolmentDto, ListEnrolmentsQueryDto } from './dto/enrolment.dto.js';
+import { SubmitEnrolmentDto } from './dto/submit-enrolment.dto.js';
 import {
   EnrolmentSubjectDto,
   UpdateEnrolmentSubjectsDto,
-} from './dto/update-enrolment-subjects.dto';
-import { EnrolmentManager } from './enrolment.manager';
+} from './dto/update-enrolment-subjects.dto.js';
+import { EnrolmentManager } from './enrolment.manager.js';
 
 @ApiTags('enrolment')
 @ApiBearerAuth()

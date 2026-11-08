@@ -8,8 +8,8 @@ import {
   type HttpException,
 } from '@nestjs/common';
 import { DatabaseError } from 'pg';
-import { BusinessRuleException } from '../common/exceptions/business-rule.exception';
-import { SqlErrorMapper } from './sql-error.mapper';
+import { BusinessRuleException } from '../common/exceptions/business-rule.exception.js';
+import { SqlErrorMapper } from './sql-error.mapper.js';
 
 function makeDatabaseError(code: string, message: string): DatabaseError {
   const err = new DatabaseError(message, 0, 'error');

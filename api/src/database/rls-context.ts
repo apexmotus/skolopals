@@ -1,6 +1,6 @@
 import type { ClsService } from 'nestjs-cls';
 import type { PoolClient } from 'pg';
-import type { AppClsStore } from '../common/types/app-cls-store';
+import type { AppClsStore } from '../common/types/app-cls-store.js';
 
 /**
  * Reproduces, per transaction, exactly what PostgREST does today before

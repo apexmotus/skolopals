@@ -11,26 +11,26 @@ import { NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type { ClsService } from 'nestjs-cls';
 import { Pool, type PoolClient } from 'pg';
-import type { AppClsStore } from '../src/common/types/app-cls-store';
-import type { AuthUser } from '../src/common/types/auth-user';
+import type { AppClsStore } from '../src/common/types/app-cls-store.js';
+import type { AuthUser } from '../src/common/types/auth-user.js';
 // Side-effecting import: registers the global `date` type parser the real
 // app gets for free through `DatabaseModule`'s bootstrap — see
 // `database.providers.ts`'s own doc comment and `billing-smoke.ts`'s note
 // on why a standalone script needs this explicitly.
-import '../src/database/database.providers';
-import { applyRlsContext } from '../src/database/rls-context';
-import { StoredProcRunner } from '../src/database/stored-proc.runner';
-import { TransactionContext } from '../src/database/transaction.context';
-import { UnitOfWork } from '../src/database/unit-of-work';
-import { CommunicationManager } from '../src/modules/communication/communication.manager';
-import { CommunicationRepository } from '../src/modules/communication/communication.repository';
-import { ConsentManager } from '../src/modules/consent/consent.manager';
-import { ConsentRepository } from '../src/modules/consent/consent.repository';
-import { EnquiriesManager } from '../src/modules/enquiries/enquiries.manager';
-import { EnquiriesRepository } from '../src/modules/enquiries/enquiries.repository';
-import { ResourcesManager } from '../src/modules/resources/resources.manager';
-import { ResourcesRepository } from '../src/modules/resources/resources.repository';
-import { ReviewsRepository } from '../src/modules/reviews/reviews.repository';
+import '../src/database/database.providers.js';
+import { applyRlsContext } from '../src/database/rls-context.js';
+import { StoredProcRunner } from '../src/database/stored-proc.runner.js';
+import { TransactionContext } from '../src/database/transaction.context.js';
+import { UnitOfWork } from '../src/database/unit-of-work.js';
+import { CommunicationManager } from '../src/modules/communication/communication.manager.js';
+import { CommunicationRepository } from '../src/modules/communication/communication.repository.js';
+import { ConsentManager } from '../src/modules/consent/consent.manager.js';
+import { ConsentRepository } from '../src/modules/consent/consent.repository.js';
+import { EnquiriesManager } from '../src/modules/enquiries/enquiries.manager.js';
+import { EnquiriesRepository } from '../src/modules/enquiries/enquiries.repository.js';
+import { ResourcesManager } from '../src/modules/resources/resources.manager.js';
+import { ResourcesRepository } from '../src/modules/resources/resources.repository.js';
+import { ReviewsRepository } from '../src/modules/reviews/reviews.repository.js';
 
 function assert(condition: boolean, message: string): void {
   if (!condition) throw new Error(`FAILED: ${message}`);

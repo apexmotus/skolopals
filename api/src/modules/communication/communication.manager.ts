@@ -1,15 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import type { AuthUser } from '../../common/types/auth-user';
-import { CommunicationMapper } from './communication.mapper';
-import { CommunicationRepository } from './communication.repository';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { CommunicationMapper } from './communication.mapper.js';
+import { CommunicationRepository } from './communication.repository.js';
 import type {
   AddParticipantDto,
   StartThreadDto,
   ThreadDto,
   ThreadParticipantDto,
-} from './dto/thread.dto';
-import type { MarkThreadReadResultDto, MessageDto, PostMessageDto } from './dto/message.dto';
-import type { CreateNotificationDto, NotificationDto } from './dto/notification.dto';
+} from './dto/thread.dto.js';
+import type { MarkThreadReadResultDto, MessageDto, PostMessageDto } from './dto/message.dto.js';
+import type { CreateNotificationDto, NotificationDto } from './dto/notification.dto.js';
 
 /** No caching anywhere (`03-endpoints-and-business-rules.md` §communication: "needs to be live"). */
 @Injectable()

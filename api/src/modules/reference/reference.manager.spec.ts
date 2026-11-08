@@ -1,7 +1,7 @@
-import type { CacheService } from '../../common/cache/cache.service';
-import type { ReferenceRepository } from './reference.repository';
-import { ReferenceManager } from './reference.manager';
-import { referenceCacheKeys } from './reference-cache-keys';
+import type { CacheService } from '../../common/cache/cache.service.js';
+import type { ReferenceRepository } from './reference.repository.js';
+import { ReferenceManager } from './reference.manager.js';
+import { referenceCacheKeys } from './reference-cache-keys.js';
 
 function makeCache(initial: Record<string, unknown> = {}) {
   const store = new Map<string, unknown>(Object.entries(initial));

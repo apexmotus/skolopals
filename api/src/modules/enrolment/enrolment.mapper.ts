@@ -1,8 +1,8 @@
-import type { SubmitEnrolmentPayload } from './enrolment.repository';
-import type { EnrolmentSubjectDto } from './dto/update-enrolment-subjects.dto';
-import type { SubmitEnrolmentDto } from './dto/submit-enrolment.dto';
-import type { EnrolmentDto } from './dto/enrolment.dto';
-import type { EnrolmentRow, EnrolmentSubjectRow } from './rows/enrolment.row';
+import type { SubmitEnrolmentPayload } from './enrolment.repository.js';
+import type { EnrolmentSubjectDto } from './dto/update-enrolment-subjects.dto.js';
+import type { SubmitEnrolmentDto } from './dto/submit-enrolment.dto.js';
+import type { EnrolmentDto } from './dto/enrolment.dto.js';
+import type { EnrolmentRow, EnrolmentSubjectRow } from './rows/enrolment.row.js';
 
 export class EnrolmentMapper {
   /**

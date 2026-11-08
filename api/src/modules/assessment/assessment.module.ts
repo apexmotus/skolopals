@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AssessmentController } from './assessment.controller';
-import { AssessmentManager } from './assessment.manager';
-import { AssessmentRepository } from './assessment.repository';
+import { AssessmentController } from './assessment.controller.js';
+import { AssessmentManager } from './assessment.manager.js';
+import { AssessmentRepository } from './assessment.repository.js';
 
 @Module({
   controllers: [AssessmentController],

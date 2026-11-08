@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { p } from '../../database/sp-param';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { TutorDocumentRow } from './rows/tutor-document.row';
-import type { TutorPayRateRow } from './rows/tutor-pay-rate.row';
-import type { TutorQualificationRow } from './rows/tutor-qualification.row';
-import type { TutorReferenceRow } from './rows/tutor-reference.row';
-import type { TutorSpokenLanguageRow } from './rows/tutor-spoken-language.row';
-import type { TutorCompetencyRow } from './rows/tutor-competency.row';
-import type { TutorRatingRow, TutorRow } from './rows/tutor.row';
+import { p } from '../../database/sp-param.js';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { TutorDocumentRow } from './rows/tutor-document.row.js';
+import type { TutorPayRateRow } from './rows/tutor-pay-rate.row.js';
+import type { TutorQualificationRow } from './rows/tutor-qualification.row.js';
+import type { TutorReferenceRow } from './rows/tutor-reference.row.js';
+import type { TutorSpokenLanguageRow } from './rows/tutor-spoken-language.row.js';
+import type { TutorCompetencyRow } from './rows/tutor-competency.row.js';
+import type { TutorRatingRow, TutorRow } from './rows/tutor.row.js';
 
 const TUTOR_COLUMNS =
   'id, profile_id, slug, headline, bio, employment_type, status, photo_url, started_on, ended_on, created_at';

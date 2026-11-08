@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CacheService } from '../../common/cache/cache.service';
-import type { AuthUser } from '../../common/types/auth-user';
+import { CacheService } from '../../common/cache/cache.service.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import {
   CreateExpenseCategoryDto,
   ExpenseCategoryDto,
   ExpenseDto,
   RecordExpenseDto,
-} from './dto/expense.dto';
+} from './dto/expense.dto.js';
 import {
   AssessmentImprovementDto,
   AttendanceRateDto,
@@ -19,10 +19,10 @@ import {
   OperatingSurplusDto,
   RevenuePerLearnerDto,
   TutorSessionLoadDto,
-} from './dto/kpi.dto';
-import { financeCacheKeys, FINANCE_KPI_CACHE_TTL_SECONDS } from './finance-cache-keys';
-import { FinanceMapper } from './finance.mapper';
-import { DateRange, FinanceRepository } from './finance.repository';
+} from './dto/kpi.dto.js';
+import { financeCacheKeys, FINANCE_KPI_CACHE_TTL_SECONDS } from './finance-cache-keys.js';
+import { FinanceMapper } from './finance.mapper.js';
+import { DateRange, FinanceRepository } from './finance.repository.js';
 
 @Injectable()
 export class FinanceManager {

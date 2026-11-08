@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
 import type { Pool } from 'pg';
-import type { AppClsStore } from '../common/types/app-cls-store';
-import { PG_POOL } from './database.constants';
-import { applyRlsContext } from './rls-context';
-import { TransactionContext } from './transaction.context';
+import type { AppClsStore } from '../common/types/app-cls-store.js';
+import { PG_POOL } from './database.constants.js';
+import { applyRlsContext } from './rls-context.js';
+import { TransactionContext } from './transaction.context.js';
 
 /**
  * Multi-SP write flows. Managers wrap them in `this.uow.run(async () => {

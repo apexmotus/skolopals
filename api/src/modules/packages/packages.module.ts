@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { CacheModule } from '../../common/cache/cache.module';
-import { PackagesController } from './packages.controller';
-import { PackagesManager } from './packages.manager';
-import { PackagesRepository } from './packages.repository';
+import { CacheModule } from '../../common/cache/cache.module.js';
+import { PackagesController } from './packages.controller.js';
+import { PackagesManager } from './packages.manager.js';
+import { PackagesRepository } from './packages.repository.js';
 
 @Module({
   imports: [CacheModule],

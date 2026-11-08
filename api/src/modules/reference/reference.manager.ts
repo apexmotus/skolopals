@@ -1,24 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { CacheService } from '../../common/cache/cache.service';
+import { CacheService } from '../../common/cache/cache.service.js';
 import {
   referenceCacheKeys,
   REFERENCE_CACHE_TTL_SECONDS,
-} from './reference-cache-keys';
-import type { AchievementLevelDto } from './dto/achievement-level.dto';
-import type { AssessmentDomainDto } from './dto/assessment-domain.dto';
-import type { AssessmentTypeDto } from './dto/assessment-type.dto';
-import type { ConsentTypeDto } from './dto/consent-type.dto';
-import type { DataRetentionPolicyDto } from './dto/data-retention-policy.dto';
-import type { GradeDto } from './dto/grade.dto';
-import type { LanguageDto } from './dto/language.dto';
-import type { OperatingHourDto } from './dto/operating-hour.dto';
-import type { CreateRoomDto, RoomDto } from './dto/room.dto';
-import type { SchoolPhaseDto } from './dto/school-phase.dto';
-import type { SubjectOfferingDto } from './dto/subject-offering.dto';
-import type { SubjectDto } from './dto/subject.dto';
-import type { CreateTermDto, TermDto } from './dto/term.dto';
-import { ReferenceMapper } from './reference.mapper';
-import { ReferenceRepository } from './reference.repository';
+} from './reference-cache-keys.js';
+import type { AchievementLevelDto } from './dto/achievement-level.dto.js';
+import type { AssessmentDomainDto } from './dto/assessment-domain.dto.js';
+import type { AssessmentTypeDto } from './dto/assessment-type.dto.js';
+import type { ConsentTypeDto } from './dto/consent-type.dto.js';
+import type { DataRetentionPolicyDto } from './dto/data-retention-policy.dto.js';
+import type { GradeDto } from './dto/grade.dto.js';
+import type { LanguageDto } from './dto/language.dto.js';
+import type { OperatingHourDto } from './dto/operating-hour.dto.js';
+import type { CreateRoomDto, RoomDto } from './dto/room.dto.js';
+import type { SchoolPhaseDto } from './dto/school-phase.dto.js';
+import type { SubjectOfferingDto } from './dto/subject-offering.dto.js';
+import type { SubjectDto } from './dto/subject.dto.js';
+import type { CreateTermDto, TermDto } from './dto/term.dto.js';
+import { ReferenceMapper } from './reference.mapper.js';
+import { ReferenceRepository } from './reference.repository.js';
 
 @Injectable()
 export class ReferenceManager {

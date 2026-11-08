@@ -4,14 +4,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ClsModule } from 'nestjs-cls';
 import { ConfigService } from '@nestjs/config';
-import type { EnvConfig } from '../config/env.schema';
-import { AuthModule } from '../modules/auth/auth.module';
-import { AllExceptionsFilter } from './filters/all-exceptions.filter';
-import { FileStorageModule } from './file-storage/file-storage.module';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RolesGuard } from './guards/roles.guard';
-import { ResponseEnvelopeInterceptor } from './interceptors/response-envelope.interceptor';
-import { RedisModule } from './redis/redis.module';
+import type { EnvConfig } from '../config/env.schema.js';
+import { AuthModule } from '../modules/auth/auth.module.js';
+import { AllExceptionsFilter } from './filters/all-exceptions.filter.js';
+import { FileStorageModule } from './file-storage/file-storage.module.js';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
+import { RolesGuard } from './guards/roles.guard.js';
+import { ResponseEnvelopeInterceptor } from './interceptors/response-envelope.interceptor.js';
+import { RedisModule } from './redis/redis.module.js';
 
 @Module({
   imports: [

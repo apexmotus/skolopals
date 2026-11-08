@@ -1,8 +1,8 @@
-import type { MessageDto } from './dto/message.dto';
-import type { NotificationDto } from './dto/notification.dto';
-import type { ThreadDto, ThreadParticipantDto } from './dto/thread.dto';
-import type { NotificationRow } from './rows/notification.row';
-import type { MessageRow, ThreadParticipantRow, ThreadRow } from './rows/thread.row';
+import type { MessageDto } from './dto/message.dto.js';
+import type { NotificationDto } from './dto/notification.dto.js';
+import type { ThreadDto, ThreadParticipantDto } from './dto/thread.dto.js';
+import type { NotificationRow } from './rows/notification.row.js';
+import type { MessageRow, ThreadParticipantRow, ThreadRow } from './rows/thread.row.js';
 
 export class CommunicationMapper {
   static threadToDto(row: ThreadRow): ThreadDto {

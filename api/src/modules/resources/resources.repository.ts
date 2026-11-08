@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { ResourceRow } from './rows/resource.row';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { ResourceRow } from './rows/resource.row.js';
 
 const RESOURCE_COLUMNS_WITH_AUDIENCES = `
   r.id, r.title, r.subject_code, r.url, r.storage_path, r.created_by, r.created_at,

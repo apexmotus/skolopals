@@ -1,8 +1,8 @@
 import { Logger, type Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Pool, types } from 'pg';
-import type { EnvConfig } from '../config/env.schema';
-import { PG_POOL } from './database.constants';
+import type { EnvConfig } from '../config/env.schema.js';
+import { PG_POOL } from './database.constants.js';
 
 /**
  * Postgres `date` (OID 1082) has no time-of-day or timezone component, but

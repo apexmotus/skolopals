@@ -1,4 +1,4 @@
-import { FinanceMapper } from './finance.mapper';
+import { FinanceMapper } from './finance.mapper.js';
 
 describe('FinanceMapper.expenseCategoryToDto', () => {
   it('keeps a null budget_cents as undefined, not 0', () => {

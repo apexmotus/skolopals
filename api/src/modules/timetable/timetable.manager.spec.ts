@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
-import type { CacheService } from '../../common/cache/cache.service';
-import { BusinessRuleException } from '../../common/exceptions/business-rule.exception';
-import type { UnitOfWork } from '../../database/unit-of-work';
-import { TimetableManager } from './timetable.manager';
-import type { TimetableRepository } from './timetable.repository';
+import type { CacheService } from '../../common/cache/cache.service.js';
+import { BusinessRuleException } from '../../common/exceptions/business-rule.exception.js';
+import type { UnitOfWork } from '../../database/unit-of-work.js';
+import { TimetableManager } from './timetable.manager.js';
+import type { TimetableRepository } from './timetable.repository.js';
 
 function makeCache() {
   const store = new Map<string, unknown>();

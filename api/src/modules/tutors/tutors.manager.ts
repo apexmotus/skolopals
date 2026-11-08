@@ -1,43 +1,43 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CacheService } from '../../common/cache/cache.service';
-import { BusinessRuleException } from '../../common/exceptions/business-rule.exception';
-import { FileStorageService } from '../../common/file-storage/file-storage.service';
-import { PagedResult } from '../../common/types/paged-result';
-import type { AuthUser } from '../../common/types/auth-user';
-import { UnitOfWork } from '../../database/unit-of-work';
+import { CacheService } from '../../common/cache/cache.service.js';
+import { BusinessRuleException } from '../../common/exceptions/business-rule.exception.js';
+import { FileStorageService } from '../../common/file-storage/file-storage.service.js';
+import { PagedResult } from '../../common/types/paged-result.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { UnitOfWork } from '../../database/unit-of-work.js';
 import type {
   AddDocumentDto,
   TutorDocumentDto,
   UploadDocumentResponseDto,
-} from './dto/tutor-document.dto';
+} from './dto/tutor-document.dto.js';
 import type {
   AddQualificationDto,
   TutorQualificationDto,
-} from './dto/tutor-qualification.dto';
+} from './dto/tutor-qualification.dto.js';
 import type {
   AddReferenceDto,
   RecordOutcomeDto,
   TutorReferenceDto,
-} from './dto/tutor-reference.dto';
-import type { SetPayRateDto, TutorPayRateDto } from './dto/tutor-pay-rate.dto';
+} from './dto/tutor-reference.dto.js';
+import type { SetPayRateDto, TutorPayRateDto } from './dto/tutor-pay-rate.dto.js';
 import type {
   SetSpokenLanguagesDto,
   TutorSpokenLanguageDto,
-} from './dto/tutor-spoken-language.dto';
+} from './dto/tutor-spoken-language.dto.js';
 import type {
   SetCompetencyDto,
   TutorCompetencyDto,
-} from './dto/tutor-competency.dto';
+} from './dto/tutor-competency.dto.js';
 import type {
   CreateTutorDto,
   ListPublicTutorsQueryDto,
   TutorDto,
   UpdateMyTutorProfileDto,
-} from './dto/tutor.dto';
-import { tutorsCacheKeys, TUTORS_CACHE_TTL_SECONDS } from './tutors-cache-keys';
-import { TutorsMapper } from './tutors.mapper';
-import { TutorsRepository } from './tutors.repository';
+} from './dto/tutor.dto.js';
+import { tutorsCacheKeys, TUTORS_CACHE_TTL_SECONDS } from './tutors-cache-keys.js';
+import { TutorsMapper } from './tutors.mapper.js';
+import { TutorsRepository } from './tutors.repository.js';
 
 @Injectable()
 export class TutorsManager {

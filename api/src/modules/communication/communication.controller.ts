@@ -1,12 +1,12 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
-import { CommunicationManager } from './communication.manager';
-import { MarkThreadReadResultDto, MessageDto, PostMessageDto } from './dto/message.dto';
-import { CreateNotificationDto, NotificationDto } from './dto/notification.dto';
-import { AddParticipantDto, StartThreadDto, ThreadDto, ThreadParticipantDto } from './dto/thread.dto';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { CommunicationManager } from './communication.manager.js';
+import { MarkThreadReadResultDto, MessageDto, PostMessageDto } from './dto/message.dto.js';
+import { CreateNotificationDto, NotificationDto } from './dto/notification.dto.js';
+import { AddParticipantDto, StartThreadDto, ThreadDto, ThreadParticipantDto } from './dto/thread.dto.js';
 
 /**
  * Most routes here carry no `@Roles(...)`: "participant" and "recipient"

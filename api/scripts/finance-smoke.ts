@@ -15,8 +15,8 @@
 import { randomUUID } from 'node:crypto';
 import type { ClsService } from 'nestjs-cls';
 import { Pool, type PoolClient } from 'pg';
-import type { AppClsStore } from '../src/common/types/app-cls-store';
-import type { AuthUser } from '../src/common/types/auth-user';
+import type { AppClsStore } from '../src/common/types/app-cls-store.js';
+import type { AuthUser } from '../src/common/types/auth-user.js';
 // Side-effecting import: registers the global `date` (OID 1082) type parser
 // that makes `date` columns arrive as raw 'YYYY-MM-DD' strings instead of a
 // local-midnight `Date` (see that file's own doc comment). The real app
@@ -24,12 +24,12 @@ import type { AuthUser } from '../src/common/types/auth-user';
 // standalone script must trigger it explicitly, or `month`/`issuedOn`-style
 // columns silently come back as `Date` objects here even though production
 // never sees that.
-import '../src/database/database.providers';
-import { applyRlsContext } from '../src/database/rls-context';
-import { StoredProcRunner } from '../src/database/stored-proc.runner';
-import { TransactionContext } from '../src/database/transaction.context';
-import { FinanceMapper } from '../src/modules/finance/finance.mapper';
-import { FinanceRepository } from '../src/modules/finance/finance.repository';
+import '../src/database/database.providers.js';
+import { applyRlsContext } from '../src/database/rls-context.js';
+import { StoredProcRunner } from '../src/database/stored-proc.runner.js';
+import { TransactionContext } from '../src/database/transaction.context.js';
+import { FinanceMapper } from '../src/modules/finance/finance.mapper.js';
+import { FinanceRepository } from '../src/modules/finance/finance.repository.js';
 
 function assert(condition: boolean, message: string): void {
   if (!condition) throw new Error(`FAILED: ${message}`);

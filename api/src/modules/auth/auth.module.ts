@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UserRolesRepository } from './user-roles.repository';
+import { UserRolesRepository } from './user-roles.repository.js';
 
 /**
  * Per docs/nestjs-api-plan/06-phase2-auth.md: no `/auth/register`,

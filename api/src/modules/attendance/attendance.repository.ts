@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { AttendanceRecordRow } from './rows/attendance-record.row';
-import type { SessionCheckInRow } from './rows/session-check-in.row';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { AttendanceRecordRow } from './rows/attendance-record.row.js';
+import type { SessionCheckInRow } from './rows/session-check-in.row.js';
 
 const ATTENDANCE_COLUMNS = 'id, class_session_id, learner_id, status, marked_by, marked_at, note';
 const CHECK_IN_COLUMNS =

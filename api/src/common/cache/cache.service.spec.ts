@@ -1,5 +1,5 @@
 import type { Redis } from 'ioredis';
-import { CacheService } from './cache.service';
+import { CacheService } from './cache.service.js';
 
 describe('CacheService', () => {
   it('returns undefined for a cache miss', async () => {

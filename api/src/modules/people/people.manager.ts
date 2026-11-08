@@ -1,33 +1,33 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { BusinessRuleException } from '../../common/exceptions/business-rule.exception';
-import { PagedResult } from '../../common/types/paged-result';
-import type { AuthUser } from '../../common/types/auth-user';
+import { BusinessRuleException } from '../../common/exceptions/business-rule.exception.js';
+import { PagedResult } from '../../common/types/paged-result.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
 import type {
   AddCollectorDto,
   AuthorisedCollectorDto,
-} from './dto/authorised-collector.dto';
+} from './dto/authorised-collector.dto.js';
 import type {
   AddEmergencyContactDto,
   EmergencyContactDto,
-} from './dto/emergency-contact.dto';
+} from './dto/emergency-contact.dto.js';
 import type {
   AddGuardianDto,
   LearnerGuardianDto,
   SetContactFlagsDto,
-} from './dto/learner-guardian.dto';
+} from './dto/learner-guardian.dto.js';
 import type {
   CreateLearnerDto,
   LearnerDto,
   ListLearnersQueryDto,
   UpdateLearnerDto,
-} from './dto/learner.dto';
+} from './dto/learner.dto.js';
 import type {
   MedicalNotesDto,
   UpsertMedicalNotesDto,
-} from './dto/medical-notes.dto';
-import type { MyProfileDto, UpdateMyProfileDto } from './dto/profile.dto';
-import { PeopleMapper } from './people.mapper';
-import { PeopleRepository } from './people.repository';
+} from './dto/medical-notes.dto.js';
+import type { MyProfileDto, UpdateMyProfileDto } from './dto/profile.dto.js';
+import { PeopleMapper } from './people.mapper.js';
+import { PeopleRepository } from './people.repository.js';
 
 @Injectable()
 export class PeopleManager {

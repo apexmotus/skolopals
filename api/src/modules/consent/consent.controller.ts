@@ -1,11 +1,11 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import type { AuthUser } from '../../common/types/auth-user';
-import { ConsentManager } from './consent.manager';
-import { ConsentDto } from './dto/consent.dto';
-import { RecordRetentionActionDto, RetentionDueDto, RetentionLogDto } from './dto/retention.dto';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { ConsentManager } from './consent.manager.js';
+import { ConsentDto } from './dto/consent.dto.js';
+import { RecordRetentionActionDto, RetentionDueDto, RetentionLogDto } from './dto/retention.dto.js';
 
 @ApiTags('consent')
 @ApiBearerAuth()

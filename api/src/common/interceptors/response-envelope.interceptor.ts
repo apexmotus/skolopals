@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { map, type Observable } from 'rxjs';
-import { RAW_RESPONSE_KEY } from '../decorators/raw-response.decorator';
-import { PagedResult } from '../types/paged-result';
+import { RAW_RESPONSE_KEY } from '../decorators/raw-response.decorator.js';
+import { PagedResult } from '../types/paged-result.js';
 
 interface Envelope<T> {
   data: T;

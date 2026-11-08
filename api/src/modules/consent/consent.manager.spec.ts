@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
-import { ConsentManager } from './consent.manager';
-import type { ConsentRepository } from './consent.repository';
+import { ConsentManager } from './consent.manager.js';
+import type { ConsentRepository } from './consent.repository.js';
 
 const CONSENT_ROW = {
   id: 'c1',

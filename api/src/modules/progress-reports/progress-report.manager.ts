@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { AuthUser } from '../../common/types/auth-user';
-import { ProgressReportMapper } from './progress-report.mapper';
-import { ProgressReportRepository } from './progress-report.repository';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { ProgressReportMapper } from './progress-report.mapper.js';
+import { ProgressReportRepository } from './progress-report.repository.js';
 import type {
   AcknowledgeReportDto,
   ProgressReportDto,
   SaveProgressReportDto,
-} from './dto/progress-report.dto';
+} from './dto/progress-report.dto.js';
 
 @Injectable()
 export class ProgressReportManager {

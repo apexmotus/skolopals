@@ -1,6 +1,6 @@
-import type { SpParam } from '../../database/sp-param';
-import type { StoredProcRunner } from '../../database/stored-proc.runner';
-import { BillingRepository } from './billing.repository';
+import type { SpParam } from '../../database/sp-param.js';
+import type { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import { BillingRepository } from './billing.repository.js';
 
 function makeSp(
   overrides: Partial<Record<keyof StoredProcRunner, unknown>> = {},

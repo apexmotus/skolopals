@@ -8,8 +8,8 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { DatabaseError } from 'pg';
-import { BusinessRuleException } from '../common/exceptions/business-rule.exception';
-import { ERROR_CODES } from '../common/error-codes';
+import { BusinessRuleException } from '../common/exceptions/business-rule.exception.js';
+import { ERROR_CODES } from '../common/error-codes.js';
 
 /**
  * Postgres adaptation of the generic spec's §5.6. Maps Postgres SQLSTATE

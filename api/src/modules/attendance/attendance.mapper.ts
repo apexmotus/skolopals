@@ -1,7 +1,7 @@
-import type { AttendanceRecordDto } from './dto/attendance-record.dto';
-import type { SessionCheckInDto } from './dto/session-check-in.dto';
-import type { AttendanceRecordRow } from './rows/attendance-record.row';
-import type { SessionCheckInRow } from './rows/session-check-in.row';
+import type { AttendanceRecordDto } from './dto/attendance-record.dto.js';
+import type { SessionCheckInDto } from './dto/session-check-in.dto.js';
+import type { AttendanceRecordRow } from './rows/attendance-record.row.js';
+import type { SessionCheckInRow } from './rows/session-check-in.row.js';
 
 export class AttendanceMapper {
   static recordToDto(row: AttendanceRecordRow): AttendanceRecordDto {

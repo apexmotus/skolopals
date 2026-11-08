@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { p } from '../../database/sp-param';
-import { StoredProcRunner } from '../../database/stored-proc.runner';
-import type { ClassEnrolmentRow } from './rows/class-enrolment.row';
-import type { ClassGroupRow } from './rows/class-group.row';
-import type { ClassScheduleRow } from './rows/class-schedule.row';
-import type { ClassSessionRow } from './rows/class-session.row';
-import type { PublicTimetableRow } from './rows/public-timetable.row';
+import { p } from '../../database/sp-param.js';
+import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { ClassEnrolmentRow } from './rows/class-enrolment.row.js';
+import type { ClassGroupRow } from './rows/class-group.row.js';
+import type { ClassScheduleRow } from './rows/class-schedule.row.js';
+import type { ClassSessionRow } from './rows/class-session.row.js';
+import type { PublicTimetableRow } from './rows/public-timetable.row.js';
 
 const CLASS_GROUP_COLUMNS =
   'id, name, subject_code, language_code, tutor_id, term_id, delivery_mode, room_id, capacity, is_active, created_at';

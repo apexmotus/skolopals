@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CacheService } from '../../common/cache/cache.service';
-import type { AuthUser } from '../../common/types/auth-user';
-import { ModerateReviewDto, ReviewDto, SubmitReviewDto } from './dto/review.dto';
-import { reviewsCacheKeys, REVIEWS_CACHE_TTL_SECONDS } from './reviews-cache-keys';
-import { ReviewsMapper } from './reviews.mapper';
-import { ReviewsRepository } from './reviews.repository';
+import { CacheService } from '../../common/cache/cache.service.js';
+import type { AuthUser } from '../../common/types/auth-user.js';
+import { ModerateReviewDto, ReviewDto, SubmitReviewDto } from './dto/review.dto.js';
+import { reviewsCacheKeys, REVIEWS_CACHE_TTL_SECONDS } from './reviews-cache-keys.js';
+import { ReviewsMapper } from './reviews.mapper.js';
+import { ReviewsRepository } from './reviews.repository.js';
 
 @Injectable()
 export class ReviewsManager {

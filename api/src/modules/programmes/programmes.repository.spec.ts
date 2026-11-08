@@ -1,5 +1,5 @@
-import type { StoredProcRunner } from '../../database/stored-proc.runner';
-import { ProgrammesRepository } from './programmes.repository';
+import type { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import { ProgrammesRepository } from './programmes.repository.js';
 
 function makeSp(
   overrides: Partial<Record<keyof StoredProcRunner, unknown>> = {},
