@@ -44,10 +44,13 @@ generic spec's own checklist AND every box below is ticked.
       acceptable per this item's own wording ("coverage thresholds met" is the overall gate
       `vitest.config.mts` actually enforces), but worth another pass if a future phase wants
       every module individually over the line too.
-- [ ] Docker build and compose boot succeed. **Unverified**: no Docker available in this
-      environment to actually run `docker compose up --build`. `Dockerfile`/`docker-compose.yml`
-      exist and were authored in Phase 1; re-run this check on a machine with Docker before
-      calling Phase 4 closed.
+- [ ] Docker build and compose boot succeed. **Unverified, and now understood to be a local-dev
+      convenience check only, not a production gate** (2026-11-08 update): the confirmed
+      production target is Vercel Functions, which deploys this NestJS app with zero
+      configuration straight from `src/main.ts` and never builds `Dockerfile`/`docker-compose.yml`
+      — see the API README's "Deploying to Vercel" section. Still worth running
+      `docker compose up --build` on a machine with Docker at some point to confirm local-dev
+      parity, but it no longer blocks calling this project production-ready.
 - [x] README complete — prerequisites, env vars, local run, test run, the RLS spike and every
       module-specific smoke script, load test, Docker, architecture/layering, error handling
       (now pointing at `docs/sp-contract.md`), pool sizing, and first-admin-account creation.

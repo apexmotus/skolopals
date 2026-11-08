@@ -25,8 +25,12 @@ export const envSchema = z.object({
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
     .default('info'),
 
-  // Supabase's DIRECT connection string (port 5432, session mode) — never the
-  // 6543 transaction pooler. See phase0 §1 for why.
+  // Supabase's DIRECT connection string (port 5432, session mode) by default —
+  // see phase0 §1. Swapping to the 6543 Supavisor transaction pooler is a
+  // same-shape connection string, no code change required (rls-context.ts's
+  // set_config(..., true)/SET LOCAL ROLE are already transaction-scoped);
+  // switch if Supabase's dashboard shows this project approaching its
+  // connection limit under real Vercel traffic.
   DATABASE_URL: z.string().min(1),
   DB_POOL_MAX: z.coerce.number().int().positive().default(20),
   DB_POOL_MIN: z.coerce.number().int().nonnegative().default(2),

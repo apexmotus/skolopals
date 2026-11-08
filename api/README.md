@@ -18,7 +18,7 @@ Copy `.env.example` to `.env` and fill in:
 
 | Variable | Where to find it |
 |---|---|
-| `DATABASE_URL` | Supabase dashboard → Project Settings → Database → Connection string → URI, **Session mode** (port `5432`, never the `6543` pooler — see `../docs/nestjs-api-plan/04-phase0-schema-port-and-cutover-strategy.md` §1). For local dev against `db/`'s local Postgres, use `postgresql://<your-unix-user>@localhost:5432/skolopals_dev`. |
+| `DATABASE_URL` | Supabase dashboard → Project Settings → Database → Connection string → URI, **Session mode** (port `5432`) by default — see `../docs/nestjs-api-plan/04-phase0-schema-port-and-cutover-strategy.md` §1. For local dev against `db/`'s local Postgres, use `postgresql://<your-unix-user>@localhost:5432/skolopals_dev`. In production on Vercel, swap to the `6543` Supavisor transaction-pooler string instead if connection count ever approaches the project's limit — no code change needed, see "Deploying to Vercel" below. |
 | `SUPABASE_JWT_SECRET` | Supabase dashboard → Project Settings → API → JWT Settings → JWT Secret. Treat like a database password; never log it. |
 | `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | Supabase dashboard → Project Settings → API. Used only by `common/file-storage/` (signed URLs for the `tutor-documents` bucket) and one-off admin scripts — never for per-request data access. |
 | `REDIS_URL` | Your Redis instance; `redis://localhost:6379` for the bundled `docker-compose.yml` service. |
@@ -88,15 +88,51 @@ one-person, one-time action, not a workflow worth automating.
 `test/load/smoke.js` ([k6](https://k6.io), a standalone binary — not run by `pnpm test`). See
 `docs/load-test.md` for the environment variables it needs and what it actually exercises.
 
-## Docker
+## Docker (local dev only — not the deployment path)
 
 ```bash
 docker compose up --build
 ```
 
-Builds and runs `api` (reading `.env` for its Supabase/Redis connection details) and `redis`.
+Builds and runs `api` (reading `.env` for its Supabase/Redis connection details) and `redis`,
+purely as a local-dev convenience (e.g. a disposable Redis without installing it natively).
 There is **no local Postgres container** — the database is the existing Supabase project (or a
 branch of it); see `docs/nestjs-api-plan/05-phase1-scaffold-infrastructure.md` task 7.
+
+This `Dockerfile`/`docker-compose.yml` are **not** what ships to production — see "Deploying to
+Vercel" below.
+
+## Deploying to Vercel
+
+This API and `web/` deploy as two separate Vercel projects (each with its own `vercel.json` if
+needed, env vars, and domain) — not one combined deployment, and not through the Dockerfile
+above. NestJS is a zero-configuration supported framework on Vercel: Vercel's build detects
+`src/main.ts` as the entrypoint and deploys the whole app as one [Vercel Function running on
+Fluid Compute](https://vercel.com/docs/frameworks/backend/nestjs), reusing the warm process
+(and its `pg.Pool`/Redis client) across concurrent requests rather than cold-starting per
+request. `app.listen(port)` in `main.ts` already satisfies this — no handler-export rewrite is
+needed.
+
+What actually differs from local dev, configured as Environment Variables in the Vercel project
+settings (same keys as `.env.example`):
+- `DATABASE_URL`: the Supabase direct connection string (port 5432) is the default and fine at
+  this project's "low tens of concurrent users" scale, since Fluid Compute reuses instances
+  instead of one-process-per-request. Watch Supabase's dashboard connection count after going
+  live; if concurrent Vercel Function instances ever push it near the project's limit, switch
+  this one env var to the `6543` Supavisor transaction-pooler string — no code change required,
+  since `rls-context.ts`'s `set_config(..., true)` + `SET LOCAL ROLE` are already
+  transaction-scoped, which is exactly what transaction-mode pooling supports.
+- `REDIS_URL`: point at a real hosted Redis instead of the Docker Compose sidecar — Upstash via
+  the Vercel Marketplace is the standard pick and needs no code change (`CacheService` just
+  reads whatever `REDIS_URL` ioredis connection string it's given).
+- `CORS_ORIGINS`: the production `web/` Vercel domain(s), not `localhost`.
+- `SUPABASE_JWT_SECRET` / `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`: same values as `.env`,
+  entered as Vercel env vars (never committed).
+- `SWAGGER_ENABLED`: consider `false` in production.
+
+No `vercel.json` is required for the zero-config path above. Add one only if a specific need
+comes up (e.g. pinning `regions` next to the Supabase project's own region to cut DB round-trip
+latency) — not preemptively.
 
 ## Architecture
 
@@ -147,5 +183,8 @@ Every error response has the shape: `{ status, code, title, detail, traceId, pat
 ### Pool sizing
 
 `DB_POOL_MAX` (default 20) bounds direct Postgres connections against Supabase's own connection
-limit for this project (Supabase dashboard). The transaction pooler (port `6543`) is deliberately
-not used — see the RLS spike section above for why session-scoped `SET LOCAL` matters here.
+limit for this project (Supabase dashboard). On Vercel, the real ceiling is `DB_POOL_MAX` ×
+however many concurrent Function instances Fluid Compute decides to run — not a single
+always-on process's connection count — so re-check this against the Supabase dashboard after
+real traffic exists, not just once. See "Deploying to Vercel" above for the pooler fallback if
+it's ever exceeded.

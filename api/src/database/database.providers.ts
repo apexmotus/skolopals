@@ -19,9 +19,16 @@ import { PG_POOL } from './database.constants';
 types.setTypeParser(types.builtins.DATE, (value: string) => value);
 
 /**
- * Direct Postgres connection to the existing Supabase project (port 5432,
- * session mode — never the 6543 transaction pooler; see
- * docs/nestjs-api-plan/04-phase0-schema-port-and-cutover-strategy.md §1).
+ * Direct Postgres connection to the existing Supabase project. `DATABASE_URL`
+ * currently points at the session-mode connection string (port 5432) per
+ * docs/nestjs-api-plan/04-phase0-schema-port-and-cutover-strategy.md §1 — no
+ * code here cares which endpoint it is, since `set_config(..., true)` +
+ * `SET LOCAL ROLE` (src/database/rls-context.ts) are both transaction-scoped
+ * by construction, which is exactly what Supabase's Supavisor transaction
+ * pooler (port 6543) needs to stay correct. Swapping to the pooler, if
+ * Supabase's dashboard ever shows this connection count getting close to the
+ * project's limit, is a `DATABASE_URL` env var change only — nothing in this
+ * file or `rls-context.ts` needs to change.
  *
  * node-postgres's `Pool` has no `min` option (it opens connections lazily up
  * to `max` and closes idle ones after `idleTimeoutMillis`) — `DB_POOL_MIN` is

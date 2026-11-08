@@ -89,12 +89,25 @@ set local role authenticated;
   backstop" risk for exactly the actor who can see the most sensitive data.
 - **Connection pool sizing**: `DB_POOL_MAX` now bounds a pool of direct Postgres connections
   against Supabase's own connection limit (visible in the Supabase dashboard for this project),
-  not an SA-managed SQL Server budget. Confirm this limit before sizing — Supabase's pooler
-  (`pgbouncer`, port 6543) is deliberately **not** used here, because transaction-mode poolers
-  hand out a fresh backend per transaction and have known caveats with session-level GUCs and
-  prepared statements; the direct/session connection on 5432 is the correct choice for this
-  pattern even though it doesn't scale as wide. At the "low tens of concurrent users" load
-  already assumed in `01-app-definition.md`, this is not a real constraint.
+  not an SA-managed SQL Server budget. Confirm this limit before sizing. Supabase's pooler
+  (`pgbouncer`/Supavisor, port 6543) is **not used by default** — transaction-mode poolers hand
+  out a fresh backend per transaction and have known caveats with *session-level* GUCs and
+  *named/cached* prepared statements, neither of which this pattern uses (`set_config(..., true)`
+  and `SET LOCAL ROLE` are transaction-scoped by construction, and `StoredProcRunner` never names
+  a prepared statement) — so the pooler remains a safe, same-connection-string fallback if the
+  direct connection's limit is ever actually hit, not a design that's closed off. At the "low
+  tens of concurrent users" load already assumed in `01-app-definition.md`, this is not a real
+  constraint.
+  **Deployment-target update (2026-11-08)**: the owner confirmed the actual production target
+  for this API is its own Vercel project (Vercel Functions on Fluid Compute), not a traditional
+  always-on container host — see the API's own README "Deploying to Vercel" section. Fluid
+  Compute reuses a warm process (and its `pg.Pool`) across concurrent requests rather than
+  cold-starting a new connection per request, which keeps the direct-connection reasoning above
+  intact at this project's traffic scale; the real number to watch post-launch is `DB_POOL_MAX`
+  × however many concurrent Function instances Vercel actually runs, via the Supabase dashboard,
+  not a theoretical serverless worst case. The `Dockerfile`/`docker-compose.yml` built in Phase 1
+  remain a local-dev convenience only — Vercel's build never runs them; NestJS deploys there with
+  zero configuration via its existing `src/main.ts` + `app.listen()` entrypoint.
 
 ## 2. Auth: keep Supabase Auth, verify its JWTs
 
