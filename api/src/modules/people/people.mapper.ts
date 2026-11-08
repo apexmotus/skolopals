@@ -12,13 +12,18 @@ import type { MedicalNotesRow } from './rows/medical-notes.row';
 import type { ProfileRow } from './rows/profile.row';
 
 export class PeopleMapper {
-  static profileToMyProfileDto(row: ProfileRow, email: string): MyProfileDto {
+  static profileToMyProfileDto(
+    row: ProfileRow,
+    email: string,
+    roles: string[],
+  ): MyProfileDto {
     return {
       id: row.id,
       fullName: row.full_name,
       phone: row.phone ?? undefined,
       email,
       createdAt: row.created_at.toISOString(),
+      roles,
     };
   }
 

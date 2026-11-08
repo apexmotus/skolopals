@@ -12,6 +12,7 @@ export const referenceCacheKeys = {
   assessmentTypes: 'skolopals:reference:assessmentTypes',
   assessmentDomains: 'skolopals:reference:assessmentDomains',
   consentTypes: 'skolopals:reference:consentTypes',
+  dataRetentionPolicies: 'skolopals:reference:dataRetentionPolicies',
   terms: 'skolopals:reference:terms',
   operatingHours: 'skolopals:reference:operatingHours',
   rooms: 'skolopals:reference:rooms',

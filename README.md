@@ -6,6 +6,7 @@ Grade R–12, CAPS curriculum, monthly package enrolment.
 ```
 skolopals/
 ├─ web/    Next.js 16 app — public site and the parent, learner, tutor and admin portals
+├─ api/    NestJS API fronting the database — web/ calls this for everything but Supabase Auth
 ├─ db/     PostgreSQL schema, migrations, seeds and tests. The source of truth
 └─ docs/   Business requirements, the rebuild specification and the POPIA policy
 ```
@@ -19,7 +20,10 @@ cd db  && make reset      # build the database locally and run all test suites
 cd ../web && npm install && npm run dev
 ```
 
-Open http://localhost:3000.
+Open http://localhost:3001 (`web/`'s dev server runs on 3001, not Next's default 3000, so it
+doesn't collide with `api/` — see `docs/web-cutover-plan/03-sequencing-and-rollout.md`). The
+`api/` NestJS service (`cd api && pnpm install && pnpm run start:dev`) is what `web/` now calls
+for everything except Supabase Auth itself; `web/` won't come up correctly without it running.
 
 | | |
 | --- | --- |

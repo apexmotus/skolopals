@@ -244,6 +244,22 @@ describe('PeopleManager — profile', () => {
     expect(dto.email).toBe('admin@test');
   });
 
+  it("echoes the actor's roles, as resolved by JwtAuthGuard, without a second lookup", async () => {
+    const repo = makeRepo({
+      getProfileById: vi.fn().mockResolvedValue({
+        id: 'admin-1',
+        full_name: 'Admin',
+        phone: null,
+        created_at: new Date(),
+      }),
+    });
+    const manager = new PeopleManager(repo);
+
+    const dto = await manager.getMyProfile(admin);
+
+    expect(dto.roles).toEqual(['admin']);
+  });
+
   it('404s if somehow no profile row exists for the actor', async () => {
     const repo = makeRepo({
       getProfileById: vi.fn().mockResolvedValue(undefined),

@@ -1,49 +1,62 @@
 import "server-only";
+import { api, ApiError } from "@/lib/api/client";
 import { createClient } from "@/lib/supabase/server";
 
-/** CAPS phases, in curriculum order. Loaded from the database, never hard-coded. */
+type Phase = { code: string; name: string; sortOrder: number };
+type Grade = { code: string; name: string; phaseCode: string; sortOrder: number };
+type Subject = { code: string; name: string; description: string; isLanguage: boolean; sortOrder: number };
+type Language = { code: string; name: string; sortOrder: number };
+type SubjectOffering = { subjectCode: string; gradeCode: string };
+type Package = {
+  code: string;
+  name: string;
+  description: string;
+  serviceType: string;
+  billingPeriod: string;
+  subjectAllowance?: number;
+  isActive: boolean;
+  sortOrder: number;
+};
+
+/** CAPS phases, in curriculum order. Loaded from the API's `reference` module, never hard-coded. */
 export async function getPhases() {
-  const supabase = await createClient();
-  const { data } = await supabase.from("school_phases").select("*").order("sort_order");
-  return data ?? [];
+  return api.get<Phase[]>("/reference/phases");
 }
 
 export async function getGrades() {
-  const supabase = await createClient();
-  const { data } = await supabase.from("grades").select("*").order("sort_order");
-  return data ?? [];
+  return api.get<Grade[]>("/reference/grades");
 }
 
 export async function getSubjects() {
-  const supabase = await createClient();
-  const { data } = await supabase.from("subjects").select("*").order("sort_order");
-  return data ?? [];
+  return api.get<Subject[]>("/reference/subjects");
 }
 
 export async function getLanguages() {
-  const supabase = await createClient();
-  const { data } = await supabase.from("languages").select("*").order("sort_order");
-  return data ?? [];
+  return api.get<Language[]>("/reference/languages");
 }
 
 /** Subjects grouped by the phase they are offered in. Drives /subjects. */
 export async function getSubjectsByPhase() {
-  const supabase = await createClient();
-  const [{ data: phases }, { data: offerings }] = await Promise.all([
-    supabase.from("school_phases").select("*").order("sort_order"),
-    supabase
-      .from("subject_offerings")
-      .select("subject_code, grades!inner(phase_code), subjects!inner(name, sort_order)")
-      .order("subject_code"),
+  const [phases, grades, subjects, offerings] = await Promise.all([
+    api.get<Phase[]>("/reference/phases"),
+    api.get<Grade[]>("/reference/grades"),
+    api.get<Subject[]>("/reference/subjects"),
+    api.get<SubjectOffering[]>("/reference/subject-offerings"),
   ]);
 
-  return (phases ?? []).map((phase) => {
+  const phaseOfGrade = new Map(grades.map((g) => [g.code, g.phaseCode]));
+  const subjectByCode = new Map(subjects.map((s) => [s.code, s]));
+
+  return phases.map((phase) => {
     const names = new Map<string, number>();
-    for (const o of offerings ?? []) {
-      if (o.grades?.phase_code === phase.code && o.subjects) names.set(o.subjects.name, o.subjects.sort_order);
+    for (const o of offerings) {
+      if (phaseOfGrade.get(o.gradeCode) !== phase.code) continue;
+      const subject = subjectByCode.get(o.subjectCode);
+      if (subject) names.set(subject.name, subject.sortOrder);
     }
     return {
-      ...phase,
+      code: phase.code,
+      name: phase.name,
       subjects: [...names.entries()].sort((a, b) => a[1] - b[1]).map(([name]) => name),
     };
   });
@@ -51,20 +64,22 @@ export async function getSubjectsByPhase() {
 
 /** The price list. Packages with the price in effect today. */
 export async function getPackages() {
-  const supabase = await createClient();
-  const today = new Date().toISOString().slice(0, 10);
-  const [{ data: packages }, { data: prices }] = await Promise.all([
-    supabase.from("packages").select("*").eq("is_active", true).order("sort_order"),
-    supabase.from("package_prices").select("*").lte("effective_from", today),
-  ]);
+  const packages = await api.get<Package[]>("/packages");
 
-  const current = new Map<string, number>();
-  for (const p of prices ?? []) {
-    if (p.effective_to && p.effective_to <= today) continue;
-    current.set(p.package_code, p.amount_cents);
-  }
+  const amounts = await Promise.all(
+    packages.map(async (p) => {
+      try {
+        const { amountCents } = await api.get<{ amountCents: number }>(`/packages/${p.code}/price`);
+        return amountCents;
+      } catch (error) {
+        // No price has ever been set for this package — same as the old query finding no row.
+        if (error instanceof ApiError && error.status === 404) return null;
+        throw error;
+      }
+    }),
+  );
 
-  return (packages ?? []).map((p) => ({ ...p, amount_cents: current.get(p.code) ?? null }));
+  return packages.map((p, i) => ({ ...p, amountCents: amounts[i] }));
 }
 
 export type TutorFilters = { q?: string; subject?: string; grade?: string; language?: string };
@@ -167,30 +182,49 @@ export async function getPublishedReviews(tutorId: string, limit = 5) {
   return data ?? [];
 }
 
+export type PublicTimetableEntry = {
+  classGroupId: string;
+  className: string;
+  subject: string;
+  language: string;
+  deliveryMode: string;
+  capacity: number;
+  dayOfWeek: number;
+  startsAtTime: string;
+  endsAtTime: string;
+  tutorSlug: string;
+  tutorName: string;
+};
+
 /** The published weekly timetable. Omits meeting links by construction. */
 export async function getPublicTimetable() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("v_public_timetable")
-    .select("*")
-    .order("day_of_week")
-    .order("starts_at_time");
-  return data ?? [];
+  return api.get<PublicTimetableEntry[]>("/timetable/public");
 }
+
+export type OperatingHour = { dayOfWeek: number; opensAt: string; closesAt: string; purpose: string };
 
 export async function getOperatingHours() {
-  const supabase = await createClient();
-  const { data } = await supabase.from("centre_operating_hours").select("*").order("day_of_week");
-  return data ?? [];
+  return api.get<OperatingHour[]>("/reference/operating-hours");
 }
 
+export type Programme = {
+  id: string;
+  name: string;
+  description: string;
+  programmeType: string;
+  startsOn: string;
+  endsOn: string;
+  capacity: number;
+  priceCents: number;
+  deliveryMode: string;
+  roomId?: string;
+  isPublished: boolean;
+};
+
 export async function getPublishedProgrammes() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("programmes")
-    .select("*")
-    .eq("is_published", true)
-    .gte("ends_on", new Date().toISOString().slice(0, 10))
-    .order("starts_on");
-  return data ?? [];
+  // GET /programmes returns every programme to an admin actor (not just published ones) and
+  // never applies the "still running or upcoming" cutoff - both are applied here, same as before.
+  const today = new Date().toISOString().slice(0, 10);
+  const programmes = await api.get<Programme[]>("/programmes");
+  return programmes.filter((p) => p.isPublished && p.endsOn >= today);
 }

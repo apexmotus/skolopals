@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { api, ApiError } from "@/lib/api/client";
 import { createClient } from "@/lib/supabase/server";
 import type { AppRole, Row } from "@/lib/database.types";
 
@@ -10,6 +11,16 @@ export type Session = {
   roles: AppRole[];
 };
 
+/** The `GET /people/me` response shape (`MyProfileDto`, `api/src/modules/people/dto/profile.dto.ts`). */
+type MyProfileResponse = {
+  id: string;
+  fullName: string;
+  phone?: string;
+  email: string;
+  createdAt: string;
+  roles: string[];
+};
+
 /** The signed-in user's profile and roles, or null. Cached per request. */
 export const getSession = cache(async (): Promise<Session | null> => {
   const supabase = await createClient();
@@ -17,13 +28,17 @@ export const getSession = cache(async (): Promise<Session | null> => {
   const userId = data?.claims?.sub;
   if (!userId) return null;
 
-  const [{ data: profile }, { data: roleRows }] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
-    supabase.from("user_roles").select("role").eq("user_id", userId),
-  ]);
-  if (!profile) return null;
-
-  return { profile, roles: (roleRows ?? []).map((r) => r.role) };
+  try {
+    const me = await api.get<MyProfileResponse>("/people/me");
+    return {
+      profile: { id: me.id, full_name: me.fullName, phone: me.phone ?? null, created_at: me.createdAt },
+      roles: me.roles as AppRole[],
+    };
+  } catch (error) {
+    // The JWT's `sub` claim decoded locally above, but the profile row is gone (deleted account).
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
 });
 
 /** Order matters: the most capable role wins when someone holds several. */

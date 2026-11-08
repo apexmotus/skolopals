@@ -21,7 +21,7 @@ export default async function HomePage() {
     getPackages(),
   ]);
   const featured = tutors.slice(0, 3);
-  const fromPrice = packages.find((p) => p.code === "group_1")?.amount_cents;
+  const fromPrice = packages.find((p) => p.code === "group_1")?.amountCents;
 
   return (
     <div className="flex flex-col gap-5 p-4 md:p-7">

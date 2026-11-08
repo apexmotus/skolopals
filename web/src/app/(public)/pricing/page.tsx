@@ -15,8 +15,8 @@ const PERIOD: Record<string, string> = {
 
 export default async function PricingPage() {
   const packages = await getPackages();
-  const monthly = packages.filter((p) => p.billing_period === "monthly");
-  const other = packages.filter((p) => p.billing_period !== "monthly");
+  const monthly = packages.filter((p) => p.billingPeriod === "monthly");
+  const other = packages.filter((p) => p.billingPeriod !== "monthly");
 
   return (
     <div className="flex flex-col gap-5 p-4 md:p-7">
@@ -32,8 +32,8 @@ export default async function PricingPage() {
           rowKey={(p) => p.code}
           columns={[
             { header: "Package", cell: (p) => p.name, primary: true },
-            { header: "Covers", cell: (p) => (p.subject_allowance ? `${p.subject_allowance} subject(s)` : "All subjects") },
-            { header: "Fee", cell: (p) => (p.amount_cents == null ? "—" : money(p.amount_cents)) },
+            { header: "Covers", cell: (p) => (p.subjectAllowance ? `${p.subjectAllowance} subject(s)` : "All subjects") },
+            { header: "Fee", cell: (p) => (p.amountCents == null ? "—" : money(p.amountCents)) },
           ]}
         />
       </Card>
@@ -45,15 +45,15 @@ export default async function PricingPage() {
           rowKey={(p) => p.code}
           columns={[
             { header: "Service", cell: (p) => p.name, primary: true },
-            { header: "Basis", cell: (p) => PERIOD[p.billing_period] ?? p.billing_period },
+            { header: "Basis", cell: (p) => PERIOD[p.billingPeriod] ?? p.billingPeriod },
             {
               header: "Fee",
               cell: (p) =>
-                p.amount_cents == null
+                p.amountCents == null
                   ? p.code === "holiday"
                     ? "R350 – R750"
                     : "—"
-                  : money(p.amount_cents),
+                  : money(p.amountCents),
             },
           ]}
         />

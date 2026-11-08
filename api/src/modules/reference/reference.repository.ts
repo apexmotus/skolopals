@@ -4,6 +4,7 @@ import type { AchievementLevelRow } from './rows/achievement-level.row';
 import type { AssessmentDomainRow } from './rows/assessment-domain.row';
 import type { AssessmentTypeRow } from './rows/assessment-type.row';
 import type { ConsentTypeRow } from './rows/consent-type.row';
+import type { DataRetentionPolicyRow } from './rows/data-retention-policy.row';
 import type { GradeRow } from './rows/grade.row';
 import type { LanguageRow } from './rows/language.row';
 import type { OperatingHourRow } from './rows/operating-hour.row';
@@ -81,6 +82,12 @@ export class ReferenceRepository {
   listConsentTypes(): Promise<ConsentTypeRow[]> {
     return this.sp.selectMany<ConsentTypeRow>(
       'select code, name, description, statute_ref, is_required, sort_order from public.consent_types order by sort_order',
+    );
+  }
+
+  listDataRetentionPolicies(): Promise<DataRetentionPolicyRow[]> {
+    return this.sp.selectMany<DataRetentionPolicyRow>(
+      'select record_class, description, retention_months, basis from public.data_retention_policies order by record_class',
     );
   }
 

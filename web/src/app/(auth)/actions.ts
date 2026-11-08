@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { api } from "@/lib/api/client";
 import { createClient } from "@/lib/supabase/server";
 import { homeFor } from "@/lib/auth";
 import type { AppRole } from "@/lib/database.types";
@@ -22,9 +23,8 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error || !data.user) return { error: "That email and password don’t match an account.", email };
 
-  const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
-  const roles = (roleRows ?? []).map((r) => r.role as AppRole);
-  redirect(safeNext(formData.get("next")) ?? homeFor(roles));
+  const me = await api.get<{ roles: string[] }>("/people/me");
+  redirect(safeNext(formData.get("next")) ?? homeFor(me.roles as AppRole[]));
 }
 
 export async function signup(_prev: AuthState, formData: FormData): Promise<AuthState> {

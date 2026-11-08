@@ -34,6 +34,10 @@ pnpm run start:dev
 `GET /api/health/live` should return 200 immediately; `GET /api/health/ready` returns 200 once
 Postgres and Redis are both reachable.
 
+Runs on port `3000` (`PORT` in `.env`) — `../web` runs its dev server on `3001` instead
+(`npm run dev` passes `-p 3001`) so the two can run side by side; `web/.env.local`'s `API_URL`
+points at `http://localhost:3000/api/v1`. See `../docs/web-cutover-plan/03-sequencing-and-rollout.md`.
+
 ## Run tests
 
 ```bash

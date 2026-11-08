@@ -6,8 +6,8 @@ import { submitEnrolment, type EnrolState } from "./actions";
 import { money } from "@/lib/format";
 
 type Option = { code: string; name: string };
-type Pkg = Option & { subject_allowance: number | null; amount_cents: number | null };
-type ConsentType = { code: string; name: string; description: string; is_required: boolean };
+type Pkg = Option & { subjectAllowance?: number; amountCents: number | null };
+type ConsentType = { code: string; name: string; description: string; isRequired: boolean };
 
 export function EnrolForm({
   packages,
@@ -31,7 +31,7 @@ export function EnrolForm({
   const [chosen, setChosen] = useState<string[]>([]);
 
   const pkg = packages.find((p) => p.code === packageCode);
-  const allowance = pkg?.subject_allowance ?? null;
+  const allowance = pkg?.subjectAllowance ?? null;
   const atLimit = allowance !== null && chosen.length >= allowance;
 
   const toggle = (code: string) =>
@@ -39,8 +39,8 @@ export function EnrolForm({
       prev.includes(code) ? prev.filter((c) => c !== code) : atLimit ? prev : [...prev, code],
     );
 
-  const required = consentTypes.filter((c) => c.is_required);
-  const optional = consentTypes.filter((c) => !c.is_required);
+  const required = consentTypes.filter((c) => c.isRequired);
+  const optional = consentTypes.filter((c) => !c.isRequired);
 
   return (
     <form action={action} className="flex flex-col gap-5">
@@ -58,12 +58,12 @@ export function EnrolForm({
               <span className="flex flex-col gap-[2px]">
                 <span className="text-[13px] font-bold text-ink">{p.name}</span>
                 <span className="text-[11px] text-muted">
-                  {p.subject_allowance ? `${p.subject_allowance} subject(s)` : "All subjects"}
+                  {p.subjectAllowance ? `${p.subjectAllowance} subject(s)` : "All subjects"}
                 </span>
               </span>
               <span className="flex items-center gap-3">
                 <span className="text-[13px] text-ink">
-                  {p.amount_cents == null ? "—" : `${money(p.amount_cents)}/month`}
+                  {p.amountCents == null ? "—" : `${money(p.amountCents)}/month`}
                 </span>
                 <input
                   type="radio"

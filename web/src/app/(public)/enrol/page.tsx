@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { ButtonLink, Card, CardTitle, PageHeading } from "@/components/ui";
 import { EnrolForm } from "./enrol-form";
 import { getSession } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { api } from "@/lib/api/client";
 import { getGrades, getLanguages, getPackages, getSubjects, searchTutors } from "@/lib/queries";
 import { money } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Enrol a learner" };
+
+type ConsentType = { code: string; name: string; description: string; isRequired: boolean };
 
 export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
   const sp = await searchParams;
@@ -21,8 +23,8 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
     searchTutors(),
   ]);
 
-  const monthly = packages.filter((p) => p.billing_period === "monthly");
-  const registration = packages.find((p) => p.code === "registration")?.amount_cents ?? 15000;
+  const monthly = packages.filter((p) => p.billingPeriod === "monthly");
+  const registration = packages.find((p) => p.code === "registration")?.amountCents ?? 15000;
 
   if (!session) {
     return (
@@ -48,13 +50,9 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
     );
   }
 
-  // Only tutors the centre could actually assign are offered as a preference.
-  const supabase = await createClient();
-  const { data: consentTypes } = await supabase
-    .from("consent_types")
-    .select("code, name, description, is_required")
-    .order("sort_order");
+  const consentTypes = await api.get<ConsentType[]>("/reference/consent-types");
 
+  // Only tutors the centre could actually assign are offered as a preference.
   const preferred = tutorSlug ? tutors.find((t) => t.slug === tutorSlug)?.id : undefined;
 
   return (
@@ -68,14 +66,14 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
           packages={monthly.map((p) => ({
             code: p.code,
             name: p.name,
-            subject_allowance: p.subject_allowance,
-            amount_cents: p.amount_cents,
+            subjectAllowance: p.subjectAllowance,
+            amountCents: p.amountCents,
           }))}
           grades={grades.map((g) => ({ code: g.code, name: g.name }))}
           subjects={subjects.map((s) => ({ code: s.code, name: s.name }))}
           languages={languages.map((l) => ({ code: l.code, name: l.name }))}
           tutors={tutors.map((t) => ({ id: t.id, full_name: t.full_name }))}
-          consentTypes={consentTypes ?? []}
+          consentTypes={consentTypes}
           defaultTutor={preferred}
         />
       </div>

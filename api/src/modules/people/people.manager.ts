@@ -38,7 +38,7 @@ export class PeopleManager {
     if (!row) throw new NotFoundException('Profile not found.');
     const email =
       typeof actor.claims.email === 'string' ? actor.claims.email : '';
-    return PeopleMapper.profileToMyProfileDto(row, email);
+    return PeopleMapper.profileToMyProfileDto(row, email, actor.roles);
   }
 
   async updateMyProfile(
@@ -48,7 +48,7 @@ export class PeopleManager {
     const row = await this.repo.updateProfile(actor.id, dto);
     const email =
       typeof actor.claims.email === 'string' ? actor.claims.email : '';
-    return PeopleMapper.profileToMyProfileDto(row, email);
+    return PeopleMapper.profileToMyProfileDto(row, email, actor.roles);
   }
 
   async getLearnerById(id: string): Promise<LearnerDto> {

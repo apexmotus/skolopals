@@ -122,4 +122,11 @@ describe('ReferenceRepository — plain reference-table reads', () => {
     await repo.listOperatingHours();
     expect(selectMany.mock.calls[0]?.[0]).toContain('order by day_of_week, opens_at');
   });
+
+  it('listDataRetentionPolicies orders by record class', async () => {
+    const selectMany = vi.fn().mockResolvedValue([]);
+    const repo = new ReferenceRepository(makeSp({ selectMany }));
+    await repo.listDataRetentionPolicies();
+    expect(selectMany.mock.calls[0]?.[0]).toContain('order by record_class');
+  });
 });

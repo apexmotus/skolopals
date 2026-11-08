@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardTitle, DataTable, PageHeading } from "@/components/ui";
-import { createClient } from "@/lib/supabase/server";
+import { api } from "@/lib/api/client";
 import { CENTRE, CENTRE_ADDRESS } from "@/lib/centre";
 import { POLICY_VERSION } from "@/lib/consent";
 
@@ -11,16 +11,24 @@ export const metadata: Metadata = {
     "How Skolopals Tutoring Centre handles personal information under POPIA, including children's information.",
 };
 
+type ConsentType = {
+  code: string;
+  name: string;
+  description: string;
+  statuteRef: string;
+  isRequired: boolean;
+};
+type RetentionPolicy = { recordClass: string; description: string; retentionMonths: number };
+
 /**
  * Part A of docs/POPIA-policy.md. Kept in step with that document by hand;
  * the consent wording itself is read from the database so the notice and
  * the enrolment form can never disagree about what was agreed to.
  */
 export default async function PrivacyPage() {
-  const supabase = await createClient();
-  const [{ data: consentTypes }, { data: retention }] = await Promise.all([
-    supabase.from("consent_types").select("*").order("sort_order"),
-    supabase.from("data_retention_policies").select("*").order("record_class"),
+  const [consentTypes, retention] = await Promise.all([
+    api.get<ConsentType[]>("/reference/consent-types"),
+    api.get<RetentionPolicy[]>("/reference/data-retention-policies"),
   ]);
 
   return (
@@ -79,16 +87,16 @@ export default async function PrivacyPage() {
       <Card>
         <CardTitle>What we ask you to agree to</CardTitle>
         <div className="flex flex-col gap-3">
-          {(consentTypes ?? []).map((c) => (
+          {consentTypes.map((c) => (
             <div key={c.code} className="flex flex-col gap-1 border-t border-line pt-3 first:border-0 first:pt-0">
               <p className="text-[13px] font-bold text-ink">
                 {c.name}{" "}
-                <span className={c.is_required ? "font-normal text-danger" : "font-normal text-muted"}>
-                  {c.is_required ? "Required" : "Optional"}
+                <span className={c.isRequired ? "font-normal text-danger" : "font-normal text-muted"}>
+                  {c.isRequired ? "Required" : "Optional"}
                 </span>
               </p>
               <p className="text-[12px] leading-[1.6] text-muted">{c.description}</p>
-              {c.statute_ref ? <p className="text-[11px] text-muted">{c.statute_ref}</p> : null}
+              {c.statuteRef ? <p className="text-[11px] text-muted">{c.statuteRef}</p> : null}
             </div>
           ))}
         </div>
@@ -149,16 +157,16 @@ export default async function PrivacyPage() {
       <Card>
         <CardTitle>How long we keep it</CardTitle>
         <DataTable
-          rows={retention ?? []}
-          rowKey={(r) => r.record_class}
+          rows={retention}
+          rowKey={(r) => r.recordClass}
           columns={[
             { header: "Records", cell: (r) => r.description, primary: true },
             {
               header: "Kept for",
               cell: (r) =>
-                r.retention_months % 12 === 0
-                  ? `${r.retention_months / 12} year(s)`
-                  : `${r.retention_months} months`,
+                r.retentionMonths % 12 === 0
+                  ? `${r.retentionMonths / 12} year(s)`
+                  : `${r.retentionMonths} months`,
             },
           ]}
         />

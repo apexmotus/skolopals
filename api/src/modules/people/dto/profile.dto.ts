@@ -7,6 +7,7 @@ export class MyProfileDto {
   @ApiPropertyOptional() phone?: string;
   @ApiProperty() email!: string;
   @ApiProperty() createdAt!: string;
+  @ApiProperty({ type: [String] }) roles!: string[];
 }
 
 export class UpdateMyProfileDto {

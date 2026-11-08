@@ -25,8 +25,8 @@ export default async function ProgrammesPage() {
             <Card key={p.id}>
               <CardTitle>{p.name}</CardTitle>
               <p className="text-[13px] text-black">{p.description}</p>
-              <DetailRow label="Dates" value={`${shortDate(p.starts_on)} – ${shortDate(p.ends_on)}`} />
-              <DetailRow label="Fee" value={money(p.price_cents)} />
+              <DetailRow label="Dates" value={`${shortDate(p.startsOn)} – ${shortDate(p.endsOn)}`} />
+              <DetailRow label="Fee" value={money(p.priceCents)} />
               <DetailRow label="Places" value={String(p.capacity)} />
             </Card>
           ))}

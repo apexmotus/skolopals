@@ -20,6 +20,7 @@ import { AchievementLevelDto } from './dto/achievement-level.dto';
 import { AssessmentDomainDto } from './dto/assessment-domain.dto';
 import { AssessmentTypeDto } from './dto/assessment-type.dto';
 import { ConsentTypeDto } from './dto/consent-type.dto';
+import { DataRetentionPolicyDto } from './dto/data-retention-policy.dto';
 import { GradeDto } from './dto/grade.dto';
 import { LanguageDto } from './dto/language.dto';
 import { OperatingHourDto } from './dto/operating-hour.dto';
@@ -111,6 +112,14 @@ export class ReferenceController {
   @ApiOkResponse({ type: ConsentTypeDto, isArray: true })
   listConsentTypes(): Promise<ConsentTypeDto[]> {
     return this.manager.listConsentTypes();
+  }
+
+  @Get('data-retention-policies')
+  @Public()
+  @ApiOperation({ summary: 'List data retention policies (drives the public privacy notice)' })
+  @ApiOkResponse({ type: DataRetentionPolicyDto, isArray: true })
+  listDataRetentionPolicies(): Promise<DataRetentionPolicyDto[]> {
+    return this.manager.listDataRetentionPolicies();
   }
 
   @Get('terms')

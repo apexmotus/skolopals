@@ -43,10 +43,10 @@ export default async function ContactPage() {
             <CardTitle>When we are open</CardTitle>
             <ul className="flex flex-col gap-1">
               {hours.map((h) => (
-                <li key={`${h.day_of_week}-${h.opens_at}`} className="flex justify-between gap-3 text-[12px]">
-                  <span className="text-muted">{dayName(h.day_of_week)}</span>
+                <li key={`${h.dayOfWeek}-${h.opensAt}`} className="flex justify-between gap-3 text-[12px]">
+                  <span className="text-muted">{dayName(h.dayOfWeek)}</span>
                   <span className="text-ink">
-                    {clockTime(h.opens_at)}–{clockTime(h.closes_at)}
+                    {clockTime(h.opensAt)}–{clockTime(h.closesAt)}
                   </span>
                 </li>
               ))}

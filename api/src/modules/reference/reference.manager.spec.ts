@@ -254,6 +254,34 @@ describe('ReferenceManager', () => {
     expect(cache.store.has(referenceCacheKeys.consentTypes)).toBe(true);
   });
 
+  it('listDataRetentionPolicies caches on a miss and maps the row', async () => {
+    const cache = makeCache();
+    const listDataRetentionPolicies = vi.fn().mockResolvedValue([
+      {
+        record_class: 'learner_records',
+        description: "A learner's academic and attendance records",
+        retention_months: 60,
+        basis: 'POPIA s14',
+      },
+    ]);
+    const repo = {
+      listDataRetentionPolicies,
+    } as unknown as ReferenceRepository;
+    const manager = new ReferenceManager(repo, cache as unknown as CacheService);
+
+    const dtos = await manager.listDataRetentionPolicies();
+
+    expect(dtos).toEqual([
+      {
+        recordClass: 'learner_records',
+        description: "A learner's academic and attendance records",
+        retentionMonths: 60,
+        basis: 'POPIA s14',
+      },
+    ]);
+    expect(cache.store.has(referenceCacheKeys.dataRetentionPolicies)).toBe(true);
+  });
+
   it('listTerms caches on a miss and maps the row', async () => {
     const cache = makeCache();
     const listTerms = vi

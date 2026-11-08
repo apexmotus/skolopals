@@ -16,10 +16,10 @@ export default async function TimetablePage() {
         <CardTitle>Opening hours</CardTitle>
         <ul className="flex flex-col gap-1">
           {hours.map((h) => (
-            <li key={`${h.day_of_week}-${h.opens_at}`} className="flex justify-between text-[13px]">
-              <span className="text-muted">{dayName(h.day_of_week)}</span>
+            <li key={`${h.dayOfWeek}-${h.opensAt}`} className="flex justify-between text-[13px]">
+              <span className="text-muted">{dayName(h.dayOfWeek)}</span>
               <span className="text-ink">
-                {clockTime(h.opens_at)} – {clockTime(h.closes_at)}
+                {clockTime(h.opensAt)} – {clockTime(h.closesAt)}
                 {h.purpose === "administration" ? " · tests, catch-up and parent meetings" : ""}
               </span>
             </li>
@@ -34,18 +34,18 @@ export default async function TimetablePage() {
         ) : (
           <DataTable
             rows={timetable}
-            rowKey={(t) => `${t.class_group_id}-${t.day_of_week}-${t.starts_at_time}`}
+            rowKey={(t) => `${t.classGroupId}-${t.dayOfWeek}-${t.startsAtTime}`}
             columns={[
-              { header: "Class", cell: (t) => t.class_name ?? "", primary: true },
-              { header: "Day", cell: (t) => dayName(Number(t.day_of_week ?? 0)) },
-              { header: "Time", cell: (t) => `${clockTime(t.starts_at_time ?? "")} – ${clockTime(t.ends_at_time ?? "")}` },
+              { header: "Class", cell: (t) => t.className ?? "", primary: true },
+              { header: "Day", cell: (t) => dayName(t.dayOfWeek) },
+              { header: "Time", cell: (t) => `${clockTime(t.startsAtTime)} – ${clockTime(t.endsAtTime)}` },
               { header: "Language", cell: (t) => t.language ?? "" },
               {
                 header: "Where",
                 cell: (t) =>
-                  DELIVERY_MODE_LABEL[t.delivery_mode as keyof typeof DELIVERY_MODE_LABEL] ?? t.delivery_mode,
+                  DELIVERY_MODE_LABEL[t.deliveryMode as keyof typeof DELIVERY_MODE_LABEL] ?? t.deliveryMode,
               },
-              { header: "Tutor", cell: (t) => t.tutor_name ?? "" },
+              { header: "Tutor", cell: (t) => t.tutorName ?? "" },
             ]}
           />
         )}
