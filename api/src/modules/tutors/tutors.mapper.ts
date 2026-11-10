@@ -18,6 +18,7 @@ export class TutorsMapper {
     return {
       id: row.id,
       slug: row.slug,
+      fullName: row.full_name,
       headline: row.headline,
       bio: row.bio,
       photoUrl: row.photo_url ?? undefined,

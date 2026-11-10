@@ -14,18 +14,33 @@ const EMPLOYMENT_TYPES = ['salaried', 'sessional'] as const;
 export class TutorDto {
   @ApiProperty() id!: string;
   @ApiProperty() slug!: string;
+  @ApiProperty() fullName!: string;
   @ApiProperty() headline!: string;
   @ApiProperty() bio!: string;
   @ApiPropertyOptional() photoUrl?: string;
   @ApiProperty({ enum: EMPLOYMENT_TYPES }) employmentType!: string;
   @ApiProperty() status!: string;
 
-  /** Only populated on a single-tutor read (`getBySlug`/`getMyProfile`), never on the list, to avoid one rating query per row. */
   @ApiPropertyOptional() rating?: number;
   @ApiPropertyOptional() reviewCount?: number;
 }
 
-export class ListPublicTutorsQueryDto extends PaginationQueryDto {}
+export class ListPublicTutorsQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({ description: 'Only tutors competent to teach this subject code' })
+  @IsOptional()
+  @IsString()
+  subject?: string;
+
+  @ApiPropertyOptional({ description: 'Only tutors competent to teach this grade code' })
+  @IsOptional()
+  @IsString()
+  grade?: string;
+
+  @ApiPropertyOptional({ description: 'Only tutors who speak this language code' })
+  @IsOptional()
+  @IsString()
+  language?: string;
+}
 
 export class CreateTutorDto {
   @ApiProperty({

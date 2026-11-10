@@ -9,11 +9,11 @@ export function TutorCard({ tutor }: { tutor: DirectoryTutor }) {
     <Card className="min-w-0 flex-1">
       <div className="flex items-center gap-3">
         <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-canvas text-[13px] font-bold text-brand">
-          {initials(tutor.full_name || "?")}
+          {initials(tutor.fullName || "?")}
         </span>
         <div className="flex min-w-0 flex-col">
-          <p className="truncate text-[15px] font-bold text-ink">{tutor.full_name}</p>
-          {tutor.review_count > 0 ? <Rating rating={tutor.rating} count={tutor.review_count} /> : null}
+          <p className="truncate text-[15px] font-bold text-ink">{tutor.fullName}</p>
+          {tutor.reviewCount ? <Rating rating={tutor.rating ?? 0} count={tutor.reviewCount} /> : null}
         </div>
       </div>
       {tutor.headline ? <p className="text-[12px] text-muted">{tutor.headline}</p> : null}

@@ -135,6 +135,18 @@ export class TutorsController {
     return this.manager.setCompetency(id, dto);
   }
 
+  @Get(':id/spoken-languages')
+  @Public()
+  @ApiOperation({
+    summary: 'List the languages a tutor speaks (staff directory)',
+  })
+  @ApiOkResponse({ type: TutorSpokenLanguageDto, isArray: true })
+  listSpokenLanguages(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<TutorSpokenLanguageDto[]> {
+    return this.manager.listSpokenLanguages(id);
+  }
+
   @Put(':id/spoken-languages')
   @Roles('admin')
   @ApiOperation({

@@ -1,6 +1,5 @@
 import "server-only";
 import { api, ApiError } from "@/lib/api/client";
-import { createClient } from "@/lib/supabase/server";
 
 type Phase = { code: string; name: string; sortOrder: number };
 type Grade = { code: string; name: string; phaseCode: string; sortOrder: number };
@@ -84,102 +83,73 @@ export async function getPackages() {
 
 export type TutorFilters = { q?: string; subject?: string; grade?: string; language?: string };
 
+export type TutorSummary = {
+  id: string;
+  slug: string;
+  fullName: string;
+  headline: string;
+  rating?: number;
+  reviewCount?: number;
+};
+
 /**
  * The staff directory. Not a marketplace search: no price filter and no
  * sort-by-price, because price comes from the package, not the tutor.
  */
 export async function searchTutors(filters: TutorFilters = {}) {
-  const supabase = await createClient();
+  const params = new URLSearchParams({ pageSize: "100" });
+  if (filters.q) params.set("search", filters.q);
+  if (filters.subject) params.set("subject", filters.subject);
+  if (filters.grade) params.set("grade", filters.grade);
+  if (filters.language) params.set("language", filters.language);
 
-  let matching: string[] | null = null;
-  if (filters.subject || filters.grade) {
-    let q = supabase.from("tutor_competencies").select("tutor_id");
-    if (filters.subject) q = q.eq("subject_code", filters.subject);
-    if (filters.grade) q = q.eq("grade_code", filters.grade);
-    const { data } = await q;
-    matching = [...new Set((data ?? []).map((r) => r.tutor_id))];
-  }
-
-  if (filters.language) {
-    const { data } = await supabase
-      .from("tutor_spoken_languages")
-      .select("tutor_id")
-      .eq("language_code", filters.language);
-    const speakers = new Set((data ?? []).map((r) => r.tutor_id));
-    matching = matching ? matching.filter((id) => speakers.has(id)) : [...speakers];
-  }
-
-  if (matching?.length === 0) return [];
-
-  let query = supabase
-    .from("tutors")
-    .select("*, profiles!inner(full_name)")
-    .eq("status", "active");
-  if (matching) query = query.in("id", matching);
-  if (filters.q) query = query.ilike("headline", `%${clean(filters.q)}%`);
-
-  const { data: tutors, error } = await query;
-  if (error) throw error;
-
-  const { data: ratings } = await supabase.from("tutor_rating_summary").select("*");
-  const byTutor = new Map((ratings ?? []).map((r) => [r.tutor_id, r]));
-
-  return (tutors ?? []).map((t) => ({
-    ...t,
-    full_name: t.profiles?.full_name ?? "",
-    rating: Number(byTutor.get(t.id)?.rating ?? 0),
-    review_count: Number(byTutor.get(t.id)?.review_count ?? 0),
-  }));
+  const { items } = await api.getPaged<TutorSummary>(`/tutors?${params}`);
+  return items;
 }
 
 export type DirectoryTutor = Awaited<ReturnType<typeof searchTutors>>[number];
 
-/** PostgREST filter values: strip characters that would change the syntax. */
-function clean(term: string) {
-  return term.replace(/[,(){}%*\\"]/g, " ").trim();
-}
+export type TutorCompetency = { subjectCode: string; gradeCode: string; mediaLanguageCodes: string[] };
+export type TutorQualification = {
+  id: string;
+  title: string;
+  institution: string;
+  yearAwarded?: number;
+};
 
 export async function getTutorBySlug(slug: string) {
-  const supabase = await createClient();
-  const { data: tutor } = await supabase
-    .from("tutors")
-    .select("*, profiles!inner(full_name)")
-    .eq("slug", slug)
-    .eq("status", "active")
-    .maybeSingle();
-  if (!tutor) return null;
+  let tutor: TutorSummary & { bio: string };
+  try {
+    tutor = await api.get(`/tutors/${slug}`);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
 
-  const [{ data: competencies }, { data: languages }, { data: quals }, { data: rating }] = await Promise.all([
-    supabase
-      .from("tutor_competencies")
-      .select("subject_code, grade_code, subjects!inner(name), grades!inner(name, sort_order), tutor_competency_media(language_code, languages(name))")
-      .eq("tutor_id", tutor.id),
-    supabase.from("tutor_spoken_languages").select("languages(name)").eq("tutor_id", tutor.id),
-    supabase.from("tutor_qualifications").select("*").eq("tutor_id", tutor.id),
-    supabase.from("tutor_rating_summary").select("*").eq("tutor_id", tutor.id).maybeSingle(),
+  const [competencies, qualifications, spokenLanguages] = await Promise.all([
+    api.get<TutorCompetency[]>(`/tutors/${tutor.id}/competencies`),
+    api.get<TutorQualification[]>(`/tutors/${tutor.id}/qualifications`),
+    api.get<{ languageCode: string }[]>(`/tutors/${tutor.id}/spoken-languages`),
   ]);
 
   return {
     ...tutor,
-    full_name: tutor.profiles?.full_name ?? "",
-    competencies: competencies ?? [],
-    spoken_languages: (languages ?? []).flatMap((l) => (l.languages ? [l.languages.name] : [])),
-    qualifications: quals ?? [],
-    rating: Number(rating?.rating ?? 0),
-    review_count: Number(rating?.review_count ?? 0),
+    competencies,
+    qualifications,
+    spokenLanguageCodes: spokenLanguages.map((l) => l.languageCode),
   };
 }
 
+export type TutorReview = {
+  id: string;
+  rating: number;
+  comment: string;
+  publishedAt?: string;
+};
+
 export async function getPublishedReviews(tutorId: string, limit = 5) {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("reviews")
-    .select("*")
-    .eq("tutor_id", tutorId)
-    .eq("status", "published")
-    .order("published_at", { ascending: false })
-    .limit(limit);
-  return data ?? [];
+  const reviews = await api.get<TutorReview[]>(`/tutors/${tutorId}/reviews`);
+  return reviews.slice(0, limit);
 }
 
 export type PublicTimetableEntry = {

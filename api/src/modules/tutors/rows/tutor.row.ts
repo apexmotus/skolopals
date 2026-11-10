@@ -2,6 +2,7 @@ export interface TutorRow {
   id: string;
   profile_id: string;
   slug: string;
+  full_name: string;
   headline: string;
   bio: string;
   employment_type: string;

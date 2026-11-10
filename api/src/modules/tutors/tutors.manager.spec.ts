@@ -32,6 +32,7 @@ const TUTOR_ROW = {
   id: 't1',
   profile_id: 'profile-1',
   slug: 'maya-thompson',
+  full_name: 'Maya Thompson',
   headline: 'Maths specialist',
   bio: '',
   employment_type: 'sessional',
@@ -114,6 +115,7 @@ describe('TutorsManager — caching', () => {
 
     const dto = await manager.getBySlug('maya-thompson');
 
+    expect(dto.fullName).toBe('Maya Thompson');
     expect(dto.rating).toBe(4.5);
     expect(dto.reviewCount).toBe(4);
     expect(cache.set).toHaveBeenCalledWith(
@@ -349,7 +351,7 @@ describe('TutorsManager — references', () => {
 });
 
 describe('TutorsManager.listPublic', () => {
-  it('wraps the repository\'s paged result, mapping every row', async () => {
+  it('wraps the repository\'s paged result, mapping every row, with no rating when none joined', async () => {
     const listPublic = vi.fn().mockResolvedValue({ rows: [TUTOR_ROW], totalCount: 1 });
     const repo = { listPublic } as unknown as TutorsRepository;
     const manager = new TutorsManager(
@@ -361,10 +363,52 @@ describe('TutorsManager.listPublic', () => {
 
     const result = await manager.listPublic({ page: 1, pageSize: 20, sortDir: 'asc' });
 
-    expect(listPublic).toHaveBeenCalledWith({ page: 1, pageSize: 20, search: undefined });
+    expect(listPublic).toHaveBeenCalledWith({
+      page: 1,
+      pageSize: 20,
+      search: undefined,
+      subject: undefined,
+      grade: undefined,
+      language: undefined,
+    });
     expect(result.items).toHaveLength(1);
     expect(result.items[0]?.slug).toBe('maya-thompson');
+    expect(result.items[0]?.rating).toBeUndefined();
     expect(result.totalCount).toBe(1);
+  });
+
+  it('passes the subject/grade/language filters through and maps the joined rating per row', async () => {
+    const listPublic = vi.fn().mockResolvedValue({
+      rows: [{ ...TUTOR_ROW, rating: '4.50', review_count: '8' }],
+      totalCount: 1,
+    });
+    const repo = { listPublic } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    const result = await manager.listPublic({
+      page: 1,
+      pageSize: 20,
+      sortDir: 'asc',
+      subject: 'MATH',
+      grade: 'G10',
+      language: 'EN',
+    });
+
+    expect(listPublic).toHaveBeenCalledWith({
+      page: 1,
+      pageSize: 20,
+      search: undefined,
+      subject: 'MATH',
+      grade: 'G10',
+      language: 'EN',
+    });
+    expect(result.items[0]?.rating).toBe(4.5);
+    expect(result.items[0]?.reviewCount).toBe(8);
   });
 });
 

@@ -146,6 +146,70 @@ describe('TutorsRepository', () => {
     expect(values).toEqual(['%Maya%', 20, 0]);
   });
 
+  it('listPublic always left-joins tutor_rating_summary, even with no filters', async () => {
+    const executeRaw = vi.fn().mockResolvedValue({ rows: [], rowCount: 0 });
+    const repo = new TutorsRepository(makeSp({ executeRaw }));
+
+    await repo.listPublic({ page: 1, pageSize: 20 });
+
+    const [sql] = executeRaw.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('left join public.tutor_rating_summary r on r.tutor_id = t.id');
+    expect(sql).toContain('join public.profiles p on p.id = t.profile_id');
+    expect(sql).toContain('p.full_name');
+  });
+
+  it('getBySlug joins profiles for the tutor\'s full name', async () => {
+    const selectOne = vi.fn().mockResolvedValue(undefined);
+    const repo = new TutorsRepository(makeSp({ selectOne }));
+
+    await repo.getBySlug('maya-thompson');
+
+    const [sql, values] = selectOne.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('join public.profiles p on p.id = t.profile_id');
+    expect(sql).toContain('p.full_name');
+    expect(sql).toContain('where t.slug = $1');
+    expect(values).toEqual(['maya-thompson']);
+  });
+
+  it('updateMyProfile returns the full name via an UPDATE ... FROM ... RETURNING join', async () => {
+    const executeRaw = vi.fn().mockResolvedValue({
+      rows: [{ id: 't1', profile_id: 'p1', slug: 'maya-thompson', full_name: 'Maya Thompson', headline: 'New', bio: '', employment_type: 'sessional', status: 'active', photo_url: null, started_on: '2026-01-01', ended_on: null, created_at: new Date() }],
+      rowCount: 1,
+    });
+    const repo = new TutorsRepository(makeSp({ executeRaw }));
+
+    const row = await repo.updateMyProfile('p1', { headline: 'New' });
+
+    const [sql] = executeRaw.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('from public.profiles p');
+    expect(sql).toContain('p.full_name');
+    expect(row.full_name).toBe('Maya Thompson');
+  });
+
+  it('listPublic with subject/grade filters adds an exists-clause against tutor_competencies for each', async () => {
+    const executeRaw = vi.fn().mockResolvedValue({ rows: [], rowCount: 0 });
+    const repo = new TutorsRepository(makeSp({ executeRaw }));
+
+    await repo.listPublic({ page: 1, pageSize: 20, subject: 'MATH', grade: 'G10' });
+
+    const [sql, values] = executeRaw.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('c.subject_code = $1');
+    expect(sql).toContain('c.grade_code = $2');
+    expect(values).toEqual(['MATH', 'G10', 20, 0]);
+  });
+
+  it('listPublic with a language filter adds an exists-clause against tutor_spoken_languages', async () => {
+    const executeRaw = vi.fn().mockResolvedValue({ rows: [], rowCount: 0 });
+    const repo = new TutorsRepository(makeSp({ executeRaw }));
+
+    await repo.listPublic({ page: 1, pageSize: 20, language: 'EN' });
+
+    const [sql, values] = executeRaw.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('l.language_code = $1');
+    expect(sql).toContain('from public.tutor_spoken_languages l');
+    expect(values).toEqual(['EN', 20, 0]);
+  });
+
   it('getRating reads tutor_rating_summary scoped to the tutor', async () => {
     const selectOne = vi.fn().mockResolvedValue(undefined);
     const repo = new TutorsRepository(makeSp({ selectOne }));

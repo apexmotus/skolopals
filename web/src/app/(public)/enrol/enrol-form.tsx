@@ -22,7 +22,7 @@ export function EnrolForm({
   grades: Option[];
   subjects: Option[];
   languages: Option[];
-  tutors: { id: string; full_name: string }[];
+  tutors: { id: string; fullName: string }[];
   consentTypes: ConsentType[];
   defaultTutor?: string;
 }) {
@@ -171,7 +171,7 @@ export function EnrolForm({
           <option value="">No preference</option>
           {tutors.map((t) => (
             <option key={t.id} value={t.id}>
-              {t.full_name}
+              {t.fullName}
             </option>
           ))}
         </Select>

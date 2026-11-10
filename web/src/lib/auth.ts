@@ -65,26 +65,3 @@ export async function requireRole(role: AppRole) {
   if (!session.roles.includes(role)) redirect(homeFor(session.roles));
   return session;
 }
-
-/** The tutor record for the signed-in user, or null. */
-export const getMyTutor = cache(async () => {
-  const session = await getSession();
-  if (!session) return null;
-  const supabase = await createClient();
-  const { data } = await supabase.from("tutors").select("*").eq("profile_id", session.profile.id).maybeSingle();
-  return data;
-});
-
-/** Learners the signed-in guardian is responsible for. */
-export const getMyLearners = cache(async () => {
-  const session = await getSession();
-  if (!session) return [];
-  const supabase = await createClient();
-  // RLS limits this to the caller's own learners; no extra filter is needed,
-  // but the join keeps the query honest about why they are visible.
-  const { data } = await supabase
-    .from("learner_guardians")
-    .select("relationship, is_billing_contact, learners(*)")
-    .eq("guardian_id", session.profile.id);
-  return (data ?? []).flatMap((row) => (row.learners ? [{ ...row.learners, relationship: row.relationship }] : []));
-});

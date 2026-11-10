@@ -1,36 +1,50 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge, ButtonLink, Card, CardTitle, DetailRow, PageHeading, Rating } from "@/components/ui";
-import { getPublishedReviews, getTutorBySlug } from "@/lib/queries";
+import { getGrades, getLanguages, getPublishedReviews, getSubjects, getTutorBySlug } from "@/lib/queries";
 import { shortDate } from "@/lib/format";
 
 export async function generateMetadata({ params }: PageProps<"/tutors/[slug]">): Promise<Metadata> {
   const tutor = await getTutorBySlug((await params).slug);
-  return { title: tutor?.full_name ?? "Tutor" };
+  return { title: tutor?.fullName ?? "Tutor" };
 }
 
 export default async function TutorProfile({ params }: PageProps<"/tutors/[slug]">) {
   const tutor = await getTutorBySlug((await params).slug);
   if (!tutor) notFound();
-  const reviews = await getPublishedReviews(tutor.id);
+  const [reviews, subjects, grades, languages] = await Promise.all([
+    getPublishedReviews(tutor.id),
+    getSubjects(),
+    getGrades(),
+    getLanguages(),
+  ]);
+  const subjectName = new Map(subjects.map((s) => [s.code, s.name]));
+  const gradeName = new Map(grades.map((g) => [g.code, g.name]));
+  const languageName = new Map(languages.map((l) => [l.code, l.name]));
 
   // Group what they teach by subject, listing the grades and the languages
   // each is taught in — the three facts are distinct (see the 4NF audit).
   const bySubject = new Map<string, { grades: string[]; media: Set<string> }>();
   for (const c of tutor.competencies) {
-    const name = c.subjects?.name ?? c.subject_code;
+    const name = subjectName.get(c.subjectCode) ?? c.subjectCode;
     const entry = bySubject.get(name) ?? { grades: [], media: new Set<string>() };
-    if (c.grades?.name) entry.grades.push(c.grades.name);
-    for (const m of c.tutor_competency_media ?? []) {
-      if (m.languages?.name) entry.media.add(m.languages.name);
+    const gradeLabel = gradeName.get(c.gradeCode);
+    if (gradeLabel) entry.grades.push(gradeLabel);
+    for (const code of c.mediaLanguageCodes) {
+      const label = languageName.get(code);
+      if (label) entry.media.add(label);
     }
     bySubject.set(name, entry);
   }
+  const spokenLanguages = tutor.spokenLanguageCodes.flatMap((code) => {
+    const label = languageName.get(code);
+    return label ? [label] : [];
+  });
 
   return (
     <div className="flex flex-col gap-5 p-4 md:p-7">
-      <PageHeading title={tutor.full_name} description={tutor.headline} />
-      {tutor.review_count > 0 ? <Rating rating={tutor.rating} count={tutor.review_count} /> : null}
+      <PageHeading title={tutor.fullName} description={tutor.headline} />
+      {tutor.reviewCount ? <Rating rating={tutor.rating ?? 0} count={tutor.reviewCount} /> : null}
 
       {tutor.bio ? (
         <Card>
@@ -40,7 +54,7 @@ export default async function TutorProfile({ params }: PageProps<"/tutors/[slug]
       ) : null}
 
       <Card>
-        <CardTitle>What {tutor.full_name.split(" ")[0]} teaches</CardTitle>
+        <CardTitle>What {tutor.fullName.split(" ")[0]} teaches</CardTitle>
         {bySubject.size === 0 ? (
           <p className="text-[13px] text-muted">Not recorded yet.</p>
         ) : (
@@ -65,16 +79,16 @@ export default async function TutorProfile({ params }: PageProps<"/tutors/[slug]
             <DetailRow
               key={q.id}
               label={q.title}
-              value={`${q.institution}${q.year_awarded ? ` · ${q.year_awarded}` : ""}`}
+              value={`${q.institution}${q.yearAwarded ? ` · ${q.yearAwarded}` : ""}`}
             />
           ))}
         </Card>
       ) : null}
 
-      {tutor.spoken_languages.length > 0 ? (
+      {spokenLanguages.length > 0 ? (
         <Card>
           <CardTitle>Speaks</CardTitle>
-          <p className="text-[13px] text-black">{tutor.spoken_languages.join(", ")}</p>
+          <p className="text-[13px] text-black">{spokenLanguages.join(", ")}</p>
           <p className="text-[11px] text-muted">For parent meetings and messages.</p>
         </Card>
       ) : null}
@@ -86,7 +100,7 @@ export default async function TutorProfile({ params }: PageProps<"/tutors/[slug]
             <div key={r.id} className="flex flex-col gap-1 border-t border-line pt-3 first:border-0 first:pt-0">
               <Rating rating={r.rating} count={0} />
               <p className="text-[13px] text-black">{r.comment}</p>
-              <p className="text-[11px] text-muted">{r.published_at ? shortDate(r.published_at) : ""}</p>
+              <p className="text-[11px] text-muted">{r.publishedAt ? shortDate(r.publishedAt) : ""}</p>
             </div>
           ))}
         </Card>
@@ -95,7 +109,7 @@ export default async function TutorProfile({ params }: PageProps<"/tutors/[slug]
       <Card>
         <CardTitle>Request this tutor</CardTitle>
         <p className="text-[13px] text-black">
-          Choose a package and name {tutor.full_name.split(" ")[0]} as your preferred tutor. The centre will
+          Choose a package and name {tutor.fullName.split(" ")[0]} as your preferred tutor. The centre will
           confirm placement based on the timetable.
         </p>
         <ButtonLink href={`/enrol?tutor=${tutor.slug}`} className="w-fit">

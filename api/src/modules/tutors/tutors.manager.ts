@@ -55,9 +55,20 @@ export class TutorsManager {
       page: query.page,
       pageSize: query.pageSize,
       search: query.search,
+      subject: query.subject,
+      grade: query.grade,
+      language: query.language,
     });
     return new PagedResult(
-      rows.map((row) => TutorsMapper.toDto(row)),
+      rows.map((row) => {
+        // `rating`/`review_count` come from the same left-joined row — either both are
+        // populated (the tutor has reviews) or both are null/absent (they don't), never one alone.
+        const rating =
+          row.rating != null && row.review_count != null
+            ? { tutor_id: row.id, rating: row.rating, review_count: row.review_count }
+            : undefined;
+        return TutorsMapper.toDto(row, rating);
+      }),
       query.page,
       query.pageSize,
       totalCount,

@@ -9,13 +9,25 @@ import type { TutorSpokenLanguageRow } from './rows/tutor-spoken-language.row.js
 import type { TutorCompetencyRow } from './rows/tutor-competency.row.js';
 import type { TutorRatingRow, TutorRow } from './rows/tutor.row.js';
 
-const TUTOR_COLUMNS =
-  'id, profile_id, slug, headline, bio, employment_type, status, photo_url, started_on, ended_on, created_at';
+/**
+ * `full_name` lives on `profiles`, not `tutors` — every read here joins it in.
+ * Safe under RLS for every caller of these methods: the public paths
+ * (`getBySlug`, `listPublic`) rely on `20261110000001_profiles_public_read_active_tutors.sql`
+ * (profiles are publicly readable for exactly the active tutors the `tutors` table
+ * itself already shows publicly); the self/admin paths (`getById`, `getByProfileId`,
+ * `updateMyProfile`) were already covered by `profiles: read self or admin`.
+ */
+const TUTOR_SELECT =
+  't.id, t.profile_id, t.slug, p.full_name, t.headline, t.bio, t.employment_type, t.status, t.photo_url, t.started_on, t.ended_on, t.created_at';
+const TUTOR_FROM = 'from public.tutors t join public.profiles p on p.id = t.profile_id';
 
 interface ListPublicFilter {
   page: number;
   pageSize: number;
   search?: string;
+  subject?: string;
+  grade?: string;
+  language?: string;
 }
 
 /**
@@ -31,22 +43,54 @@ interface ListPublicFilter {
 export class TutorsRepository {
   constructor(private readonly sp: StoredProcRunner) {}
 
+  /**
+   * One joined query, not one rating lookup per row — `tutor_rating_summary`
+   * is a view, so a single `left join` costs the same as the unfiltered
+   * listing did before ratings were added here.
+   */
   async listPublic(
     filter: ListPublicFilter,
-  ): Promise<{ rows: TutorRow[]; totalCount: number }> {
+  ): Promise<{
+    rows: (TutorRow & { rating: string | null; review_count: string | null })[];
+    totalCount: number;
+  }> {
     const values: unknown[] = [];
-    let whereClause = '';
+    const conditions: string[] = [];
     if (filter.search) {
       values.push(`%${filter.search}%`);
-      whereClause = `where headline ilike $${values.length} or slug ilike $${values.length}`;
+      conditions.push(`(t.headline ilike $${values.length} or t.slug ilike $${values.length})`);
     }
+    if (filter.subject) {
+      values.push(filter.subject);
+      conditions.push(
+        `exists (select 1 from public.tutor_competencies c where c.tutor_id = t.id and c.subject_code = $${values.length})`,
+      );
+    }
+    if (filter.grade) {
+      values.push(filter.grade);
+      conditions.push(
+        `exists (select 1 from public.tutor_competencies c where c.tutor_id = t.id and c.grade_code = $${values.length})`,
+      );
+    }
+    if (filter.language) {
+      values.push(filter.language);
+      conditions.push(
+        `exists (select 1 from public.tutor_spoken_languages l where l.tutor_id = t.id and l.language_code = $${values.length})`,
+      );
+    }
+    const whereClause = conditions.length ? `where ${conditions.join(' and ')}` : '';
     values.push(filter.pageSize, (filter.page - 1) * filter.pageSize);
 
-    const result = await this.sp.executeRaw<TutorRow & { total_count: string }>(
-      `select ${TUTOR_COLUMNS}, count(*) over() as total_count
-       from public.tutors
+    const result = await this.sp.executeRaw<
+      TutorRow & { rating: string | null; review_count: string | null; total_count: string }
+    >(
+      `select ${TUTOR_SELECT},
+              r.rating, r.review_count,
+              count(*) over() as total_count
+       ${TUTOR_FROM}
+       left join public.tutor_rating_summary r on r.tutor_id = t.id
        ${whereClause}
-       order by slug
+       order by t.slug
        limit $${values.length - 1} offset $${values.length}`,
       values,
     );
@@ -59,21 +103,21 @@ export class TutorsRepository {
 
   getBySlug(slug: string): Promise<TutorRow | undefined> {
     return this.sp.selectOne<TutorRow>(
-      `select ${TUTOR_COLUMNS} from public.tutors where slug = $1`,
+      `select ${TUTOR_SELECT} ${TUTOR_FROM} where t.slug = $1`,
       [slug],
     );
   }
 
   getById(id: string): Promise<TutorRow | undefined> {
     return this.sp.selectOne<TutorRow>(
-      `select ${TUTOR_COLUMNS} from public.tutors where id = $1`,
+      `select ${TUTOR_SELECT} ${TUTOR_FROM} where t.id = $1`,
       [id],
     );
   }
 
   getByProfileId(profileId: string): Promise<TutorRow | undefined> {
     return this.sp.selectOne<TutorRow>(
-      `select ${TUTOR_COLUMNS} from public.tutors where profile_id = $1`,
+      `select ${TUTOR_SELECT} ${TUTOR_FROM} where t.profile_id = $1`,
       [profileId],
     );
   }
@@ -90,10 +134,11 @@ export class TutorsRepository {
     input: { headline?: string; bio?: string; photoUrl?: string },
   ): Promise<TutorRow> {
     const result = await this.sp.executeRaw<TutorRow>(
-      `update public.tutors
-       set headline = coalesce($2, headline), bio = coalesce($3, bio), photo_url = coalesce($4, photo_url)
-       where profile_id = $1
-       returning ${TUTOR_COLUMNS}`,
+      `update public.tutors t
+       set headline = coalesce($2, t.headline), bio = coalesce($3, t.bio), photo_url = coalesce($4, t.photo_url)
+       from public.profiles p
+       where t.profile_id = $1 and p.id = t.profile_id
+       returning ${TUTOR_SELECT}`,
       [
         profileId,
         input.headline ?? null,
