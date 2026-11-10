@@ -12,7 +12,7 @@ const BASIS_LABEL: Record<string, string> = {
 
 export default async function SessionsPage() {
   const { tutor } = await getTutorContext();
-  const [load, rate] = await Promise.all([getSessionLoad(tutor.id), getMyPayRate(tutor.id)]);
+  const [load, rate] = await Promise.all([getSessionLoad(), getMyPayRate(tutor.id)]);
 
   return (
     <>
@@ -21,7 +21,7 @@ export default async function SessionsPage() {
       <Card>
         <p className="text-[13px] text-black">
           {rate
-            ? `You are paid by the centre: ${BASIS_LABEL[rate.pay_basis] ?? rate.pay_basis}, ${money(rate.amount_cents)}.`
+            ? `You are paid by the centre: ${BASIS_LABEL[rate.payBasis] ?? rate.payBasis}, ${money(rate.amountCents)}.`
             : "No pay rate is recorded yet. Ask the centre manager to set one."}
         </p>
         <p className="text-[12px] text-muted">

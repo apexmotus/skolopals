@@ -269,4 +269,15 @@ describe('TutorsRepository', () => {
     expect(values).toEqual(['t1', 'ref-1', 'positive', 'admin-1']);
     expect(row).toBeUndefined();
   });
+
+  it('getSessionLoad reads v_tutor_session_load scoped to one tutor', async () => {
+    const selectMany = vi.fn().mockResolvedValue([]);
+    const repo = new TutorsRepository(makeSp({ selectMany }));
+
+    await repo.getSessionLoad('t1');
+
+    const [sql, values] = selectMany.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('from public.v_tutor_session_load where tutor_id = $1');
+    expect(values).toEqual(['t1']);
+  });
 });

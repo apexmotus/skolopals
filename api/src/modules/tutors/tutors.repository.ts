@@ -5,6 +5,7 @@ import type { TutorDocumentRow } from './rows/tutor-document.row.js';
 import type { TutorPayRateRow } from './rows/tutor-pay-rate.row.js';
 import type { TutorQualificationRow } from './rows/tutor-qualification.row.js';
 import type { TutorReferenceRow } from './rows/tutor-reference.row.js';
+import type { TutorSessionLoadRow } from './rows/tutor-session-load.row.js';
 import type { TutorSpokenLanguageRow } from './rows/tutor-spoken-language.row.js';
 import type { TutorCompetencyRow } from './rows/tutor-competency.row.js';
 import type { TutorRatingRow, TutorRow } from './rows/tutor.row.js';
@@ -397,6 +398,20 @@ export class TutorsRepository {
       `select id, tutor_id, pay_basis, amount_cents, effective_from, effective_to, created_at
        from public.tutor_pay_rates where id = $1`,
       [id],
+    );
+  }
+
+  /**
+   * Deliberately filtered here, not left to RLS: `v_tutor_session_load` is
+   * `security_invoker = true` over `class_sessions`/`class_groups`, whose own RLS is
+   * activity-based ("is_active or is_admin()"), not ownership-based — unlike
+   * `tutor_pay_rates`, it would NOT restrict a plain tutor to their own rows. Same
+   * "RLS alone isn't enough" reasoning as billing/finance's explicit `@Roles` gating.
+   */
+  getSessionLoad(tutorId: string): Promise<TutorSessionLoadRow[]> {
+    return this.sp.selectMany<TutorSessionLoadRow>(
+      'select tutor_id, month, sessions, hours from public.v_tutor_session_load where tutor_id = $1 order by month desc',
+      [tutorId],
     );
   }
 }

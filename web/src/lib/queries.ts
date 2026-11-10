@@ -6,6 +6,7 @@ type Grade = { code: string; name: string; phaseCode: string; sortOrder: number 
 type Subject = { code: string; name: string; description: string; isLanguage: boolean; sortOrder: number };
 type Language = { code: string; name: string; sortOrder: number };
 type SubjectOffering = { subjectCode: string; gradeCode: string };
+export type Room = { id: string; name: string; capacity: number; isActive: boolean };
 type Package = {
   code: string;
   name: string;
@@ -32,6 +33,10 @@ export async function getSubjects() {
 
 export async function getLanguages() {
   return api.get<Language[]>("/reference/languages");
+}
+
+export async function getRooms() {
+  return api.get<Room[]>("/reference/rooms");
 }
 
 /** Subjects grouped by the phase they are offered in. Drives /subjects. */

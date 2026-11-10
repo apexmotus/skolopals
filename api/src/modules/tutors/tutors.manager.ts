@@ -21,6 +21,7 @@ import type {
   TutorReferenceDto,
 } from './dto/tutor-reference.dto.js';
 import type { SetPayRateDto, TutorPayRateDto } from './dto/tutor-pay-rate.dto.js';
+import type { TutorSessionLoadDto } from './dto/tutor-session-load.dto.js';
 import type {
   SetSpokenLanguagesDto,
   TutorSpokenLanguageDto,
@@ -279,5 +280,19 @@ export class TutorsManager {
     const row = await this.repo.getPayRateById(id);
     if (!row) throw new Error('Freshly set pay rate could not be re-read');
     return TutorsMapper.payRateToDto(row);
+  }
+
+  /**
+   * No `:id` param at all, by design — there is no admin variant of this route.
+   * An admin viewing another tutor's load already has
+   * `GET /finance/kpis/tutor-session-load?tutorId=...`; this one only ever resolves
+   * the signed-in tutor's own id, so there is nothing for an ownership check to get
+   * wrong (see the repository method's comment for why RLS alone can't be trusted here).
+   */
+  async getMySessionLoad(actor: AuthUser): Promise<TutorSessionLoadDto[]> {
+    const tutor = await this.repo.getByProfileId(actor.id);
+    if (!tutor) throw new NotFoundException('Tutor profile not found.');
+    const rows = await this.repo.getSessionLoad(tutor.id);
+    return rows.map((row) => TutorsMapper.sessionLoadToDto(row));
   }
 }

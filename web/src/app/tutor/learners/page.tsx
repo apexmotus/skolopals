@@ -1,11 +1,11 @@
 import { DataTable, EmptyState, PageHeading } from "@/components/ui";
-import { getTutorContext, getMyLearners } from "@/lib/tutor";
+import { getLearnerClassNames, getTutorContext, getMyLearners } from "@/lib/tutor";
 
 export const metadata = { title: "My learners" };
 
 export default async function TutorLearnersPage() {
   const { tutor } = await getTutorContext();
-  const learners = await getMyLearners(tutor.id);
+  const [learners, classNames] = await Promise.all([getMyLearners(), getLearnerClassNames(tutor.id)]);
 
   return (
     <>
@@ -20,9 +20,9 @@ export default async function TutorLearnersPage() {
           rows={learners}
           rowKey={(l) => l.id}
           columns={[
-            { header: "Learner", cell: (l) => l.full_name, primary: true },
-            { header: "Grade", cell: (l) => l.grade_code.replace("grade_", "Grade ").replace("Grade r", "Grade R") },
-            { header: "Classes", cell: (l) => l.classes.join(", ") },
+            { header: "Learner", cell: (l) => l.fullName, primary: true },
+            { header: "Grade", cell: (l) => l.gradeCode.replace("grade_", "Grade ").replace("Grade r", "Grade R") },
+            { header: "Classes", cell: (l) => (classNames.get(l.id) ?? []).join(", ") },
           ]}
         />
       )}

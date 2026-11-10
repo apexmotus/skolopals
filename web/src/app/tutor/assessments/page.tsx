@@ -9,9 +9,9 @@ import { shortDate } from "@/lib/format";
 export const metadata = { title: "Assessments" };
 
 export default async function AssessmentsPage() {
-  const { tutor } = await getTutorContext();
+  await getTutorContext();
   const [learners, reference, assessments, plans, subjects] = await Promise.all([
-    getMyLearners(tutor.id),
+    getMyLearners(),
     getAssessmentReference(),
     getAssessments(),
     getLearningPlans(),
@@ -40,7 +40,7 @@ export default async function AssessmentsPage() {
       />
 
       <AssessmentForm
-        learners={learners.map((l) => ({ id: l.id, full_name: l.full_name, grade_code: l.grade_code }))}
+        learners={learners.map((l) => ({ id: l.id, full_name: l.fullName, grade_code: l.gradeCode }))}
         types={reference.types}
         domains={reference.domains}
         subjects={subjects.map((s) => ({ code: s.code, name: s.name }))}
@@ -49,7 +49,7 @@ export default async function AssessmentsPage() {
       />
 
       <PlanForm
-        learners={learners.map((l) => ({ id: l.id, full_name: l.full_name }))}
+        learners={learners.map((l) => ({ id: l.id, full_name: l.fullName }))}
         subjects={subjects.map((s) => ({ code: s.code, name: s.name }))}
         levels={reference.levels}
         terms={reference.terms}

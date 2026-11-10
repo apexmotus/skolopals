@@ -37,6 +37,7 @@ import {
   TutorReferenceDto,
 } from './dto/tutor-reference.dto.js';
 import { SetPayRateDto, TutorPayRateDto } from './dto/tutor-pay-rate.dto.js';
+import { TutorSessionLoadDto } from './dto/tutor-session-load.dto.js';
 import {
   SetSpokenLanguagesDto,
   TutorSpokenLanguageDto,
@@ -267,5 +268,13 @@ export class TutorsController {
     @Body() dto: SetPayRateDto,
   ): Promise<TutorPayRateDto> {
     return this.manager.setPayRate(id, dto);
+  }
+
+  @Get('me/session-load')
+  @Roles('tutor')
+  @ApiOperation({ summary: "The signed-in tutor's own monthly sessions and hours taught" })
+  @ApiOkResponse({ type: TutorSessionLoadDto, isArray: true })
+  getMySessionLoad(@CurrentUser() actor: AuthUser): Promise<TutorSessionLoadDto[]> {
+    return this.manager.getMySessionLoad(actor);
   }
 }

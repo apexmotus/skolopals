@@ -10,6 +10,8 @@ import type { TutorDocumentRow } from './rows/tutor-document.row.js';
 import type { TutorPayRateRow } from './rows/tutor-pay-rate.row.js';
 import type { TutorQualificationRow } from './rows/tutor-qualification.row.js';
 import type { TutorReferenceRow } from './rows/tutor-reference.row.js';
+import type { TutorSessionLoadDto } from './dto/tutor-session-load.dto.js';
+import type { TutorSessionLoadRow } from './rows/tutor-session-load.row.js';
 import type { TutorSpokenLanguageRow } from './rows/tutor-spoken-language.row.js';
 import type { TutorRatingRow, TutorRow } from './rows/tutor.row.js';
 
@@ -92,6 +94,14 @@ export class TutorsMapper {
       amountCents: row.amount_cents,
       effectiveFrom: row.effective_from,
       effectiveTo: row.effective_to ?? undefined,
+    };
+  }
+
+  static sessionLoadToDto(row: TutorSessionLoadRow): TutorSessionLoadDto {
+    return {
+      month: row.month,
+      sessions: Number(row.sessions),
+      hours: Number(row.hours),
     };
   }
 }

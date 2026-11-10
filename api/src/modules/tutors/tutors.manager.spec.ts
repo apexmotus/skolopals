@@ -681,3 +681,39 @@ describe('TutorsManager — pay rates', () => {
     );
   });
 });
+
+describe('TutorsManager.getMySessionLoad', () => {
+  it('404s when the actor has no tutor profile', async () => {
+    const repo = { getByProfileId: vi.fn().mockResolvedValue(undefined) } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    await expect(
+      manager.getMySessionLoad({ id: 'profile-1', roles: ['tutor'], claims: {} }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it("resolves the actor's own tutor id and never trusts an id from the caller", async () => {
+    const getByProfileId = vi.fn().mockResolvedValue(TUTOR_ROW);
+    const getSessionLoad = vi.fn().mockResolvedValue([
+      { tutor_id: 't1', month: '2026-10-01', sessions: '12', hours: '18.50' },
+    ]);
+    const repo = { getByProfileId, getSessionLoad } as unknown as TutorsRepository;
+    const manager = new TutorsManager(
+      repo,
+      makeCache() as unknown as CacheService,
+      makeUow(),
+      {} as FileStorageService,
+    );
+
+    const dtos = await manager.getMySessionLoad({ id: 'profile-1', roles: ['tutor'], claims: {} });
+
+    expect(getByProfileId).toHaveBeenCalledWith('profile-1');
+    expect(getSessionLoad).toHaveBeenCalledWith(TUTOR_ROW.id);
+    expect(dtos).toEqual([{ month: '2026-10-01', sessions: 12, hours: 18.5 }]);
+  });
+});

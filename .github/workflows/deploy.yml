@@ -39,13 +39,12 @@ jobs:
 
       - name: Deploy api (preview)
         id: deploy-api
-        working-directory: api
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_API }}
         run: |
-          vercel pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
-          vercel build --token="${{ secrets.VERCEL_TOKEN }}"
-          url=$(vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}" \
+          vercel --cwd api pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel --cwd api build --token="${{ secrets.VERCEL_TOKEN }}"
+          url=$(vercel --cwd api deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}" \
             --env CORS_ORIGINS="${{ vars.CORS_ORIGINS }}")
           echo "url=$url" >> "$GITHUB_OUTPUT"
           vercel alias set "$url" skolopals-api-dev.vercel.app \
@@ -53,13 +52,12 @@ jobs:
 
       - name: Deploy web (preview)
         id: deploy-web
-        working-directory: web
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
         run: |
-          vercel pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
-          vercel build --token="${{ secrets.VERCEL_TOKEN }}"
-          url=$(vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}" \
+          vercel --cwd web pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel --cwd web build --token="${{ secrets.VERCEL_TOKEN }}"
+          url=$(vercel --cwd web deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}" \
             --env API_URL="${{ vars.API_URL }}")
           echo "url=$url" >> "$GITHUB_OUTPUT"
           vercel alias set "$url" skolopals-web-dev.vercel.app \
@@ -131,25 +129,23 @@ jobs:
       - run: npm install -g vercel@latest
 
       - name: Deploy api (production)
-        working-directory: api
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_API }}
         run: |
-          vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
-          vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
-          url=$(vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}" \
+          vercel --cwd api pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel --cwd api build --prod --token="${{ secrets.VERCEL_TOKEN }}"
+          url=$(vercel --cwd api deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}" \
             --env CORS_ORIGINS="${{ vars.CORS_ORIGINS }}")
           vercel alias set "$url" skolopals-api.vercel.app \
             --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
 
       - name: Deploy web (production)
-        working-directory: web
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
         run: |
-          vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
-          vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
-          url=$(vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}" \
+          vercel --cwd web pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel --cwd web build --prod --token="${{ secrets.VERCEL_TOKEN }}"
+          url=$(vercel --cwd web deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}" \
             --env API_URL="${{ vars.API_URL }}")
           vercel alias set "$url" skolopals-web.vercel.app \
             --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"

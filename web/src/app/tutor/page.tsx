@@ -9,10 +9,11 @@ export default async function TutorOverview() {
 
   const [classes, learners, sessions, load] = await Promise.all([
     getMyClasses(tutor.id),
-    getMyLearners(tutor.id),
-    getMySessions(tutor.id, today, inAWeek),
-    getSessionLoad(tutor.id),
+    getMyLearners(),
+    getMySessions(today, inAWeek),
+    getSessionLoad(),
   ]);
+  const classGroupName = new Map(classes.map((c) => [c.id, c.name]));
 
   const thisMonth = load[0];
 
@@ -40,8 +41,8 @@ export default async function TutorOverview() {
           <ul className="flex flex-col gap-2">
             {sessions.map((s) => (
               <li key={s.id} className="flex flex-wrap justify-between gap-2 text-[13px] text-black">
-                <span>{s.class_groups?.name}</span>
-                <span className="text-muted">{dateTime(s.starts_at)}</span>
+                <span>{classGroupName.get(s.classGroupId)}</span>
+                <span className="text-muted">{dateTime(s.startsAt)}</span>
               </li>
             ))}
           </ul>
