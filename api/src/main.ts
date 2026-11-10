@@ -12,6 +12,7 @@ import {
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compress from '@fastify/compress';
 import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module.js';
 import { formatValidationErrors } from './common/validation/format-validation-errors.js';
@@ -33,6 +34,10 @@ async function bootstrap(): Promise<void> {
 
   await app.register(helmet);
   await app.register(compress);
+  await app.register(rateLimit, {
+    max: config.getOrThrow('THROTTLE_LIMIT', { infer: true }),
+    timeWindow: config.getOrThrow('THROTTLE_TTL_MS', { infer: true }),
+  });
 
   app.enableCors({
     origin: config.getOrThrow('CORS_ORIGINS', { infer: true }).split(','),

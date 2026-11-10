@@ -1,9 +1,9 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Public } from '../../common/decorators/public.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
+import { Throttle } from '../../common/decorators/throttle.decorator.js';
 import type { AuthUser } from '../../common/types/auth-user.js';
 import {
   ConvertEnquiryDto,
@@ -23,7 +23,7 @@ export class EnquiriesController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   /** 5/min per client, well under the app default of 120/min — a public form is the app's one unauthenticated write, and the one surface most worth throttling harder. */
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Throttle(5, 60_000)
   @ApiOperation({ summary: 'Submit a contact enquiry (public — no account needed)' })
   @ApiCreatedResponse({ type: EnquiryDto })
   submit(@Body() dto: SubmitEnquiryDto): Promise<EnquiryDto> {
