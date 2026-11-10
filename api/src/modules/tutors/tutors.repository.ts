@@ -402,6 +402,8 @@ export class TutorsRepository {
   }
 
   /**
+   * Just wanna test some
+   * 
    * Deliberately filtered here, not left to RLS: `v_tutor_session_load` is
    * `security_invoker = true` over `class_sessions`/`class_groups`, whose own RLS is
    * activity-based ("is_active or is_admin()"), not ownership-based — unlike
