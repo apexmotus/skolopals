@@ -53,7 +53,7 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   const supabase = await createClient();
   // No role is selectable at sign-up. Everyone who registers is a parent or
   // guardian; tutors and administrators are created by the centre.
-  //
+  // just to trigga 
   // Supabase's default confirmation email (templates can't be edited without
   // custom SMTP) links to its verify endpoint, which then redirects to
   // `emailRedirectTo` — provided it is allow-listed under Authentication → URL
