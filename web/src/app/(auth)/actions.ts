@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { createClient } from "@/lib/supabase/server";
@@ -12,6 +13,16 @@ function safeNext(next: FormDataEntryValue | null) {
   const value = typeof next === "string" ? next : "";
   // Only allow same-site relative paths.
   return value.startsWith("/") && !value.startsWith("//") ? value : null;
+}
+
+/** The origin this request arrived on, so confirmation links come back to the same deployment (dev, UAT, prod, or localhost). */
+async function requestOrigin() {
+  const h = await headers();
+  const origin = h.get("origin");
+  if (origin) return origin;
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  if (host) return `${h.get("x-forwarded-proto") ?? "https"}://${host}`;
+  return process.env.NEXT_PUBLIC_SITE_URL ?? "";
 }
 
 export async function login(_prev: AuthState, formData: FormData): Promise<AuthState> {
@@ -42,10 +53,20 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   const supabase = await createClient();
   // No role is selectable at sign-up. Everyone who registers is a parent or
   // guardian; tutors and administrators are created by the centre.
+  //
+  // Supabase's default confirmation email (templates can't be edited without
+  // custom SMTP) links to its verify endpoint, which then redirects to
+  // `emailRedirectTo` — provided it is allow-listed under Authentication → URL
+  // Configuration — carrying a PKCE `code` that app/auth/confirm/route.ts
+  // exchanges for a session. Without it the link lands on the Site URL root
+  // and the session is lost.
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName, phone } },
+    options: {
+      data: { full_name: fullName, phone },
+      emailRedirectTo: `${await requestOrigin()}/auth/confirm`,
+    },
   });
   if (error) return { error: error.message, email };
 

@@ -38,9 +38,11 @@ export const envSchema = z.object({
   DB_STATEMENT_TIMEOUT_MS: z.coerce.number().int().positive().default(15_000),
   DB_SSL: booleanString('true'),
 
-  // Verifies Supabase-issued access tokens (JwtAuthGuard). HS256 by default;
-  // see 06-phase2-auth.md if this project's Supabase instance uses JWKS instead.
-  SUPABASE_JWT_SECRET: z.string().min(32),
+  // JwtAuthGuard verifies Supabase-issued access tokens against the project's
+  // JWKS endpoint (<SUPABASE_URL>/auth/v1/.well-known/jwks.json; ES256/RS256).
+  // The legacy shared secret is only needed if the project's *current* signing
+  // key is still the HS256 "Legacy JWT secret" (dashboard → JWT Keys).
+  SUPABASE_JWT_SECRET: z.string().min(32).optional(),
 
   // Same Supabase project as DATABASE_URL. Scoped to common/file-storage/
   // (signed URLs for the tutor-documents bucket) and one-off admin scripts only.

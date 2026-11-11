@@ -1,14 +1,38 @@
 import { UnauthorizedException, type ExecutionContext } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
 import type { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
+import {
+  createLocalJWKSet,
+  exportJWK,
+  generateKeyPair,
+  SignJWT,
+  type JWTVerifyGetKey,
+} from 'jose';
 import type { ClsService } from 'nestjs-cls';
 import type { Mock } from 'vitest';
 import type { EnvConfig } from '../../config/env.schema.js';
 import type { UserRolesRepository } from '../../modules/auth/user-roles.repository.js';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
 
+const SUPABASE_URL = 'https://project.supabase.co';
+const ISSUER = `${SUPABASE_URL}/auth/v1`;
 const SECRET = 'a'.repeat(32);
+
+function makeConfig(overrides: Partial<EnvConfig> = {}) {
+  const values: Partial<EnvConfig> = {
+    SUPABASE_URL,
+    SUPABASE_JWT_SECRET: SECRET,
+    ...overrides,
+  };
+  return {
+    get: (key: keyof EnvConfig) => values[key],
+    getOrThrow: (key: keyof EnvConfig) => {
+      const value = values[key];
+      if (value === undefined) throw new Error(`Missing ${key}`);
+      return value;
+    },
+  } as unknown as ConfigService<EnvConfig, true>;
+}
 
 function makeContext(headers: Record<string, string>, isPublic: boolean) {
   const request: Record<string, unknown> = { headers };
@@ -24,34 +48,65 @@ function makeContext(headers: Record<string, string>, isPublic: boolean) {
 }
 
 describe('JwtAuthGuard', () => {
-  const jwtService = new JwtService({});
-  const config = { getOrThrow: () => SECRET } as unknown as ConfigService<
-    EnvConfig,
-    true
-  >;
+  let signingKey: Awaited<ReturnType<typeof generateKeyPair>>['privateKey'];
+  let jwks: JWTVerifyGetKey;
   let cls: { set: Mock };
   let userRoles: { listForUser: Mock };
+
+  beforeAll(async () => {
+    const pair = await generateKeyPair('ES256');
+    signingKey = pair.privateKey;
+    const jwk = await exportJWK(pair.publicKey);
+    jwks = createLocalJWKSet({
+      keys: [{ ...jwk, kid: 'current', alg: 'ES256', use: 'sig' }],
+    });
+  });
 
   beforeEach(() => {
     cls = { set: vi.fn() };
     userRoles = { listForUser: vi.fn().mockResolvedValue(['parent']) };
   });
 
-  function makeGuard(reflector: Reflector): JwtAuthGuard {
+  function makeGuard(
+    reflector: Reflector,
+    config = makeConfig(),
+    keys: JWTVerifyGetKey = jwks,
+  ): JwtAuthGuard {
     return new JwtAuthGuard(
       reflector,
-      jwtService,
+      keys,
       config,
       cls as unknown as ClsService<never>,
       userRoles as unknown as UserRolesRepository,
     );
   }
 
-  it('allows a valid token through and attaches the decoded actor', async () => {
-    const token = jwtService.sign(
-      { sub: 'user-1' },
-      { secret: SECRET, algorithm: 'HS256' },
-    );
+  /** A token shaped like the ones Supabase mints with its asymmetric signing key. */
+  function signEs256(claims: Record<string, unknown>, issuer = ISSUER) {
+    return new SignJWT(claims)
+      .setProtectedHeader({ alg: 'ES256', kid: 'current' })
+      .setIssuer(issuer)
+      .setIssuedAt()
+      .setExpirationTime('1h')
+      .sign(signingKey);
+  }
+
+  /** A token shaped like the ones a project still on the legacy shared secret mints. */
+  function signHs256(
+    claims: Record<string, unknown>,
+    secret = SECRET,
+    expiresIn = '1h',
+  ) {
+    return new SignJWT(claims)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuer(ISSUER)
+      .setIssuedAt()
+      .setExpirationTime(expiresIn)
+      .sign(new TextEncoder().encode(secret));
+  }
+
+  it('allows an ES256 token signed by a JWKS key through and attaches the decoded actor', async () => {
+    const token = await signEs256({ sub: 'user-1' });
     const { context, request, reflector } = makeContext(
       { authorization: `Bearer ${token}` },
       false,
@@ -67,11 +122,20 @@ describe('JwtAuthGuard', () => {
     expect(userRoles.listForUser).toHaveBeenCalledWith('user-1');
   });
 
-  it('sets the CLS actor before looking up roles, so the lookup runs under the right RLS identity', async () => {
-    const token = jwtService.sign(
-      { sub: 'user-1' },
-      { secret: SECRET, algorithm: 'HS256' },
+  it('allows an HS256 token signed with the legacy secret through', async () => {
+    const token = await signHs256({ sub: 'user-1' });
+    const { context, request, reflector } = makeContext(
+      { authorization: `Bearer ${token}` },
+      false,
     );
+    const guard = makeGuard(reflector);
+
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    expect(request.user).toMatchObject({ id: 'user-1' });
+  });
+
+  it('sets the CLS actor before looking up roles, so the lookup runs under the right RLS identity', async () => {
+    const token = await signEs256({ sub: 'user-1' });
     const { context, reflector } = makeContext(
       { authorization: `Bearer ${token}` },
       false,
@@ -87,10 +151,28 @@ describe('JwtAuthGuard', () => {
     expect(setOrder).toBeLessThan(lookupOrder);
   });
 
-  it('rejects an expired token on a protected route', async () => {
-    const token = jwtService.sign(
+  it('rejects an ES256 token signed by a key the JWKS does not contain', async () => {
+    const other = await generateKeyPair('ES256');
+    const token = await new SignJWT({ sub: 'user-1' })
+      .setProtectedHeader({ alg: 'ES256', kid: 'current' })
+      .setIssuer(ISSUER)
+      .setExpirationTime('1h')
+      .sign(other.privateKey);
+    const { context, reflector } = makeContext(
+      { authorization: `Bearer ${token}` },
+      false,
+    );
+    const guard = makeGuard(reflector);
+
+    await expect(guard.canActivate(context)).rejects.toBeInstanceOf(
+      UnauthorizedException,
+    );
+  });
+
+  it('rejects a token issued by a different Supabase project', async () => {
+    const token = await signEs256(
       { sub: 'user-1' },
-      { secret: SECRET, algorithm: 'HS256', expiresIn: -1 },
+      'https://some-other-project.supabase.co/auth/v1',
     );
     const { context, reflector } = makeContext(
       { authorization: `Bearer ${token}` },
@@ -103,11 +185,37 @@ describe('JwtAuthGuard', () => {
     );
   });
 
-  it('rejects a token signed with the wrong secret', async () => {
-    const token = jwtService.sign(
-      { sub: 'user-1' },
-      { secret: 'b'.repeat(32), algorithm: 'HS256' },
+  it('rejects an HS256 token when no legacy secret is configured', async () => {
+    const token = await signHs256({ sub: 'user-1' });
+    const { context, reflector } = makeContext(
+      { authorization: `Bearer ${token}` },
+      false,
     );
+    const guard = makeGuard(
+      reflector,
+      makeConfig({ SUPABASE_JWT_SECRET: undefined }),
+    );
+
+    await expect(guard.canActivate(context)).rejects.toBeInstanceOf(
+      UnauthorizedException,
+    );
+  });
+
+  it('rejects an expired token on a protected route', async () => {
+    const token = await signHs256({ sub: 'user-1' }, SECRET, '-1s');
+    const { context, reflector } = makeContext(
+      { authorization: `Bearer ${token}` },
+      false,
+    );
+    const guard = makeGuard(reflector);
+
+    await expect(guard.canActivate(context)).rejects.toBeInstanceOf(
+      UnauthorizedException,
+    );
+  });
+
+  it('rejects a token signed with the wrong secret', async () => {
+    const token = await signHs256({ sub: 'user-1' }, 'b'.repeat(32));
     const { context, reflector } = makeContext(
       { authorization: `Bearer ${token}` },
       false,

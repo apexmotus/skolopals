@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { JwtModule } from '@nestjs/jwt';
 import { ClsModule } from 'nestjs-cls';
 import { AuthModule } from '../modules/auth/auth.module.js';
 import { AllExceptionsFilter } from './filters/all-exceptions.filter.js';
 import { FileStorageModule } from './file-storage/file-storage.module.js';
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
+import { supabaseJwksProvider } from './guards/supabase-jwks.provider.js';
 import { RolesGuard } from './guards/roles.guard.js';
 import { ThrottleGuard } from './guards/throttle.guard.js';
 import { ResponseEnvelopeInterceptor } from './interceptors/response-envelope.interceptor.js';
@@ -26,12 +26,12 @@ import { RedisModule } from './redis/redis.module.js';
       global: true,
       middleware: { mount: true, generateId: true },
     }),
-    JwtModule.register({}),
     RedisModule,
     FileStorageModule,
     AuthModule,
   ],
   providers: [
+    supabaseJwksProvider,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: ThrottleGuard },

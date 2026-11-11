@@ -10,9 +10,12 @@ verifies a Supabase-issued JWT** so the rest of the API can trust `req.user`.
 ## What this phase builds
 
 1. `JwtAuthGuard` (global, `APP_GUARD`) — verifies the incoming `Authorization: Bearer <token>`
-   against `SUPABASE_JWT_SECRET` (HS256; confirm this project's Supabase instance hasn't been
-   switched to asymmetric JWT signing/JWKS, in which case swap to that verification method
-   instead — check the Supabase dashboard's JWT settings for this project before assuming HS256).
+   against the project's JWKS endpoint (`<SUPABASE_URL>/auth/v1/.well-known/jwks.json`,
+   ES256/RS256 — **updated 2026-11-11**: the live project signs with an asymmetric ES256 key, so
+   the original HS256-only guard rejected every token). HS256 against `SUPABASE_JWT_SECRET` is
+   kept as an optional fallback for a project still on the legacy shared secret. The token's
+   `iss` must equal `<SUPABASE_URL>/auth/v1`, so tokens from any other Supabase project are
+   rejected.
    On success, attaches the decoded claims to `req.user`: at minimum `sub` (the Supabase
    `auth.users.id`, a `uuid` — this is the actor's identity everywhere downstream) and whatever
    role/claim shape the token actually carries (confirm during this phase whether a Postgres

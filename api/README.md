@@ -19,7 +19,7 @@ Copy `.env.example` to `.env` and fill in:
 | Variable | Where to find it |
 |---|---|
 | `DATABASE_URL` | Supabase dashboard → Project Settings → Database → Connection string → URI, **Session mode** (port `5432`) by default — see `../docs/nestjs-api-plan/04-phase0-schema-port-and-cutover-strategy.md` §1. For local dev against `db/`'s local Postgres, use `postgresql://<your-unix-user>@localhost:5432/skolopals_dev`. In production on Vercel, swap to the `6543` Supavisor transaction-pooler string instead if connection count ever approaches the project's limit — no code change needed, see "Deploying to Vercel" below. |
-| `SUPABASE_JWT_SECRET` | Supabase dashboard → Project Settings → API → JWT Settings → JWT Secret. Treat like a database password; never log it. |
+| `SUPABASE_JWT_SECRET` | **Optional.** `JwtAuthGuard` verifies tokens against the project's JWKS endpoint (`<SUPABASE_URL>/auth/v1/.well-known/jwks.json`, ES256/RS256), so nothing is needed for a project on asymmetric signing keys. Only set this (dashboard → Project Settings → JWT Keys → Legacy JWT secret) if the project's *current* signing key is still the legacy HS256 secret. Treat like a database password; never log it. |
 | `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | Supabase dashboard → Project Settings → API. Used only by `common/file-storage/` (signed URLs for the `tutor-documents` bucket) and one-off admin scripts — never for per-request data access. |
 | `REDIS_URL` | Your Redis instance; `redis://localhost:6379` for the bundled `docker-compose.yml` service. |
 | everything else | Has a sensible default — see `.env.example` and `src/config/env.schema.ts`. |
