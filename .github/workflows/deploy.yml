@@ -78,9 +78,15 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Install Playwright (with retry — apt mirrors are occasionally flaky on GitHub-hosted runners)
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 15
+          command: cd web && npx playwright install --with-deps chromium
       - name: Smoke test api
-        run: curl -sf https://skolopals-api-dev.vercel.app/api/health/live
+        run: curl -sf --retry 5 --retry-delay 5 --retry-connrefused https://skolopals-api-dev.vercel.app/api/health/live
       - name: Smoke test web
         run: node scripts/smoke.mjs https://skolopals-web-dev.vercel.app
 
