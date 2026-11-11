@@ -37,9 +37,17 @@ import { TutorsModule } from './modules/tutors/tutors.module.js';
               ? { target: 'pino-pretty' }
               : undefined,
           redact: {
+            // Vercel injects its own bearer-like tokens on every request (OIDC token,
+            // proxy signature, and the same signature duplicated inside `forwarded`) —
+            // same sensitivity class as `authorization`, and their sheer length was
+            // also blowing past log-viewer truncation limits, hiding the actual error
+            // on every request log line.
             paths: [
               'req.headers.authorization',
               'req.headers.cookie',
+              "req.headers['x-vercel-oidc-token']",
+              "req.headers['x-vercel-proxy-signature']",
+              'req.headers.forwarded',
               '*.password',
               '*.passwordHash',
               '*.refreshToken',
