@@ -11,7 +11,7 @@ export default async function ContactPage() {
   const hours = await getOperatingHours();
 
   return (
-    <div className="flex flex-col gap-5 p-4 md:p-7">
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-4 py-6 md:px-[24px]">
       <PageHeading
         title="Get in touch"
         description="Come and see us, call, or send a message and we will come back to you."
@@ -21,18 +21,18 @@ export default async function ContactPage() {
         <div className="flex w-full shrink-0 flex-col gap-4 md:w-[320px]">
           <Card>
             <CardTitle>Find us</CardTitle>
-            <div className="text-[13px] leading-[1.8] text-black">
+            <div className="text-[14px] leading-[1.8] text-muted">
               <p>{CENTRE.addressLine}</p>
               <p>
                 {CENTRE.town}, {CENTRE.province}
               </p>
               <p className="pt-2">
-                <a href={CENTRE.phoneLink} className="text-brand hover:underline">
+                <a href={CENTRE.phoneLink} className="font-semibold text-link hover:underline">
                   {CENTRE.phone}
                 </a>
               </p>
               <p>
-                <a href={CENTRE.whatsappLink} className="text-brand hover:underline">
+                <a href={CENTRE.whatsappLink} className="font-semibold text-link hover:underline">
                   Message us on WhatsApp
                 </a>
               </p>

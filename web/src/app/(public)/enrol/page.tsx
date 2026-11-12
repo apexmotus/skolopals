@@ -28,14 +28,14 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
 
   if (!session) {
     return (
-      <div className="flex flex-col gap-5 p-4 md:p-7">
+      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-4 py-6 md:px-[24px]">
         <PageHeading
           title="Enrol a learner"
           description="Register once as a parent or guardian, then add each of your children."
         />
         <Card className="max-w-[640px]">
           <CardTitle>Create an account to continue</CardTitle>
-          <p className="text-[13px] leading-[1.6] text-black">
+          <p className="text-[14px] leading-[1.6] text-muted">
             We ask you to sign in first because an enrolment records your child’s personal information,
             and the law requires us to know who is giving permission for it.
           </p>
@@ -56,7 +56,7 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
   const preferred = tutorSlug ? tutors.find((t) => t.slug === tutorSlug)?.id : undefined;
 
   return (
-    <div className="flex flex-col gap-5 p-4 md:p-7">
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-4 py-6 md:px-[24px]">
       <PageHeading
         title="Enrol a learner"
         description={`Signed in as ${session.profile.full_name}. A once-off registration fee of ${money(registration)} applies when the place is confirmed.`}

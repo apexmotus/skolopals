@@ -15,7 +15,7 @@ export default async function SubjectsPage() {
   const phases = await getSubjectsByPhase();
 
   return (
-    <div className="flex flex-col gap-5 p-4 md:p-7">
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-4 py-6 md:px-[24px]">
       <PageHeading
         title="What we teach"
         description="Subjects follow the CAPS curriculum. Availability at each grade depends on tutor capacity."
@@ -24,10 +24,10 @@ export default async function SubjectsPage() {
         {phases.map((p) => (
           <Card key={p.code}>
             <CardTitle>{p.name}</CardTitle>
-            <p className="text-[11px] text-muted">{PHASE_GRADES[p.code] ?? ""}</p>
+            <p className="text-[12px] font-medium text-muted">{PHASE_GRADES[p.code] ?? ""}</p>
             <ul className="flex flex-col gap-1">
               {p.subjects.map((s) => (
-                <li key={s} className="text-[13px] text-black">
+                <li key={s} className="text-[14px] text-muted">
                   {s}
                 </li>
               ))}

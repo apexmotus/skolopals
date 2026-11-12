@@ -9,16 +9,18 @@ export { cx };
 
 /* Buttons ------------------------------------------------------------------ */
 
-type ButtonVariant = "primary" | "secondary" | "dark" | "danger";
+type ButtonVariant = "primary" | "secondary" | "outlineNavy" | "purple" | "dark" | "danger";
 
 const buttonBase =
-  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[6px] border border-line px-[18px] py-[11px] text-[13px] leading-none transition-colors disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[8px] px-[18px] py-[9px] text-[14px] font-semibold leading-none transition-colors disabled:cursor-not-allowed disabled:opacity-60";
 
 const buttonVariants: Record<ButtonVariant, string> = {
-  primary: "bg-brand text-white hover:bg-[#2c5a56]",
-  secondary: "bg-white text-ink hover:bg-subtle",
-  dark: "border-ink bg-ink text-white hover:bg-black",
-  danger: "border-danger bg-danger text-white hover:bg-[#991b1b]",
+  primary: "border border-transparent bg-[#D81B7A] text-white hover:bg-[#be166b]",
+  secondary: "border border-[#CBD5E1] bg-white text-[#1E293B] hover:border-[#1B2559] hover:text-[#1B2559]",
+  outlineNavy: "border-[1.5px] border-[#1B2559] bg-white/70 text-[#1B2559] font-bold hover:bg-white",
+  purple: "border border-transparent bg-[#6A1B9A] text-white hover:bg-[#581582]",
+  dark: "border border-[#1B2559] bg-[#1B2559] text-white hover:bg-[#131b42]",
+  danger: "border border-danger bg-danger text-white hover:bg-[#991b1b]",
 };
 
 export function buttonClass(variant: ButtonVariant = "primary", className?: string) {
@@ -47,7 +49,7 @@ export function Card({ className, children, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cx(
-        "flex flex-col gap-[14px] rounded-[10px] border border-line bg-white p-5 shadow-card",
+        "flex flex-col gap-[14px] rounded-[12px] border border-line bg-white p-5 shadow-card",
         className,
       )}
       {...props}
@@ -58,7 +60,7 @@ export function Card({ className, children, ...props }: ComponentProps<"div">) {
 }
 
 export function CardTitle({ className, children }: { className?: string; children: ReactNode }) {
-  return <h2 className={cx("text-[20px] font-bold text-ink", className)}>{children}</h2>;
+  return <h2 className={cx("text-[18px] font-bold leading-[1.35] text-ink", className)}>{children}</h2>;
 }
 
 export function PageHeading({
@@ -71,9 +73,9 @@ export function PageHeading({
   className?: string;
 }) {
   return (
-    <div className={cx("flex flex-col gap-[5px]", className)}>
-      <h1 className="text-[28px] text-ink">{title}</h1>
-      {description ? <p className="text-[13px] text-muted">{description}</p> : null}
+    <div className={cx("flex flex-col gap-[6px]", className)}>
+      <h1 className="text-[28px] font-extrabold leading-[1.25] tracking-[-0.015em] text-ink">{title}</h1>
+      {description ? <p className="text-[14px] leading-[1.5] text-muted">{description}</p> : null}
     </div>
   );
 }
@@ -90,19 +92,20 @@ export function StatCard({
   return (
     <Card className="min-w-0 flex-1">
       <p className="text-[13px] text-muted">{label}</p>
-      <p className="text-[28px] text-ink">{value}</p>
-      {hint ? <p className="text-[11px] text-brand">{hint}</p> : null}
+      <p className="text-[28px] font-extrabold text-ink">{value}</p>
+      {hint ? <p className="text-[11px] font-medium text-link">{hint}</p> : null}
     </Card>
   );
 }
 
 /* Badges ------------------------------------------------------------------- */
 
-type BadgeTone = "neutral" | "brand" | "success" | "danger" | "warning" | "onDark";
+type BadgeTone = "neutral" | "location" | "brand" | "success" | "danger" | "warning" | "onDark";
 
 const badgeTones: Record<BadgeTone, string> = {
-  neutral: "bg-[rgba(104,113,125,0.09)] text-muted",
-  brand: "bg-canvas text-brand font-semibold",
+  neutral: "bg-[#DCE7F3] text-[#334155] font-semibold",
+  location: "bg-[#DCE7F3] text-[#334155] font-semibold tracking-[0.01em] px-[14px] py-[6px] text-[12px] leading-none",
+  brand: "bg-brand-soft text-brand font-semibold",
   success: "bg-success-soft text-success",
   danger: "bg-danger-soft text-danger font-semibold",
   warning: "bg-warning-soft text-warning font-semibold",
@@ -121,7 +124,7 @@ export function Badge({
   return (
     <span
       className={cx(
-        "inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-full px-[10px] py-[5px] text-[11px]",
+        "inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-full px-[12px] py-[5px] text-[12px] leading-none",
         badgeTones[tone],
         className,
       )}

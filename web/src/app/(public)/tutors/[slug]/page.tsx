@@ -42,26 +42,26 @@ export default async function TutorProfile({ params }: PageProps<"/tutors/[slug]
   });
 
   return (
-    <div className="flex flex-col gap-5 p-4 md:p-7">
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-4 py-6 md:px-[24px]">
       <PageHeading title={tutor.fullName} description={tutor.headline} />
       {tutor.reviewCount ? <Rating rating={tutor.rating ?? 0} count={tutor.reviewCount} /> : null}
 
       {tutor.bio ? (
         <Card>
           <CardTitle>About</CardTitle>
-          <p className="text-[13px] leading-[1.6] text-black">{tutor.bio}</p>
+          <p className="text-[14px] leading-[1.6] text-muted">{tutor.bio}</p>
         </Card>
       ) : null}
 
       <Card>
         <CardTitle>What {tutor.fullName.split(" ")[0]} teaches</CardTitle>
         {bySubject.size === 0 ? (
-          <p className="text-[13px] text-muted">Not recorded yet.</p>
+          <p className="text-[14px] text-muted">Not recorded yet.</p>
         ) : (
           [...bySubject.entries()].map(([subject, { grades, media }]) => (
             <div key={subject} className="flex flex-col gap-1 border-t border-line pt-3 first:border-0 first:pt-0">
-              <p className="text-[13px] font-bold text-ink">{subject}</p>
-              <p className="text-[12px] text-muted">{grades.join(", ")}</p>
+              <p className="text-[14px] font-bold text-ink">{subject}</p>
+              <p className="text-[13px] text-muted">{grades.join(", ")}</p>
               <div className="flex flex-wrap gap-2">
                 {[...media].map((m) => (
                   <Badge key={m}>Taught in {m}</Badge>
@@ -88,8 +88,8 @@ export default async function TutorProfile({ params }: PageProps<"/tutors/[slug]
       {spokenLanguages.length > 0 ? (
         <Card>
           <CardTitle>Speaks</CardTitle>
-          <p className="text-[13px] text-black">{spokenLanguages.join(", ")}</p>
-          <p className="text-[11px] text-muted">For parent meetings and messages.</p>
+          <p className="text-[14px] text-muted">{spokenLanguages.join(", ")}</p>
+          <p className="text-[12px] text-muted">For parent meetings and messages.</p>
         </Card>
       ) : null}
 
@@ -99,8 +99,8 @@ export default async function TutorProfile({ params }: PageProps<"/tutors/[slug]
           {reviews.map((r) => (
             <div key={r.id} className="flex flex-col gap-1 border-t border-line pt-3 first:border-0 first:pt-0">
               <Rating rating={r.rating} count={0} />
-              <p className="text-[13px] text-black">{r.comment}</p>
-              <p className="text-[11px] text-muted">{r.publishedAt ? shortDate(r.publishedAt) : ""}</p>
+              <p className="text-[14px] text-muted">{r.comment}</p>
+              <p className="text-[12px] text-muted">{r.publishedAt ? shortDate(r.publishedAt) : ""}</p>
             </div>
           ))}
         </Card>
@@ -108,7 +108,7 @@ export default async function TutorProfile({ params }: PageProps<"/tutors/[slug]
 
       <Card>
         <CardTitle>Request this tutor</CardTitle>
-        <p className="text-[13px] text-black">
+        <p className="text-[14px] text-muted">
           Choose a package and name {tutor.fullName.split(" ")[0]} as your preferred tutor. The centre will
           confirm placement based on the timetable.
         </p>

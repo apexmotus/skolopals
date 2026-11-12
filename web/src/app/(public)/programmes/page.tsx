@@ -9,7 +9,7 @@ export default async function ProgrammesPage() {
   const programmes = await getPublishedProgrammes();
 
   return (
-    <div className="flex flex-col gap-5 p-4 md:p-7">
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-4 py-6 md:px-[24px]">
       <PageHeading
         title="Holiday and Saturday programmes"
         description="School-holiday revision, examination preparation and Saturday classes."
@@ -24,7 +24,7 @@ export default async function ProgrammesPage() {
           {programmes.map((p) => (
             <Card key={p.id}>
               <CardTitle>{p.name}</CardTitle>
-              <p className="text-[13px] text-black">{p.description}</p>
+              <p className="text-[14px] text-muted">{p.description}</p>
               <DetailRow label="Dates" value={`${shortDate(p.startsOn)} – ${shortDate(p.endsOn)}`} />
               <DetailRow label="Fee" value={money(p.priceCents)} />
               <DetailRow label="Places" value={String(p.capacity)} />

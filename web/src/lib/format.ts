@@ -11,6 +11,24 @@ export function money(cents: number) {
   }).format(cents / 100);
 }
 
+/**
+ * Formats integer cents as "R 450" with an ASCII space after the currency symbol,
+ * falling back to `fallbackCents` (default 45,000 = R 450) when absent or non-positive.
+ */
+export function formatRandSpaced(cents: number | null | undefined, fallbackCents = 45_000): string {
+  if (!Number.isFinite(fallbackCents) || fallbackCents <= 0) {
+    throw new RangeError("fallbackCents must be a positive finite number");
+  }
+  const effectiveCents = typeof cents === "number" && Number.isFinite(cents) && cents > 0 ? cents : fallbackCents;
+  const rands = Math.round(effectiveCents / 100);
+  const formattedNumber = new Intl.NumberFormat(LOCALE, {
+    maximumFractionDigits: 0,
+  })
+    .format(rands)
+    .replace(/\u00a0/g, " ");
+  return `R ${formattedNumber}`;
+}
+
 /** "R750/month" — package pricing, which is how the centre sells. */
 export function monthly(cents: number) {
   return `${money(cents)}/month`;

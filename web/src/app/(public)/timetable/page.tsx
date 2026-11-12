@@ -9,7 +9,7 @@ export default async function TimetablePage() {
   const [hours, timetable] = await Promise.all([getOperatingHours(), getPublicTimetable()]);
 
   return (
-    <div className="flex flex-col gap-5 p-4 md:p-7">
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-4 py-6 md:px-[24px]">
       <PageHeading title="When we are open" description="Centre hours and the current class timetable." />
 
       <Card>

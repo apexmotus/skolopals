@@ -23,7 +23,7 @@ export default async function TutorsPage({ searchParams }: PageProps<"/tutors">)
   ]);
 
   return (
-    <div className="flex flex-col gap-5 p-4 md:p-7">
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-4 py-6 md:px-[24px]">
       <PageHeading
         title="Our tutors"
         description="The people who teach at Skolopals. Fees are set by your package, not by the tutor."
@@ -31,7 +31,7 @@ export default async function TutorsPage({ searchParams }: PageProps<"/tutors">)
 
       <Card>
         <form className="flex flex-col gap-3 md:flex-row md:items-end">
-          <label className="flex min-w-0 flex-1 flex-col gap-[6px] text-[11px] text-ink">
+          <label className="flex min-w-0 flex-1 flex-col gap-[6px] text-[12px] font-semibold text-ink">
             Subject
             <Select name="subject" defaultValue={filters.subject ?? ""}>
               <option value="">Any subject</option>
@@ -42,7 +42,7 @@ export default async function TutorsPage({ searchParams }: PageProps<"/tutors">)
               ))}
             </Select>
           </label>
-          <label className="flex min-w-0 flex-1 flex-col gap-[6px] text-[11px] text-ink">
+          <label className="flex min-w-0 flex-1 flex-col gap-[6px] text-[12px] font-semibold text-ink">
             Grade
             <Select name="grade" defaultValue={filters.grade ?? ""}>
               <option value="">Any grade</option>
@@ -53,7 +53,7 @@ export default async function TutorsPage({ searchParams }: PageProps<"/tutors">)
               ))}
             </Select>
           </label>
-          <label className="flex min-w-0 flex-1 flex-col gap-[6px] text-[11px] text-ink">
+          <label className="flex min-w-0 flex-1 flex-col gap-[6px] text-[12px] font-semibold text-ink">
             Language spoken
             <Select name="language" defaultValue={filters.language ?? ""}>
               <option value="">Any language</option>
@@ -64,7 +64,7 @@ export default async function TutorsPage({ searchParams }: PageProps<"/tutors">)
               ))}
             </Select>
           </label>
-          <button className="h-[38px] shrink-0 rounded-[6px] border border-line bg-brand px-[18px] text-[13px] text-white">
+          <button className="h-[42px] shrink-0 rounded-[8px] bg-brand px-[20px] text-[14px] font-semibold text-white transition-colors hover:bg-[#be166b]">
             Filter
           </button>
         </form>

@@ -19,7 +19,7 @@ export default async function PricingPage() {
   const other = packages.filter((p) => p.billingPeriod !== "monthly");
 
   return (
-    <div className="flex flex-col gap-5 p-4 md:p-7">
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-4 py-6 md:px-[24px]">
       <PageHeading
         title="Our fees"
         description="Affordable small-group tutoring, with one-on-one support available. All fees in Rand."
@@ -61,7 +61,7 @@ export default async function PricingPage() {
 
       <Card>
         <CardTitle>How billing works</CardTitle>
-        <p className="text-[12px] leading-[1.7] text-black">
+        <p className="text-[14px] leading-[1.7] text-muted">
           A once-off registration fee is payable when your learner joins. Monthly invoices are issued on the
           15th for the month ahead and fall due on the 1st. A late payment fee applies after a three-day grace
           period. You can see every invoice, payment and your running balance in your parent portal.
