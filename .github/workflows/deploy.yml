@@ -20,6 +20,7 @@ jobs:
     outputs:
       api_url: ${{ steps.deploy-api.outputs.url }}
       web_url: ${{ steps.deploy-web.outputs.url }}
+      admin_url: ${{ steps.deploy-admin.outputs.url }}
     steps:
       - name: Guard — VERCEL_TOKEN must be set
         run: |
@@ -42,6 +43,7 @@ jobs:
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_API }}
         run: |
+          rm -rf .vercel api/.vercel
           vercel --cwd api pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
           vercel --cwd api build --token="${{ secrets.VERCEL_TOKEN }}"
           url=$(vercel --cwd api deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}" \
@@ -50,45 +52,64 @@ jobs:
           vercel alias set "$url" skolopals-api-dev.vercel.app \
             --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
 
-      - name: Deploy web (preview)
+      - name: Deploy client web (preview)
         id: deploy-web
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
         run: |
-          vercel --cwd web pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
-          vercel --cwd web build --token="${{ secrets.VERCEL_TOKEN }}"
-          url=$(vercel --cwd web deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}" \
+          rm -rf .vercel
+          vercel pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel build --token="${{ secrets.VERCEL_TOKEN }}"
+          url=$(vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}" \
             --env API_URL="${{ vars.API_URL }}")
           echo "url=$url" >> "$GITHUB_OUTPUT"
           vercel alias set "$url" skolopals-web-dev.vercel.app \
+            --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Deploy admin web (preview)
+        id: deploy-admin
+        if: env.VERCEL_PROJECT_ID != ''
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}
+        run: |
+          rm -rf .vercel
+          vercel pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel build --token="${{ secrets.VERCEL_TOKEN }}"
+          url=$(vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}" \
+            --env API_URL="${{ vars.API_URL }}")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          vercel alias set "$url" skolopals-admin-dev.vercel.app \
             --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
 
   smoke-dev:
     name: Smoke test (dev)
     needs: deploy-dev
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version: "24.x"
-          cache: npm
-          cache-dependency-path: web/package-lock.json
-      - run: npm ci
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
       - name: Install Playwright (with retry — apt mirrors are occasionally flaky on GitHub-hosted runners)
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 15
-          command: cd web && npx playwright install --with-deps chromium
+          command: pnpm --filter @skolopals/client exec playwright install --with-deps chromium
       - name: Smoke test api
         run: curl -sf --retry 5 --retry-delay 5 --retry-connrefused https://skolopals-api-dev.vercel.app/api/health/live
-      - name: Smoke test web
-        run: node scripts/smoke.mjs https://skolopals-web-dev.vercel.app
+      - name: Smoke test client web
+        run: pnpm --filter @skolopals/client run smoke https://skolopals-web-dev.vercel.app
+      - name: Smoke test admin web
+        if: needs.deploy-dev.outputs.admin_url != ''
+        run: pnpm --filter @skolopals/admin run smoke https://skolopals-admin-dev.vercel.app
 
   deploy-uat:
     name: Deploy (uat) — alias flip only
@@ -105,11 +126,19 @@ jobs:
           vercel alias set "${{ needs.deploy-dev.outputs.api_url }}" skolopals-api-uat.vercel.app \
             --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
 
-      - name: Alias web dev deployment to uat
+      - name: Alias client web dev deployment to uat
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
         run: |
           vercel alias set "${{ needs.deploy-dev.outputs.web_url }}" skolopals-web-uat.vercel.app \
+            --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Alias admin web dev deployment to uat
+        if: env.VERCEL_PROJECT_ID != '' && needs.deploy-dev.outputs.admin_url != ''
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}
+        run: |
+          vercel alias set "${{ needs.deploy-dev.outputs.admin_url }}" skolopals-admin-uat.vercel.app \
             --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
 
   deploy-prod:
@@ -121,7 +150,7 @@ jobs:
       - name: Guard — production API_URL must be configured
         run: |
           if [ -z "${{ vars.API_URL }}" ]; then
-            echo "::error::No API_URL variable set on the production environment. Refusing to ship web/ pointed at an unknown backend." >&2
+            echo "::error::No API_URL variable set on the production environment. Refusing to ship web apps pointed at an unknown backend." >&2
             exit 1
           fi
 
@@ -138,6 +167,7 @@ jobs:
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_API }}
         run: |
+          rm -rf .vercel api/.vercel
           vercel --cwd api pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
           vercel --cwd api build --prod --token="${{ secrets.VERCEL_TOKEN }}"
           url=$(vercel --cwd api deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}" \
@@ -145,13 +175,27 @@ jobs:
           vercel alias set "$url" skolopals-api.vercel.app \
             --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
 
-      - name: Deploy web (production)
+      - name: Deploy client web (production)
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
         run: |
-          vercel --cwd web pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
-          vercel --cwd web build --prod --token="${{ secrets.VERCEL_TOKEN }}"
-          url=$(vercel --cwd web deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}" \
+          rm -rf .vercel
+          vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
+          url=$(vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}" \
             --env API_URL="${{ vars.API_URL }}")
           vercel alias set "$url" skolopals-web.vercel.app \
+            --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Deploy admin web (production)
+        if: env.VERCEL_PROJECT_ID != ''
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}
+        run: |
+          rm -rf .vercel
+          vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
+          url=$(vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}" \
+            --env API_URL="${{ vars.API_URL }}")
+          vercel alias set "$url" skolopals-admin.vercel.app \
             --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"

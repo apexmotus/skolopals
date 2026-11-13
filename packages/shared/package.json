@@ -1,0 +1,38 @@
+{
+  "name": "@skolopals/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./database.types": "./src/database.types.ts",
+    "./api": "./src/api/client.ts",
+    "./supabase/server": "./src/supabase/server.ts",
+    "./supabase/client": "./src/supabase/client.ts",
+    "./auth": "./src/auth.ts",
+    "./format": "./src/format.ts",
+    "./reference": "./src/reference.ts"
+  },
+  "scripts": {
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test src/*.test.mts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.118.0",
+    "server-only": "^0.0.1"
+  },
+  "peerDependencies": {
+    "next": "16.4.2",
+    "react": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.2",
+    "next": "16.4.2",
+    "react": "19.3.0",
+    "typescript": "^5"
+  }
+}

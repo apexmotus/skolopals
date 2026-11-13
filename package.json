@@ -1,0 +1,22 @@
+{
+  "name": "skolopals-monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:client": "turbo run dev --filter=@skolopals/client",
+    "dev:admin": "turbo run dev --filter=@skolopals/admin",
+    "dev:api": "turbo run start:dev --filter=skolopals-api",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.0"
+  }
+}

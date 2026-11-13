@@ -32,7 +32,7 @@ help:
 	@echo "  make test           verify + RLS + business-rule tests"
 	@echo "  make deploy-check   rehearse a deploy on a throwaway database"
 	@echo "  make psql           open a psql shell"
-	@echo "  make types          regenerate TypeScript types into skolopals-web"
+	@echo "  make types          regenerate TypeScript types into @skolopals/shared"
 	@echo "  make supabase-start full-parity local stack (needs Docker + Supabase CLI)"
 
 check-pg:
@@ -101,7 +101,7 @@ psql: check-pg
 	@$(PSQL)
 
 types:
-	@python3 scripts/gen-types.py ../web/src/lib/database.types.ts
+	@python3 scripts/gen-types.py ../packages/shared/src/database.types.ts
 
 supabase-start:
 	@command -v supabase >/dev/null 2>&1 || { \

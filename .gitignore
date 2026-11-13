@@ -1,3 +1,9 @@
-# Repo-level only. The app and the database each have their own .gitignore.
+# Repo-level only. Each workspace and the database also have their own .gitignore.
 .DS_Store
-/api/node_modules
+node_modules/
+**/node_modules/
+.turbo/
+**/.turbo/
+.vercel/
+**/.vercel/
+*.tsbuildinfo

@@ -5,34 +5,40 @@ Grade R–12, CAPS curriculum, monthly package enrolment.
 
 ```
 skolopals/
-├─ web/    Next.js 16 app — public site and the parent, learner, tutor and admin portals
-├─ api/    NestJS API fronting the database — web/ is being migrated to call this (see docs/web-cutover-plan/)
-├─ db/     PostgreSQL schema, migrations, seeds and tests. The source of truth
-└─ docs/   Business requirements, the rebuild specification and the POPIA policy
+├─ apps/
+│  ├─ client/  @skolopals/client — Next.js 16 public site and parent, learner, and tutor portals (port 3001)
+│  └─ admin/   @skolopals/admin  — Next.js 16 standalone centre administration portal (port 3002)
+├─ packages/
+│  ├─ ui/      @skolopals/ui     — Shared design system primitives, AppShell, and Tailwind v4 tokens
+│  └─ shared/  @skolopals/shared — Generated DB types, API client, Supabase SSR clients, auth, formatters
+├─ api/        skolopals-api     — NestJS 12 Fastify API fronting the database (port 3000 / 4000)
+├─ db/         PostgreSQL schema, migrations, seeds and tests. The source of truth
+└─ docs/       Business requirements, rebuild specifications, and POPIA policy
 ```
 
 ## Getting started
 
-The database first — the app's generated types come from it.
+The database first — the workspace's generated types come from it.
 
 ```bash
-cd db  && make reset      # build the database locally and run all test suites
-cd ../web && npm install && npm run dev
+cd db && make reset      # build the database locally and run all test suites
+cd .. && pnpm install    # install all workspace packages
+pnpm dev                 # run api, apps/client (3001), and apps/admin (3002) via Turborepo
 ```
 
-Open http://localhost:3001 (`web/`'s dev server runs on 3001, not Next's default 3000, so it
-doesn't collide with `api/` — see `docs/web-cutover-plan/03-sequencing-and-rollout.md`). The
-`api/` NestJS service (`cd api && pnpm install && pnpm run start:dev`) is being cut over to as
-`web/`'s new backend for everything except Supabase Auth, per `docs/web-cutover-plan/`. The
-cutover is in progress, not finished — run `api/` locally too if you're touching a module that's
-already migrated (see `docs/web-cutover-plan/04-acceptance-checklist.md` for exactly which ones);
-the rest of `web/` still talks to Supabase directly and works without `api/` running at all.
+Or run individual apps:
+
+```bash
+pnpm dev:api             # NestJS API (http://localhost:3000 or PORT in api/.env)
+pnpm dev:client          # Client Web App (http://localhost:3001)
+pnpm dev:admin           # Admin Web App (http://localhost:3002)
+```
 
 | | |
 | --- | --- |
 | **Local database** | `postgresql://$(whoami)@localhost:5432/skolopals_dev` |
 | **Supabase project** | `clnlvmnfhzyumykbzrjz` (eu-west-2) |
-| **Regenerate types** | `cd db && make types` → writes `web/src/lib/database.types.ts` |
+| **Regenerate types** | `cd db && make types` → writes `packages/shared/src/database.types.ts` |
 
 ## Documentation
 
@@ -41,14 +47,15 @@ the rest of `web/` still talks to Supabase directly and works without `api/` run
 | [`docs/BRS-skolopals-2026.md`](docs/BRS-skolopals-2026.md) | Business requirements, traced to the business plan |
 | [`docs/SPEC-2026-centre-rebuild.md`](docs/SPEC-2026-centre-rebuild.md) | The implementation specification and delivery phases |
 | [`docs/POPIA-policy.md`](docs/POPIA-policy.md) | Privacy notice and compliance annex |
+| [`docs/client-admin-split-plan/00-overview.md`](docs/client-admin-split-plan/00-overview.md) | Turborepo client/admin separation architecture |
 | [`db/docs/4nf-audit.md`](db/docs/4nf-audit.md) | Why each table is shaped the way it is |
 | [`db/docs/ERD.md`](db/docs/ERD.md) | Entity relationship diagrams |
 
 ## Deploying
 
-> **The app lives in `web/`, not at the repo root.** Vercel's **Root Directory**
-> must be set to `web` or builds will fail with "no package.json found".
-> See `docs/SPEC-2026-centre-rebuild.md` §5.
+> **Three Vercel projects live in this monorepo:** `api` (`Root Directory: api`),
+> `skolopals-web` (`Root Directory: apps/client`), and `skolopals-admin` (`Root Directory: apps/admin`).
+> See [`docs/DEPLOY.md`](docs/DEPLOY.md) for full details.
 
 ```bash
 cd db && make migrate DATABASE_URL="postgresql://...@db.<ref>.supabase.co:5432/postgres"

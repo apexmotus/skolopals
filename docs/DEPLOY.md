@@ -5,27 +5,35 @@ push to main ──▶ DEV (auto, aliased preview) ──▶ smoke test ──�
 ```
 
 GitHub Actions (`.github/workflows/deploy.yml`) owns every deploy via the Vercel CLI. The Vercel
-Git integration is deliberately disconnected on both projects — it used to deploy straight to
+Git integration is deliberately disconnected on all projects — it used to deploy straight to
 production on every push, bypassing every gate below.
 
-Two Vercel projects, deployed together at each stage (web/'s server calls api/'s server for
-everything except Supabase Auth — see `docs/web-cutover-plan/`):
+Three Vercel projects, deployed together at each stage (`apps/client` and `apps/admin` servers call
+`api/`'s server for everything except Supabase Auth — see `docs/web-cutover-plan/` and
+`docs/client-admin-split-plan/`):
 
-| Project | Vercel project | Framework | Root directory |
-|---|---|---|---|
-| `api/` | `skolopals` (`prj_d7V9POqjquXw80EpgQ0TQmM49hjZ`) | NestJS | `api` |
-| `web/` | `skolopals-web` (`prj_CmFk21z8Al7H2KMmdz55BDdQBixz`) | Next.js | `web` |
+| Workspace | Vercel project | Secret ID | Framework | Root directory |
+|---|---|---|---|---|
+| `api/` | `skolopals` (`prj_d7V9POqjquXw80EpgQ0TQmM49hjZ`) | `VERCEL_PROJECT_ID_API` | NestJS | `api` |
+| `apps/client` | `skolopals-web` (`prj_CmFk21z8Al7H2KMmdz55BDdQBixz`) | `VERCEL_PROJECT_ID_WEB` | Next.js | `apps/client` |
+| `apps/admin` | `skolopals-admin` | `VERCEL_PROJECT_ID_ADMIN` | Next.js | `apps/admin` |
+
+> **Monorepo Vercel CLI rule:** For `apps/client` and `apps/admin` (which import `@skolopals/ui` and
+> `@skolopals/shared` from `../../packages/*`), `vercel pull`, `vercel build`, and `vercel deploy --prebuilt`
+> are executed from the **repository root** with `VERCEL_PROJECT_ID` set in the environment (do not
+> pass `--cwd apps/client` or `--cwd apps/admin`, as the project's Root Directory is already configured
+> in Vercel).
 
 ## Aliases
 
-| Stage | api | web |
-|---|---|---|
-| dev | `skolopals-api-dev.vercel.app` | `skolopals-web-dev.vercel.app` |
-| uat | `skolopals-api-uat.vercel.app` | `skolopals-web-uat.vercel.app` |
-| production | `skolopals-api.vercel.app` (+ existing `skolopals-omega.vercel.app`) | `skolopals-web.vercel.app` |
+| Stage | api | client (`apps/client`) | admin (`apps/admin`) |
+|---|---|---|---|
+| dev | `skolopals-api-dev.vercel.app` | `skolopals-web-dev.vercel.app` | `skolopals-admin-dev.vercel.app` |
+| uat | `skolopals-api-uat.vercel.app` | `skolopals-web-uat.vercel.app` | `skolopals-admin-uat.vercel.app` |
+| production | `skolopals-api.vercel.app` (+ existing `skolopals-omega.vercel.app`) | `skolopals-web.vercel.app` | `skolopals-admin.vercel.app` |
 
 **UAT is not a rebuild.** `deploy-uat` only re-aliases the exact dev deployment (byte-identical
-artifact) to the uat alias — it doesn't rebuild either app. Production *does* rebuild, because its
+artifact) to the uat alias — it doesn't rebuild any app. Production *does* rebuild, because its
 build-time env (`API_URL`, `CORS_ORIGINS`) differs from dev/uat.
 
 ## Environment values — where they live
@@ -47,10 +55,10 @@ these. GitHub owns everything that *does* vary per stage:
 
 | Variable | Scope | dev | production | Used by |
 |---|---|---|---|---|
-| `API_URL` | GitHub environment variable (`dev`, `production`) | `https://skolopals-api-dev.vercel.app/api/v1` | `https://skolopals-api.vercel.app/api/v1` | `web/`'s server, injected via `vercel deploy --env` |
-| `CORS_ORIGINS` | GitHub repo variable (shared) | `https://skolopals-web.vercel.app,https://skolopals-web-dev.vercel.app,https://skolopals-web-uat.vercel.app` | same | `api/`'s server, injected via `vercel deploy --env` — defensive only; web→api traffic is server-to-server, not browser-enforced CORS |
-| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | GitHub repo variables | — | — | CI build only (`ci.yml`); the real deployed values live on the web Vercel project |
-| `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_API`, `VERCEL_PROJECT_ID_WEB` | GitHub repo secrets | — | — | every job in `deploy.yml`, to drive the Vercel CLI non-interactively |
+| `API_URL` | GitHub environment variable (`dev`, `production`) | `https://skolopals-api-dev.vercel.app/api/v1` | `https://skolopals-api.vercel.app/api/v1` | `apps/client` and `apps/admin` servers, injected via `vercel deploy --env` |
+| `CORS_ORIGINS` | GitHub repo variable (shared) | `https://skolopals-web.vercel.app,https://skolopals-web-dev.vercel.app,https://skolopals-web-uat.vercel.app,https://skolopals-admin.vercel.app,https://skolopals-admin-dev.vercel.app,https://skolopals-admin-uat.vercel.app` | same | `api/`'s server, injected via `vercel deploy --env` — defensive only; web→api traffic is server-to-server, not browser-enforced CORS |
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | GitHub repo variables | — | — | CI build only (`ci.yml`); the real deployed values live on the `skolopals-web` and `skolopals-admin` Vercel projects |
+| `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_API`, `VERCEL_PROJECT_ID_WEB`, `VERCEL_PROJECT_ID_ADMIN` | GitHub repo secrets | — | — | every job in `deploy.yml`, to drive the Vercel CLI non-interactively (`VERCEL_PROJECT_ID_ADMIN` steps are guarded if the secret is not yet set) |
 
 ## Approving a deploy
 
@@ -61,8 +69,8 @@ Actions → the `Deploy` run → **Review deployments** → tick `uat` (or `prod
 ## Rollback
 
 - **Fast**: Vercel dashboard → the project → Deployments → pick a previous `READY` production
-  deployment → **Promote to Production**. Instant, no rebuild. Do this for both `skolopals` and
-  `skolopals-web` if the regression could be in either.
+  deployment → **Promote to Production**. Instant, no rebuild. Do this for `skolopals`,
+  `skolopals-web`, and `skolopals-admin` if the regression could be in any of them.
 - **Reproducible**: re-run a previous successful `Deploy` workflow run (Actions → that run → *Re-run
   all jobs*), or revert the offending commit on `main` and let the pipeline run fresh.
 
@@ -76,5 +84,5 @@ Actions → the `Deploy` run → **Review deployments** → tick `uat` (or `prod
   alongside the new `skolopals-api.vercel.app` alias. Harmless — both point at the same production
   deployment — but worth removing once nothing references the old one.
 - **Smoke coverage is dev-only in CI** (`smoke-dev` job). Nothing currently re-runs it against uat
-  or production automatically after their deploys; `web/package.json`'s `npm run smoke -- <url>`
-  can be run by hand against any stage.
+  or production automatically after their deploys; `pnpm --filter @skolopals/client run smoke <url>`
+  and `pnpm --filter @skolopals/admin run smoke <url>` can be run by hand against any stage.

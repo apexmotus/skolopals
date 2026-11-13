@@ -1,0 +1,69 @@
+@import "tailwindcss";
+@source "../";
+
+:root {
+  /* Surface & Background Palette */
+  --bg-canvas: #faf8f5;
+  --bg-navbar: #ffffff;
+  --bg-hero: linear-gradient(135deg, #eef4fa 0%, #e6eff8 100%);
+  --bg-badge-location: #dce7f3;
+  --bg-banner-promo: #fdf4d7;
+  --border-banner-promo: #f5e6b8;
+
+  /* Process Card Surfaces */
+  --accent-card-1: #d81b7a;
+  --bg-card-1: linear-gradient(180deg, #fdf2f8 0%, #fce7f3 100%);
+  --accent-card-2: #0288d1;
+  --bg-card-2: linear-gradient(180deg, #f0f8ff 0%, #e0f2fe 100%);
+  --accent-card-3: #fbc02d;
+  --bg-card-3: linear-gradient(180deg, #fffdf2 0%, #fef9c3 100%);
+  --accent-card-4: #7b1fa2;
+  --bg-card-4: linear-gradient(180deg, #f8f4fc 0%, #f3e8ff 100%);
+
+  /* Brand, Text & Interactive Colors */
+  --color-navy-primary: #1b2559;
+  --color-magenta-primary: #d81b7a;
+  --color-purple-auth: #6a1b9a;
+  --color-link: #0277bd;
+  --text-body: #334155;
+  --text-nav: #1e293b;
+}
+
+/* Skolopals design tokens */
+@theme {
+  --font-sans: var(--font-plus-jakarta), var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --color-brand: #d81b7a;
+  --color-brand-soft: #fce7f3;
+  --color-brand-tint: #eef4fa;
+  --color-navy: #1b2559;
+  --color-magenta: #d81b7a;
+  --color-purple-auth: #6a1b9a;
+  --color-link: #0277bd;
+  --color-ink: #1b2559;
+  --color-muted: #334155;
+  --color-nav: #1e293b;
+  --color-line: #eae6df;
+  --color-canvas: #faf8f5;
+  --color-subtle: #f4f1ea;
+  --color-night: #1b2559;
+  --color-star: #d97706;
+  --color-success: #2f7259;
+  --color-success-soft: rgba(47, 114, 89, 0.09);
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fee2e2;
+  --color-warning: #9a6a18;
+  --color-warning-soft: #fdf3dc;
+
+  --shadow-card: 0 4px 16px 0 rgba(27, 37, 89, 0.05);
+}
+
+body {
+  background: var(--bg-canvas);
+  color: var(--text-body);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-link);
+  outline-offset: 2px;
+}

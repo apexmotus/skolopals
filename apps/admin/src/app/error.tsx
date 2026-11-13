@@ -1,0 +1,26 @@
+"use client";
+
+import { useEffect } from "react";
+import { Button, ButtonLink, StatusState } from "@skolopals/ui/ui";
+
+export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
+
+  return (
+    <div className="p-4 md:p-7">
+      <StatusState
+        icon="/icons/help-circle.svg"
+        title="Something went wrong on our side"
+        description="We couldn’t load this page. Please try again in a moment."
+      >
+        <Button onClick={reset}>Try again</Button>
+        <ButtonLink href="/admin" variant="secondary">
+          Back to dashboard
+        </ButtonLink>
+      </StatusState>
+      {error.digest ? <p className="text-center text-[11px] text-muted">Reference: {error.digest}</p> : null}
+    </div>
+  );
+}
