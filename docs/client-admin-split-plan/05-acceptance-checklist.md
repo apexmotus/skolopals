@@ -37,6 +37,6 @@
 
 - [x] `pnpm turbo run lint typecheck test build` passes from the repository root.
 - [x] `.github/workflows/ci.yml` uses `pnpm` + Turborepo to lint, typecheck, test, and build `api`, `apps/client`, `apps/admin`, and `packages/*`.
-- [ ] `skolopals-admin` Vercel project is created (`Root Directory: apps/admin`), `skolopals-web` Root Directory is updated to `apps/client`, and `VERCEL_PROJECT_ID_ADMIN` secret is configured in GitHub.
+- [x] `skolopals-admin` Vercel project is created (`Root Directory: apps/admin`), `skolopals-web` Root Directory is updated to `apps/client`, and `VERCEL_PROJECT_ID_ADMIN` secret is configured in GitHub.
 - [x] `.github/workflows/deploy.yml` builds, deploys, aliases, and smoke-tests `api`, `apps/client`, and `apps/admin` across `dev`, `uat`, and `production`.
 - [x] `README.md` and `docs/DEPLOY.md` are updated to reflect the Turborepo workspace layout and 3-project deployment pipeline.
