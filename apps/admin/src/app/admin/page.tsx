@@ -48,6 +48,13 @@ export default async function AdminDashboard() {
             Review enquiries
           </Link>
         </Card>
+        <Card className="flex-1">
+          <CardTitle>Users & invitations</CardTitle>
+          <p className="text-[13px] text-muted">Invite new users and manage centre accounts.</p>
+          <Link href="/admin/users" className="text-[12px] text-brand hover:underline">
+            Add or manage users
+          </Link>
+        </Card>
       </div>
     </>
   );

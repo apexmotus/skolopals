@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import type { InvitableRole } from '../../common/supabase-admin/supabase-admin-auth.service.js';
 import { StoredProcRunner } from '../../database/stored-proc.runner.js';
+import type { AdminUserRow } from './rows/admin-user.row.js';
 import type { AuthorisedCollectorRow } from './rows/authorised-collector.row.js';
 import type { EmergencyContactRow } from './rows/emergency-contact.row.js';
 import type { LearnerGuardianRow } from './rows/learner-guardian.row.js';
@@ -13,6 +15,12 @@ interface ListLearnersFilter {
   search?: string;
   gradeCode?: string;
   status?: string;
+}
+
+interface ListUsersFilter {
+  page: number;
+  pageSize: number;
+  search?: string;
 }
 
 /**
@@ -51,26 +59,74 @@ export class PeopleRepository {
 
   getProfileById(id: string): Promise<ProfileRow | undefined> {
     return this.sp.selectOne<ProfileRow>(
-      'select id, full_name, phone, created_at from public.profiles where id = $1',
+      'select id, first_name, last_name, full_name, phone, created_at from public.profiles where id = $1',
       [id],
     );
   }
 
   async updateProfile(
     id: string,
-    input: { fullName?: string; phone?: string },
+    input: {
+      firstName?: string;
+      lastName?: string;
+      fullName?: string;
+      phone?: string;
+    },
   ): Promise<ProfileRow> {
     const result = await this.sp.executeRaw<ProfileRow>(
       `update public.profiles
-       set full_name = coalesce($2, full_name), phone = coalesce($3, phone)
+       set first_name = coalesce($2, first_name),
+           last_name  = coalesce($3, last_name),
+           full_name  = coalesce($4, full_name),
+           phone      = coalesce($5, phone)
        where id = $1
-       returning id, full_name, phone, created_at`,
-      [id, input.fullName ?? null, input.phone ?? null],
+       returning id, first_name, last_name, full_name, phone, created_at`,
+      [
+        id,
+        input.firstName ?? null,
+        input.lastName ?? null,
+        input.fullName ?? null,
+        input.phone ?? null,
+      ],
     );
     const row = result.rows[0];
     if (!row)
       throw new Error('UPDATE ... RETURNING unexpectedly returned no row');
     return row;
+  }
+
+  async configureInvitedUser(input: {
+    userId: string;
+    firstName: string;
+    lastName: string;
+    role: InvitableRole;
+  }): Promise<AdminUserRow> {
+    await this.sp.executeRaw(
+      'select public.configure_invited_user($1, $2, $3, $4::public.app_role)',
+      [input.userId, input.firstName, input.lastName, input.role],
+    );
+    const row = await this.sp.selectOne<AdminUserRow>(
+      'select id, first_name, last_name, full_name, email, phone, roles, created_at from public.get_user_for_admin($1)',
+      [input.userId],
+    );
+    if (!row)
+      throw new Error(
+        'get_user_for_admin unexpectedly returned no row after configure_invited_user',
+      );
+    return row;
+  }
+
+  async listUsersForAdmin(
+    filter: ListUsersFilter,
+  ): Promise<{ rows: AdminUserRow[]; totalCount: number }> {
+    const offset = (filter.page - 1) * filter.pageSize;
+    const rows = await this.sp.selectMany<AdminUserRow>(
+      'select id, first_name, last_name, full_name, email, phone, roles, created_at, total_count from public.list_users_for_admin($1, $2, $3)',
+      [filter.search ?? null, filter.pageSize, offset],
+    );
+    const totalCount =
+      rows.length > 0 ? Number(rows[0]?.total_count ?? 0) : 0;
+    return { rows, totalCount };
   }
 
   getLearnerById(id: string): Promise<LearnerRow | undefined> {

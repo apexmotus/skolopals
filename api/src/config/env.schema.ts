@@ -45,9 +45,14 @@ export const envSchema = z.object({
   SUPABASE_JWT_SECRET: z.string().min(32).optional(),
 
   // Same Supabase project as DATABASE_URL. Scoped to common/file-storage/
-  // (signed URLs for the tutor-documents bucket) and one-off admin scripts only.
+  // (signed URLs for the tutor-documents bucket), common/supabase-admin/
+  // (admin user invitations), and one-off admin scripts only.
   SUPABASE_URL: z.url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+
+  // Target portal origins for user invitation links (admin vs client roles).
+  ADMIN_SITE_URL: z.url().default('https://skolopals-admin.vercel.app'),
+  CLIENT_SITE_URL: z.url().default('https://skolopals-web.vercel.app'),
 
   CORS_ORIGINS: z.string().min(1),
 

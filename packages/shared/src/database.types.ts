@@ -1993,18 +1993,24 @@ export type Database = {
           full_name: string;
           phone: string | null;
           created_at: string;
+          first_name: string;
+          last_name: string;
         };
         Insert: {
           id: string;
           full_name?: string;
           phone?: string | null;
           created_at?: string;
+          first_name?: string;
+          last_name?: string;
         };
         Update: {
           id?: string;
           full_name?: string;
           phone?: string | null;
           created_at?: string;
+          first_name?: string;
+          last_name?: string;
         };
         Relationships: [
           {
@@ -3332,11 +3338,14 @@ export type Database = {
     Functions: {
       activate_enrolment: { Args: Record<string, unknown>; Returns: unknown };
       apply_late_fees: { Args: Record<string, unknown>; Returns: unknown };
+      configure_invited_user: { Args: Record<string, unknown>; Returns: unknown };
       create_learning_plan: { Args: Record<string, unknown>; Returns: unknown };
       create_tutor: { Args: Record<string, unknown>; Returns: unknown };
       generate_class_sessions: { Args: Record<string, unknown>; Returns: unknown };
+      get_user_for_admin: { Args: Record<string, unknown>; Returns: unknown };
       has_required_consents: { Args: Record<string, unknown>; Returns: unknown };
       invoice_late_fee_due: { Args: Record<string, unknown>; Returns: unknown };
+      list_users_for_admin: { Args: Record<string, unknown>; Returns: unknown };
       mark_thread_read: { Args: Record<string, unknown>; Returns: unknown };
       package_price_on: { Args: Record<string, unknown>; Returns: unknown };
       record_assessment: { Args: Record<string, unknown>; Returns: unknown };
@@ -3349,7 +3358,7 @@ export type Database = {
       submit_enrolment: { Args: Record<string, unknown>; Returns: unknown };
     };
     Enums: {
-      app_role: "parent" | "learner" | "tutor" | "admin";
+      app_role: "parent" | "learner" | "tutor" | "admin" | "superadmin";
     };
     CompositeTypes: Record<string, never>;
   };
@@ -3368,7 +3377,7 @@ export type ViewRow<T extends keyof Database["public"]["Views"]> =
 
 /* Row aliases, named after the table. Plural, deliberately: guessing a
    singular form breaks on words like "expenses" and "addresses". */
-export type AppRole = "parent" | "learner" | "tutor" | "admin";
+export type AppRole = "parent" | "learner" | "tutor" | "admin" | "superadmin";
 
 export type AchievementLevels = Database["public"]["Tables"]["achievement_levels"]["Row"];
 export type AssessmentDomains = Database["public"]["Tables"]["assessment_domains"]["Row"];

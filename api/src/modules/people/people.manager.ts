@@ -1,5 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
 import { BusinessRuleException } from '../../common/exceptions/business-rule.exception.js';
+import { SupabaseAdminAuthService } from '../../common/supabase-admin/supabase-admin-auth.service.js';
 import { PagedResult } from '../../common/types/paged-result.js';
 import type { AuthUser } from '../../common/types/auth-user.js';
 import type {
@@ -26,12 +32,20 @@ import type {
   UpsertMedicalNotesDto,
 } from './dto/medical-notes.dto.js';
 import type { MyProfileDto, UpdateMyProfileDto } from './dto/profile.dto.js';
+import type {
+  CreateUserDto,
+  ListUsersQueryDto,
+  UserSummaryDto,
+} from './dto/user.dto.js';
 import { PeopleMapper } from './people.mapper.js';
 import { PeopleRepository } from './people.repository.js';
 
 @Injectable()
 export class PeopleManager {
-  constructor(private readonly repo: PeopleRepository) {}
+  constructor(
+    private readonly repo: PeopleRepository,
+    @Optional() private readonly supabaseAdminAuth?: SupabaseAdminAuthService,
+  ) {}
 
   async getMyProfile(actor: AuthUser): Promise<MyProfileDto> {
     const row = await this.repo.getProfileById(actor.id);
@@ -49,6 +63,65 @@ export class PeopleManager {
     const email =
       typeof actor.claims.email === 'string' ? actor.claims.email : '';
     return PeopleMapper.profileToMyProfileDto(row, email, actor.roles);
+  }
+
+  async listUsers(
+    query: ListUsersQueryDto,
+  ): Promise<PagedResult<UserSummaryDto>> {
+    const { rows, totalCount } = await this.repo.listUsersForAdmin({
+      page: query.page,
+      pageSize: query.pageSize,
+      search: query.search,
+    });
+    return new PagedResult(
+      rows.map((row) => PeopleMapper.adminUserToDto(row)),
+      query.page,
+      query.pageSize,
+      totalCount,
+    );
+  }
+
+  async inviteUser(
+    actor: AuthUser,
+    dto: CreateUserDto,
+  ): Promise<UserSummaryDto> {
+    const isAdmin =
+      actor.roles.includes('admin') || actor.roles.includes('superadmin');
+    if (!isAdmin) {
+      throw new ForbiddenException('Administrators only.');
+    }
+
+    if ((dto.role as string) === 'superadmin') {
+      throw new ForbiddenException('Super admin role cannot be assigned.');
+    }
+
+    if (dto.role === 'admin' && !actor.roles.includes('superadmin')) {
+      throw new ForbiddenException('Only super admins can create admin users.');
+    }
+
+    if (!this.supabaseAdminAuth) {
+      throw new Error('SupabaseAdminAuthService is not configured.');
+    }
+
+    const firstName = dto.firstName.trim();
+    const lastName = dto.lastName.trim();
+    const email = dto.email.trim().toLowerCase();
+
+    const { userId } = await this.supabaseAdminAuth.inviteUserByEmail({
+      email,
+      firstName,
+      lastName,
+      role: dto.role,
+    });
+
+    const row = await this.repo.configureInvitedUser({
+      userId,
+      firstName,
+      lastName,
+      role: dto.role,
+    });
+
+    return PeopleMapper.adminUserToDto(row);
   }
 
   async getLearnerById(id: string): Promise<LearnerDto> {

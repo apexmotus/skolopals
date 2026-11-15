@@ -1,8 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Every route on apps/admin except /login and /auth/confirm requires a signed-in user.
-const PUBLIC_PATHS = ["/login", "/auth/confirm"];
+// Every route on apps/admin except /login, /auth/confirm and /complete-registration requires a
+// signed-in user. An invited admin can land on /complete-registration before their session exists.
+const PUBLIC_PATHS = ["/login", "/auth/confirm", "/complete-registration"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

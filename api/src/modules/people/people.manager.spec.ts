@@ -1,6 +1,7 @@
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import type { AuthUser } from '../../common/types/auth-user.js';
 import { BusinessRuleException } from '../../common/exceptions/business-rule.exception.js';
+import type { SupabaseAdminAuthService } from '../../common/supabase-admin/supabase-admin-auth.service.js';
 import { PeopleManager } from './people.manager.js';
 import type { PeopleRepository } from './people.repository.js';
 
@@ -302,5 +303,160 @@ describe('PeopleManager — not-found on write targets', () => {
     await expect(
       manager.setContactFlags('learner-1', 'missing-guardian', {}),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+});
+
+describe('PeopleManager — inviteUser & role hierarchy', () => {
+  const superadmin: AuthUser = {
+    id: 'superadmin-1',
+    roles: ['superadmin'],
+    claims: { sub: 'superadmin-1', email: 'superadmin@test' },
+  };
+
+  const parentActor: AuthUser = {
+    id: 'parent-1',
+    roles: ['parent'],
+    claims: { sub: 'parent-1', email: 'parent@test' },
+  };
+
+  function makeAdminAuth(userId = 'invited-user-1'): SupabaseAdminAuthService {
+    return {
+      inviteUserByEmail: vi.fn().mockResolvedValue({ userId }),
+    } as unknown as SupabaseAdminAuthService;
+  }
+
+  it('rejects a regular admin attempting to create an admin user (403)', async () => {
+    const repo = makeRepo({ configureInvitedUser: vi.fn() });
+    const adminAuth = makeAdminAuth();
+    const manager = new PeopleManager(repo, adminAuth);
+
+    await expect(
+      manager.inviteUser(admin, {
+        firstName: 'Lerato',
+        lastName: 'Nkosi',
+        email: 'lerato@example.com',
+        role: 'admin',
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+
+    expect(adminAuth.inviteUserByEmail).not.toHaveBeenCalled();
+    expect(repo.configureInvitedUser).not.toHaveBeenCalled();
+  });
+
+  it('allows a superadmin to create an admin user and sends invitation email', async () => {
+    const createdAt = new Date('2026-11-13T12:00:00Z');
+    const configureInvitedUser = vi.fn().mockResolvedValue({
+      id: 'invited-admin-1',
+      first_name: 'Lerato',
+      last_name: 'Nkosi',
+      full_name: 'Lerato Nkosi',
+      email: 'lerato@example.com',
+      phone: null,
+      roles: ['admin'],
+      created_at: createdAt,
+    });
+    const repo = makeRepo({ configureInvitedUser });
+    const adminAuth = makeAdminAuth('invited-admin-1');
+    const manager = new PeopleManager(repo, adminAuth);
+
+    const result = await manager.inviteUser(superadmin, {
+      firstName: ' Lerato ',
+      lastName: ' Nkosi ',
+      email: ' Lerato@Example.com ',
+      role: 'admin',
+    });
+
+    expect(adminAuth.inviteUserByEmail).toHaveBeenCalledWith({
+      email: 'lerato@example.com',
+      firstName: 'Lerato',
+      lastName: 'Nkosi',
+      role: 'admin',
+    });
+    expect(configureInvitedUser).toHaveBeenCalledWith({
+      userId: 'invited-admin-1',
+      firstName: 'Lerato',
+      lastName: 'Nkosi',
+      role: 'admin',
+    });
+    expect(result).toEqual({
+      id: 'invited-admin-1',
+      firstName: 'Lerato',
+      lastName: 'Nkosi',
+      fullName: 'Lerato Nkosi',
+      email: 'lerato@example.com',
+      phone: undefined,
+      roles: ['admin'],
+      createdAt: createdAt.toISOString(),
+    });
+  });
+
+  it('allows a regular admin to create a tutor, parent, or learner user', async () => {
+    const createdAt = new Date('2026-11-13T12:00:00Z');
+    const configureInvitedUser = vi.fn().mockResolvedValue({
+      id: 'invited-tutor-1',
+      first_name: 'Thabo',
+      last_name: 'Mokoena',
+      full_name: 'Thabo Mokoena',
+      email: 'thabo@example.com',
+      phone: null,
+      roles: ['tutor'],
+      created_at: createdAt,
+    });
+    const repo = makeRepo({ configureInvitedUser });
+    const adminAuth = makeAdminAuth('invited-tutor-1');
+    const manager = new PeopleManager(repo, adminAuth);
+
+    const result = await manager.inviteUser(admin, {
+      firstName: 'Thabo',
+      lastName: 'Mokoena',
+      email: 'thabo@example.com',
+      role: 'tutor',
+    });
+
+    expect(adminAuth.inviteUserByEmail).toHaveBeenCalledWith({
+      email: 'thabo@example.com',
+      firstName: 'Thabo',
+      lastName: 'Mokoena',
+      role: 'tutor',
+    });
+    expect(configureInvitedUser).toHaveBeenCalledWith({
+      userId: 'invited-tutor-1',
+      firstName: 'Thabo',
+      lastName: 'Mokoena',
+      role: 'tutor',
+    });
+    expect(result.roles).toEqual(['tutor']);
+  });
+
+  it('rejects assigning superadmin even when called by a superadmin', async () => {
+    const repo = makeRepo({ configureInvitedUser: vi.fn() });
+    const adminAuth = makeAdminAuth();
+    const manager = new PeopleManager(repo, adminAuth);
+
+    await expect(
+      manager.inviteUser(superadmin, {
+        firstName: 'Sipho',
+        lastName: 'Dlamini',
+        email: 'sipho@example.com',
+        role: 'superadmin' as never,
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+
+    expect(adminAuth.inviteUserByEmail).not.toHaveBeenCalled();
+  });
+
+  it('rejects non-admin callers attempting to invite a user', async () => {
+    const repo = makeRepo({ configureInvitedUser: vi.fn() });
+    const adminAuth = makeAdminAuth();
+    const manager = new PeopleManager(repo, adminAuth);
+
+    await expect(
+      manager.inviteUser(parentActor, {
+        firstName: 'Child',
+        lastName: 'One',
+        email: 'child@example.com',
+        role: 'learner',
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
   });
 });

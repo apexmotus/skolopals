@@ -29,6 +29,18 @@ describe('RolesGuard', () => {
     expect(new RolesGuard(reflector).canActivate(context)).toBe(true);
   });
 
+  it('allows a superadmin through on a route requiring admin', () => {
+    const { context, reflector } = makeContext(['admin'], ['superadmin']);
+    expect(new RolesGuard(reflector).canActivate(context)).toBe(true);
+  });
+
+  it('rejects a regular admin on a route requiring superadmin only', () => {
+    const { context, reflector } = makeContext(['superadmin'], ['admin']);
+    expect(() => new RolesGuard(reflector).canActivate(context)).toThrow(
+      ForbiddenException,
+    );
+  });
+
   it('rejects a request when the actor has none of the required roles', () => {
     const { context, reflector } = makeContext(['admin'], ['parent']);
     expect(() => new RolesGuard(reflector).canActivate(context)).toThrow(

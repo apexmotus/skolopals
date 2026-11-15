@@ -14,6 +14,8 @@ export type Session = {
 /** The `GET /people/me` response shape (`MyProfileDto`, `api/src/modules/people/dto/profile.dto.ts`). */
 type MyProfileResponse = {
   id: string;
+  firstName?: string;
+  lastName?: string;
   fullName: string;
   phone?: string;
   email: string;
@@ -33,6 +35,8 @@ export const getSession = cache(async (): Promise<Session | null> => {
     return {
       profile: {
         id: me.id,
+        first_name: me.firstName ?? "",
+        last_name: me.lastName ?? "",
         full_name: me.fullName,
         phone: me.phone ?? null,
         created_at: me.createdAt,
@@ -46,9 +50,21 @@ export const getSession = cache(async (): Promise<Session | null> => {
   }
 });
 
-import { clientHomeFor } from "./roles";
+import {
+  assignableRolesFor,
+  clientHomeFor,
+  isAdminRole,
+  isSuperAdminRole,
+  type InvitableUserRole,
+} from "./roles";
 
-export { clientHomeFor };
+export {
+  assignableRolesFor,
+  clientHomeFor,
+  isAdminRole,
+  isSuperAdminRole,
+  type InvitableUserRole,
+};
 
 /** Backwards-compatible alias for clientHomeFor. */
 export const homeFor = clientHomeFor;
@@ -66,15 +82,15 @@ export async function requireClientRole(role: "parent" | "learner" | "tutor"): P
   return session;
 }
 
-/** Admin workspace gate (used by /admin in apps/admin). */
+/** Admin workspace gate (used by /admin in apps/admin). Admits both admin and superadmin. */
 export async function requireAdmin(): Promise<Session> {
   const session = await requireUser();
-  if (!session.roles.includes("admin")) redirect("/login?error=forbidden");
+  if (!isAdminRole(session.roles)) redirect("/login?error=forbidden");
   return session;
 }
 
 /** Gate a workspace. Dispatches admin vs client roles so existing call sites continue to work. */
 export async function requireRole(role: AppRole): Promise<Session> {
-  if (role === "admin") return requireAdmin();
+  if (role === "admin" || role === "superadmin") return requireAdmin();
   return requireClientRole(role);
 }

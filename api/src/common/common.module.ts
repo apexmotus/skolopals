@@ -10,6 +10,7 @@ import { RolesGuard } from './guards/roles.guard.js';
 import { ThrottleGuard } from './guards/throttle.guard.js';
 import { ResponseEnvelopeInterceptor } from './interceptors/response-envelope.interceptor.js';
 import { RedisModule } from './redis/redis.module.js';
+import { SupabaseAdminModule } from './supabase-admin/supabase-admin.module.js';
 
 /**
  * Rate limiting lives in `main.ts` as a plain Fastify plugin
@@ -28,6 +29,7 @@ import { RedisModule } from './redis/redis.module.js';
     }),
     RedisModule,
     FileStorageModule,
+    SupabaseAdminModule,
     AuthModule,
   ],
   providers: [
@@ -38,6 +40,6 @@ import { RedisModule } from './redis/redis.module.js';
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
     { provide: APP_INTERCEPTOR, useClass: ResponseEnvelopeInterceptor },
   ],
-  exports: [FileStorageModule],
+  exports: [FileStorageModule, SupabaseAdminModule],
 })
 export class CommonModule {}

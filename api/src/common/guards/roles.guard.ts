@@ -23,8 +23,11 @@ export class RolesGuard implements CanActivate {
     const request = context
       .switchToHttp()
       .getRequest<FastifyRequest & { user?: AuthUser }>();
-    const hasMatch = requiredRoles.some((role) =>
-      request.user?.roles.includes(role),
+    const userRoles = request.user?.roles ?? [];
+    const hasMatch = requiredRoles.some(
+      (role) =>
+        userRoles.includes(role) ||
+        (role === 'admin' && userRoles.includes('superadmin')),
     );
     if (!hasMatch) throw new ForbiddenException();
     return true;

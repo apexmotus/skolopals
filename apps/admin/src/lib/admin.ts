@@ -1,5 +1,22 @@
 import "server-only";
+import { api } from "@skolopals/shared/api";
 import { createClient } from "@skolopals/shared/supabase/server";
+
+export type AdminUserSummary = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  roles: string[];
+  createdAt: string;
+};
+
+export async function getUsers() {
+  const paged = await api.getPaged<AdminUserSummary>("/people/users?page=1&pageSize=100");
+  return paged.items;
+}
 
 /** Headline figures for the admin dashboard. BP section 24. */
 export async function getDashboard() {

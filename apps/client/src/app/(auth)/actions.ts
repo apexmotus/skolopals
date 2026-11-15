@@ -80,6 +80,34 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   redirect("/parent");
 }
 
+export async function completeRegistration(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+
+  if (password.length < 8) return { error: "Use at least 8 characters for your password." };
+  if (password !== confirm) return { error: "Passwords don’t match." };
+
+  const supabase = await createClient();
+  // Supabase's default invite email delivers the session as tokens in the URL fragment; the form
+  // forwards them here. A link that went through /auth/confirm already has a session cookie.
+  const accessToken = String(formData.get("access_token") ?? "");
+  const refreshToken = String(formData.get("refresh_token") ?? "");
+  if (accessToken && refreshToken) {
+    await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+  }
+
+  const { data: userRes } = await supabase.auth.getUser();
+  if (!userRes.user) {
+    return { error: "Your invitation link has expired or is invalid. Please ask the centre to re-invite you." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: error.message };
+
+  const me = await api.get<{ roles: string[] }>("/people/me");
+  redirect(clientHomeFor(me.roles as AppRole[]));
+}
+
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();

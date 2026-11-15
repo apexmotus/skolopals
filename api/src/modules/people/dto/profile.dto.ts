@@ -3,6 +3,8 @@ import { IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class MyProfileDto {
   @ApiProperty() id!: string;
+  @ApiPropertyOptional() firstName?: string;
+  @ApiPropertyOptional() lastName?: string;
   @ApiProperty() fullName!: string;
   @ApiPropertyOptional() phone?: string;
   @ApiProperty() email!: string;
@@ -11,6 +13,18 @@ export class MyProfileDto {
 }
 
 export class UpdateMyProfileDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  firstName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  lastName?: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

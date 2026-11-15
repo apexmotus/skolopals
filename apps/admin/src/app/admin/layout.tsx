@@ -1,11 +1,17 @@
 import { AppShell } from "@skolopals/ui/app-shell";
-import { requireAdmin } from "@skolopals/shared/auth";
+import { isSuperAdminRole, requireAdmin } from "@skolopals/shared/auth";
 import { signOut } from "@/app/(auth)/actions";
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
-  const { profile } = await requireAdmin();
+  const { profile, roles } = await requireAdmin();
+  const isSuperAdmin = isSuperAdminRole(roles);
   return (
-    <AppShell profile={profile} role="admin" subtitle="Administrator" signOutAction={signOut}>
+    <AppShell
+      profile={profile}
+      role={isSuperAdmin ? "superadmin" : "admin"}
+      subtitle={isSuperAdmin ? "Super Administrator" : "Administrator"}
+      signOutAction={signOut}
+    >
       {children}
     </AppShell>
   );

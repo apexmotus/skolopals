@@ -158,4 +158,67 @@ describe('PeopleRepository', () => {
       ['l1', 'contact-1'],
     );
   });
+
+  it('configureInvitedUser calls configure_invited_user RPC and returns get_user_for_admin row', async () => {
+    const userRow = {
+      id: 'u1',
+      first_name: 'Thabo',
+      last_name: 'Mokoena',
+      full_name: 'Thabo Mokoena',
+      email: 'thabo@example.com',
+      phone: null,
+      roles: ['tutor'],
+      created_at: new Date(),
+    };
+    const executeRaw = vi.fn().mockResolvedValue({ rows: [], rowCount: 1 });
+    const selectOne = vi.fn().mockResolvedValue(userRow);
+    const repo = new PeopleRepository(makeSp({ executeRaw, selectOne }));
+
+    const result = await repo.configureInvitedUser({
+      userId: 'u1',
+      firstName: 'Thabo',
+      lastName: 'Mokoena',
+      role: 'tutor',
+    });
+
+    expect(result).toEqual(userRow);
+    expect(executeRaw).toHaveBeenCalledWith(
+      'select public.configure_invited_user($1, $2, $3, $4::public.app_role)',
+      ['u1', 'Thabo', 'Mokoena', 'tutor'],
+    );
+    expect(selectOne).toHaveBeenCalledWith(
+      expect.stringContaining('public.get_user_for_admin($1)'),
+      ['u1'],
+    );
+  });
+
+  it('listUsersForAdmin queries public.list_users_for_admin with search, limit, and offset', async () => {
+    const rows = [
+      {
+        id: 'u1',
+        first_name: 'Thabo',
+        last_name: 'Mokoena',
+        full_name: 'Thabo Mokoena',
+        email: 'thabo@example.com',
+        phone: null,
+        roles: ['tutor'],
+        created_at: new Date(),
+        total_count: '3',
+      },
+    ];
+    const selectMany = vi.fn().mockResolvedValue(rows);
+    const repo = new PeopleRepository(makeSp({ selectMany }));
+
+    const result = await repo.listUsersForAdmin({
+      page: 2,
+      pageSize: 10,
+      search: 'Thabo',
+    });
+
+    expect(result).toEqual({ rows, totalCount: 3 });
+    expect(selectMany).toHaveBeenCalledWith(
+      expect.stringContaining('public.list_users_for_admin($1, $2, $3)'),
+      ['Thabo', 10, 10],
+    );
+  });
 });

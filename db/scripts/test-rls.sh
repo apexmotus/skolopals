@@ -17,12 +17,16 @@ insert into auth.users (id, email, raw_user_meta_data) values
   ('bbbbbbbb-0000-0000-0000-000000000002', 'guardian.b@test', '{"full_name":"Guardian B"}'),
   ('cccccccc-0000-0000-0000-000000000003', 'tutor@test',      '{"full_name":"Naledi Tutor"}'),
   ('dddddddd-0000-0000-0000-000000000004', 'admin@test',      '{"full_name":"Winnie Admin"}'),
-  ('eeeeeeee-0000-0000-0000-000000000005', 'learner.a@test',  '{"full_name":"Learner A"}');
+  ('eeeeeeee-0000-0000-0000-000000000005', 'learner.a@test',  '{"full_name":"Learner A"}'),
+  ('ffffffff-0000-0000-0000-000000000006', 'superadmin@test', '{"full_name":"Sipho Super"}'),
+  ('99990001-0000-0000-0000-000000000007', 'invited.t@test',  '{"first_name":"Thabo","last_name":"Mokoena","full_name":"Thabo Mokoena"}'),
+  ('99990002-0000-0000-0000-000000000008', 'invited.a@test',  '{"first_name":"Lerato","last_name":"Nkosi","full_name":"Lerato Nkosi"}');
 
 insert into public.user_roles (user_id, role) values
   ('cccccccc-0000-0000-0000-000000000003', 'tutor'),
   ('dddddddd-0000-0000-0000-000000000004', 'admin'),
-  ('eeeeeeee-0000-0000-0000-000000000005', 'learner');
+  ('eeeeeeee-0000-0000-0000-000000000005', 'learner'),
+  ('ffffffff-0000-0000-0000-000000000006', 'superadmin');
 
 insert into public.learners (id, profile_id, full_name, date_of_birth, grade_code, status, joined_on) values
   ('11111111-0000-0000-0000-00000000000a', 'eeeeeeee-0000-0000-0000-000000000005',
@@ -296,6 +300,61 @@ do $$ begin
   perform dev.assert((select count(*) from public.invoices) = 1, 'sees invoices');
   perform dev.assert((select count(*) from public.contact_enquiries) = 2, 'sees enquiries');
   perform dev.assert((select count(*) from public.reviews) = 1, 'sees unmoderated reviews');
+
+  -- Admin CAN configure an invited tutor, which also creates a default public.tutors row.
+  perform public.configure_invited_user('99990001-0000-0000-0000-000000000007', 'Thabo', 'Mokoena', 'tutor');
+  perform dev.assert(
+    exists(select 1 from public.tutors where profile_id = '99990001-0000-0000-0000-000000000007' and slug = 'thabo-mokoena'),
+    'admin inviting a tutor creates default public.tutors row'
+  );
+
+  -- Admin CANNOT configure an invited admin user.
+  begin
+    perform public.configure_invited_user('99990002-0000-0000-0000-000000000008', 'Lerato', 'Nkosi', 'admin');
+    raise exception 'FAILED: admin should not be able to create an admin user';
+  exception when raise_exception then
+    perform dev.assert(true, 'admin DENIED creating an admin user via configure_invited_user');
+  end;
+
+  -- Admin CANNOT directly insert an admin role into public.user_roles.
+  begin
+    insert into public.user_roles (user_id, role) values ('99990002-0000-0000-0000-000000000008', 'admin');
+    raise exception 'FAILED: admin should not be able to insert admin role';
+  exception when insufficient_privilege then
+    perform dev.assert(true, 'admin DENIED inserting admin role via RLS');
+  end;
+end $$;
+
+reset role;
+\echo ''
+\echo '=== SUPERADMIN ==='
+set local role authenticated;
+select set_config('request.jwt.claims','{"sub":"ffffffff-0000-0000-0000-000000000006","role":"authenticated"}',true);
+do $$ begin
+  perform dev.assert((select count(*) from public.learners) = 2, 'superadmin sees all learners');
+  perform dev.assert((select count(*) from public.billing_settings) = 1, 'superadmin sees billing settings');
+
+  -- Superadmin CAN configure an invited admin user.
+  perform public.configure_invited_user('99990002-0000-0000-0000-000000000008', 'Lerato', 'Nkosi', 'admin');
+  perform dev.assert(
+    exists(select 1 from public.user_roles where user_id = '99990002-0000-0000-0000-000000000008' and role = 'admin'),
+    'superadmin CAN create an admin user'
+  );
+
+  -- Superadmin CANNOT assign superadmin role via configure_invited_user or RLS.
+  begin
+    perform public.configure_invited_user('99990002-0000-0000-0000-000000000008', 'Lerato', 'Nkosi', 'superadmin');
+    raise exception 'FAILED: superadmin should not be able to assign superadmin';
+  exception when raise_exception then
+    perform dev.assert(true, 'superadmin DENIED assigning superadmin via configure_invited_user');
+  end;
+
+  begin
+    insert into public.user_roles (user_id, role) values ('99990002-0000-0000-0000-000000000008', 'superadmin');
+    raise exception 'FAILED: superadmin should not be able to insert superadmin role';
+  exception when insufficient_privilege then
+    perform dev.assert(true, 'superadmin DENIED inserting superadmin role via RLS');
+  end;
 end $$;
 
 reset role;

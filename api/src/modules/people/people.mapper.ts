@@ -4,6 +4,8 @@ import type { LearnerGuardianDto } from './dto/learner-guardian.dto.js';
 import type { LearnerDto } from './dto/learner.dto.js';
 import type { MedicalNotesDto } from './dto/medical-notes.dto.js';
 import type { MyProfileDto } from './dto/profile.dto.js';
+import type { UserSummaryDto } from './dto/user.dto.js';
+import type { AdminUserRow } from './rows/admin-user.row.js';
 import type { AuthorisedCollectorRow } from './rows/authorised-collector.row.js';
 import type { EmergencyContactRow } from './rows/emergency-contact.row.js';
 import type { LearnerGuardianRow } from './rows/learner-guardian.row.js';
@@ -19,11 +21,29 @@ export class PeopleMapper {
   ): MyProfileDto {
     return {
       id: row.id,
+      firstName: row.first_name ?? undefined,
+      lastName: row.last_name ?? undefined,
       fullName: row.full_name,
       phone: row.phone ?? undefined,
       email,
       createdAt: row.created_at.toISOString(),
       roles,
+    };
+  }
+
+  static adminUserToDto(row: AdminUserRow): UserSummaryDto {
+    return {
+      id: row.id,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      fullName: row.full_name,
+      email: row.email,
+      phone: row.phone ?? undefined,
+      roles: row.roles ?? [],
+      createdAt:
+        row.created_at instanceof Date
+          ? row.created_at.toISOString()
+          : new Date(row.created_at).toISOString(),
     };
   }
 
