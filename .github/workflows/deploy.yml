@@ -35,6 +35,7 @@ jobs:
         with:
           node-version: "24.x"
       - run: npm install -g vercel@latest
+      - run: pnpm install --frozen-lockfile
 
       - name: Deploy api (preview)
         id: deploy-api
@@ -156,6 +157,7 @@ jobs:
         with:
           node-version: "24.x"
       - run: npm install -g vercel@latest
+      - run: pnpm install --frozen-lockfile
 
       - name: Deploy api (production)
         env:
