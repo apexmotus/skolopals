@@ -27,7 +27,9 @@ try {
     });
 
     const url = new URL(check.path, baseUrl).toString();
-    const response = await page.goto(url, { waitUntil: "networkidle", timeout: 30_000 });
+    // Use "domcontentloaded" + explicit text wait so pending Link prefetches or subresources on Vercel cannot stall navigation.
+    const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.getByText(check.mustContain).first().waitFor({ timeout: 15_000 }).catch(() => {});
 
     const finalUrl = new URL(page.url());
     if (finalUrl.host !== targetHost) {
