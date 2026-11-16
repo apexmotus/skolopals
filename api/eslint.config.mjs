@@ -65,7 +65,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/common/file-storage/**/*.ts'],
+    files: ['src/common/file-storage/**/*.ts', 'src/common/supabase-admin/**/*.ts'],
     rules: { 'no-restricted-imports': 'off' },
   },
   {

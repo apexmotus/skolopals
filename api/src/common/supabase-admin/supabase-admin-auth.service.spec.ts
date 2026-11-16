@@ -20,7 +20,7 @@ function makeSut(inviteResult: {
     getOrThrow: vi.fn((key: keyof EnvConfig) => {
       if (key === 'ADMIN_SITE_URL') return 'https://admin.skolopals.test/';
       if (key === 'CLIENT_SITE_URL') return 'https://client.skolopals.test';
-      throw new Error(`Unexpected config key: ${String(key)}`);
+      throw new Error(`Unexpected config key: ${key}`);
     }),
   } as unknown as ConfigService<EnvConfig, true>;
 

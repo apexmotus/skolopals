@@ -50,8 +50,8 @@ export class SupabaseAdminAuthService {
       },
     );
 
-    if (error || !data.user) {
-      const message = error?.message ?? 'Could not send invitation email.';
+    if (error) {
+      const message = error.message || 'Could not send invitation email.';
       if (/already|registered|exists/i.test(message)) {
         throw new ConflictException(
           `An account already exists for ${email}.`,

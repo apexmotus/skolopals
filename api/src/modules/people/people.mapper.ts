@@ -39,7 +39,7 @@ export class PeopleMapper {
       fullName: row.full_name,
       email: row.email,
       phone: row.phone ?? undefined,
-      roles: row.roles ?? [],
+      roles: row.roles,
       createdAt:
         row.created_at instanceof Date
           ? row.created_at.toISOString()
