@@ -1,19 +1,21 @@
 import { Badge, DataTable, PageHeading } from "@skolopals/ui/ui";
-import { assignableRolesFor, requireAdmin } from "@skolopals/shared/auth";
+import { assignableRolesFor, isSuperAdminRole, requireAdmin } from "@skolopals/shared/auth";
 import { shortDate } from "@skolopals/shared/format";
 import { getUsers } from "@/lib/admin";
 import { InviteUserForm } from "./invite-user-form";
 import { ROLE_LABEL } from "./role-label";
+import { UserRowActions } from "./user-row-actions";
 
 export const metadata = { title: "Users" };
 
 export default async function AdminUsersPage() {
-  const { roles } = await requireAdmin();
+  const { roles, profile } = await requireAdmin();
+  const iAmSuper = isSuperAdminRole(roles);
   const users = await getUsers();
 
   return (
     <>
-      <PageHeading title="Users" description="Invite new users and see everyone with a Skolopals account." />
+      <PageHeading title="Users" description="Invite, edit and deactivate users, and see everyone with a Skolopals account." />
       <InviteUserForm roles={assignableRolesFor(roles)} />
       <DataTable
         rows={users}
@@ -34,7 +36,22 @@ export default async function AdminUsersPage() {
               </span>
             ),
           },
+          {
+            header: "Status",
+            cell: (u) => <Badge tone={u.isActive ? "success" : "neutral"}>{u.isActive ? "Active" : "Deactivated"}</Badge>,
+          },
           { header: "Added", cell: (u) => shortDate(u.createdAt) },
+          {
+            header: "",
+            cell: (u) => (
+              <UserRowActions
+                user={u}
+                assignable={assignableRolesFor(roles)}
+                isSelf={u.id === profile.id}
+                canManage={iAmSuper || !u.roles.some((r) => r === "admin" || r === "superadmin")}
+              />
+            ),
+          },
         ]}
       />
     </>

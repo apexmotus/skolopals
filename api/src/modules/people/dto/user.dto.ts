@@ -1,5 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  ArrayMinSize,
+  ArrayUnique,
+  IsArray,
+  IsBoolean,
   IsEmail,
   IsIn,
   IsNotEmpty,
@@ -39,6 +43,33 @@ export class CreateUserDto {
   role!: InvitableRole;
 }
 
+export class UpdateUserDto {
+  @ApiProperty({ example: 'Thabo' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  firstName!: string;
+
+  @ApiProperty({ example: 'Mokoena' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  lastName!: string;
+
+  @ApiProperty({ enum: INVITABLE_ROLES, isArray: true })
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayUnique()
+  @IsIn(INVITABLE_ROLES, { each: true })
+  roles!: InvitableRole[];
+}
+
+export class SetUserActiveDto {
+  @ApiProperty()
+  @IsBoolean()
+  active!: boolean;
+}
+
 export class UserSummaryDto {
   @ApiProperty() id!: string;
   @ApiProperty() firstName!: string;
@@ -47,6 +78,7 @@ export class UserSummaryDto {
   @ApiProperty() email!: string;
   @ApiPropertyOptional() phone?: string;
   @ApiProperty({ type: [String] }) roles!: string[];
+  @ApiProperty() isActive!: boolean;
   @ApiProperty() createdAt!: string;
 }
 

@@ -6,6 +6,7 @@ export interface AdminUserRow {
   email: string;
   phone: string | null;
   roles: string[];
+  is_active: boolean;
   created_at: Date;
   total_count?: string | number;
 }

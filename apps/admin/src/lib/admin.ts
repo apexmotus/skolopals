@@ -10,6 +10,7 @@ export type AdminUserSummary = {
   email: string;
   phone?: string;
   roles: string[];
+  isActive: boolean;
   createdAt: string;
 };
 

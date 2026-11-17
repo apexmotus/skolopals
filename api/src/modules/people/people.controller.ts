@@ -4,6 +4,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -23,6 +25,8 @@ import { MyProfileDto, UpdateMyProfileDto } from './dto/profile.dto.js';
 import {
   CreateUserDto,
   ListUsersQueryDto,
+  SetUserActiveDto,
+  UpdateUserDto,
   UserSummaryDto,
 } from './dto/user.dto.js';
 import { PeopleManager } from './people.manager.js';
@@ -75,5 +79,35 @@ export class PeopleController {
     @Body() dto: CreateUserDto,
   ): Promise<UserSummaryDto> {
     return this.manager.inviteUser(actor, dto);
+  }
+
+  @Patch('users/:id')
+  @Roles('admin', 'superadmin')
+  @ApiOperation({
+    summary:
+      "Edit a user's name and roles (admin accounts require superadmin)",
+  })
+  @ApiOkResponse({ type: UserSummaryDto })
+  updateUser(
+    @CurrentUser() actor: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateUserDto,
+  ): Promise<UserSummaryDto> {
+    return this.manager.updateUser(actor, id, dto);
+  }
+
+  @Patch('users/:id/active')
+  @Roles('admin', 'superadmin')
+  @ApiOperation({
+    summary:
+      'Deactivate or reactivate a user (blocks sign-in; data is kept)',
+  })
+  @ApiOkResponse({ type: UserSummaryDto })
+  setUserActive(
+    @CurrentUser() actor: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: SetUserActiveDto,
+  ): Promise<UserSummaryDto> {
+    return this.manager.setUserActive(actor, id, dto.active);
   }
 }

@@ -460,3 +460,126 @@ describe('PeopleManager — inviteUser & role hierarchy', () => {
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 });
+
+describe('PeopleManager — updateUser & setUserActive', () => {
+  const superadmin: AuthUser = {
+    id: 'superadmin-1',
+    roles: ['superadmin'],
+    claims: { sub: 'superadmin-1', email: 'superadmin@test' },
+  };
+  const row = (id: string, roles: string[], isActive = true) => ({
+    id,
+    first_name: 'A',
+    last_name: 'B',
+    full_name: 'A B',
+    email: 'a@b.test',
+    phone: null,
+    roles,
+    is_active: isActive,
+    created_at: new Date('2026-11-17T00:00:00Z'),
+  });
+  const edit = { firstName: 'New', lastName: 'Name', roles: ['tutor' as const] };
+
+  function makeAdminAuth() {
+    return { setUserActive: vi.fn().mockResolvedValue(undefined) };
+  }
+
+  it('lets an admin edit an ordinary user', async () => {
+    const updateUserForAdmin = vi.fn().mockResolvedValue(row('u1', ['tutor']));
+    const repo = makeRepo({
+      getUserForAdmin: vi.fn().mockResolvedValue(row('u1', ['parent'])),
+      updateUserForAdmin,
+    });
+    const manager = new PeopleManager(repo);
+
+    const result = await manager.updateUser(admin, 'u1', edit);
+
+    expect(updateUserForAdmin).toHaveBeenCalledWith({
+      userId: 'u1',
+      firstName: 'New',
+      lastName: 'Name',
+      roles: ['tutor'],
+    });
+    expect(result.roles).toEqual(['tutor']);
+  });
+
+  it('forbids an admin editing another admin', async () => {
+    const repo = makeRepo({
+      getUserForAdmin: vi.fn().mockResolvedValue(row('u2', ['admin'])),
+      updateUserForAdmin: vi.fn(),
+    });
+    const manager = new PeopleManager(repo);
+
+    await expect(manager.updateUser(admin, 'u2', edit)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+    expect(repo.updateUserForAdmin).not.toHaveBeenCalled();
+  });
+
+  it('forbids an admin granting the admin role', async () => {
+    const repo = makeRepo({
+      getUserForAdmin: vi.fn().mockResolvedValue(row('u1', ['parent'])),
+      updateUserForAdmin: vi.fn(),
+    });
+    const manager = new PeopleManager(repo);
+
+    await expect(
+      manager.updateUser(admin, 'u1', { ...edit, roles: ['admin'] }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('404s when the user does not exist', async () => {
+    const repo = makeRepo({
+      getUserForAdmin: vi.fn().mockResolvedValue(undefined),
+    });
+    const manager = new PeopleManager(repo);
+
+    await expect(manager.updateUser(admin, 'nope', edit)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('deactivates a user through the auth admin client', async () => {
+    const getUserForAdmin = vi
+      .fn()
+      .mockResolvedValueOnce(row('u1', ['parent']))
+      .mockResolvedValueOnce(row('u1', ['parent'], false));
+    const adminAuth = makeAdminAuth();
+    const manager = new PeopleManager(
+      makeRepo({ getUserForAdmin }),
+      adminAuth as unknown as SupabaseAdminAuthService,
+    );
+
+    const result = await manager.setUserActive(admin, 'u1', false);
+
+    expect(adminAuth.setUserActive).toHaveBeenCalledWith('u1', false);
+    expect(result.isActive).toBe(false);
+  });
+
+  it('refuses to let a user deactivate themselves', async () => {
+    const adminAuth = makeAdminAuth();
+    const manager = new PeopleManager(
+      makeRepo(),
+      adminAuth as unknown as SupabaseAdminAuthService,
+    );
+
+    await expect(
+      manager.setUserActive(superadmin, 'superadmin-1', false),
+    ).rejects.toBeInstanceOf(BusinessRuleException);
+    expect(adminAuth.setUserActive).not.toHaveBeenCalled();
+  });
+
+  it('refuses to deactivate a super admin', async () => {
+    const adminAuth = makeAdminAuth();
+    const manager = new PeopleManager(
+      makeRepo({
+        getUserForAdmin: vi.fn().mockResolvedValue(row('s2', ['superadmin'])),
+      }),
+      adminAuth as unknown as SupabaseAdminAuthService,
+    );
+
+    await expect(
+      manager.setUserActive(superadmin, 's2', false),
+    ).rejects.toBeInstanceOf(BusinessRuleException);
+  });
+});

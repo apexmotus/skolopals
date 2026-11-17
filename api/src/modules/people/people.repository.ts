@@ -106,7 +106,7 @@ export class PeopleRepository {
       [input.userId, input.firstName, input.lastName, input.role],
     );
     const row = await this.sp.selectOne<AdminUserRow>(
-      'select id, first_name, last_name, full_name, email, phone, roles, created_at from public.get_user_for_admin($1)',
+      'select id, first_name, last_name, full_name, email, phone, roles, is_active, created_at from public.get_user_for_admin($1)',
       [input.userId],
     );
     if (!row)
@@ -116,12 +116,37 @@ export class PeopleRepository {
     return row;
   }
 
+  getUserForAdmin(userId: string): Promise<AdminUserRow | undefined> {
+    return this.sp.selectOne<AdminUserRow>(
+      'select id, first_name, last_name, full_name, email, phone, roles, is_active, created_at from public.get_user_for_admin($1)',
+      [userId],
+    );
+  }
+
+  async updateUserForAdmin(input: {
+    userId: string;
+    firstName: string;
+    lastName: string;
+    roles: InvitableRole[];
+  }): Promise<AdminUserRow> {
+    await this.sp.executeRaw(
+      'select public.update_user_for_admin($1, $2, $3, $4::public.app_role[])',
+      [input.userId, input.firstName, input.lastName, input.roles],
+    );
+    const row = await this.getUserForAdmin(input.userId);
+    if (!row)
+      throw new Error(
+        'get_user_for_admin unexpectedly returned no row after update_user_for_admin',
+      );
+    return row;
+  }
+
   async listUsersForAdmin(
     filter: ListUsersFilter,
   ): Promise<{ rows: AdminUserRow[]; totalCount: number }> {
     const offset = (filter.page - 1) * filter.pageSize;
     const rows = await this.sp.selectMany<AdminUserRow>(
-      'select id, first_name, last_name, full_name, email, phone, roles, created_at, total_count from public.list_users_for_admin($1, $2, $3)',
+      'select id, first_name, last_name, full_name, email, phone, roles, is_active, created_at, total_count from public.list_users_for_admin($1, $2, $3)',
       [filter.search ?? null, filter.pageSize, offset],
     );
     const totalCount =

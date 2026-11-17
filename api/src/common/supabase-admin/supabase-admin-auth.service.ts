@@ -62,4 +62,17 @@ export class SupabaseAdminAuthService {
 
     return { userId: data.user.id };
   }
+
+  /** Deactivation is an auth ban: sign-in and token refresh stop working, data is untouched. */
+  async setUserActive(userId: string, active: boolean): Promise<void> {
+    const { error } = await this.client.auth.admin.updateUserById(userId, {
+      ban_duration: active ? 'none' : '876000h',
+    });
+    if (error) {
+      throw new BusinessRuleException(
+        'USER_UPDATE_FAILED',
+        error.message || 'Could not update the account.',
+      );
+    }
+  }
 }

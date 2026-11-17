@@ -35,6 +35,7 @@ import type { MyProfileDto, UpdateMyProfileDto } from './dto/profile.dto.js';
 import type {
   CreateUserDto,
   ListUsersQueryDto,
+  UpdateUserDto,
   UserSummaryDto,
 } from './dto/user.dto.js';
 import { PeopleMapper } from './people.mapper.js';
@@ -122,6 +123,71 @@ export class PeopleManager {
     });
 
     return PeopleMapper.adminUserToDto(row);
+  }
+
+  async updateUser(
+    actor: AuthUser,
+    userId: string,
+    dto: UpdateUserDto,
+  ): Promise<UserSummaryDto> {
+    await this.requireManageableUser(actor, userId);
+
+    if (dto.roles.includes('admin') && !actor.roles.includes('superadmin')) {
+      throw new ForbiddenException('Only super admins can grant the admin role.');
+    }
+    const row = await this.repo.updateUserForAdmin({
+      userId,
+      firstName: dto.firstName.trim(),
+      lastName: dto.lastName.trim(),
+      roles: dto.roles,
+    });
+    return PeopleMapper.adminUserToDto(row);
+  }
+
+  async setUserActive(
+    actor: AuthUser,
+    userId: string,
+    active: boolean,
+  ): Promise<UserSummaryDto> {
+    if (!active && userId === actor.id) {
+      throw new BusinessRuleException(
+        'CANNOT_DEACTIVATE_SELF',
+        'You cannot deactivate your own account.',
+      );
+    }
+    const target = await this.requireManageableUser(actor, userId);
+    if (!active && target.roles.includes('superadmin')) {
+      throw new BusinessRuleException(
+        'CANNOT_DEACTIVATE_SUPERADMIN',
+        'A super admin account cannot be deactivated.',
+      );
+    }
+    if (!this.supabaseAdminAuth) {
+      throw new Error('SupabaseAdminAuthService is not configured.');
+    }
+
+    await this.supabaseAdminAuth.setUserActive(userId, active);
+    const row = await this.repo.getUserForAdmin(userId);
+    if (!row) throw new NotFoundException('User not found.');
+    return PeopleMapper.adminUserToDto(row);
+  }
+
+  /** Admins manage ordinary users; only super admins may touch admin / super admin accounts. */
+  private async requireManageableUser(actor: AuthUser, userId: string) {
+    const isSuper = actor.roles.includes('superadmin');
+    if (!isSuper && !actor.roles.includes('admin')) {
+      throw new ForbiddenException('Administrators only.');
+    }
+    const target = await this.repo.getUserForAdmin(userId);
+    if (!target) throw new NotFoundException('User not found.');
+    const targetIsAdmin =
+      target.roles.includes('admin') || target.roles.includes('superadmin');
+    if (targetIsAdmin && !isSuper) {
+      throw new ForbiddenException(
+        'Only super admins can manage admin accounts.',
+      );
+    }
+    return target;
   }
 
   async getLearnerById(id: string): Promise<LearnerDto> {
