@@ -6,8 +6,10 @@ import {
   createClassGroup,
   createRoom,
   createTerm,
+  placeLearner,
   regenerateSessions,
   setMeetingLink,
+  withdrawPlacement,
   type BuilderState,
 } from "./actions";
 
@@ -298,5 +300,96 @@ export function RegenerateButton({ classGroupId }: { classGroupId: string }) {
       {state.error ? <span className="text-[11px] text-danger">{state.error}</span> : null}
       {state.ok ? <span className="text-[11px] text-success">{state.ok}</span> : null}
     </form>
+  );
+}
+
+type PlacementLearner = { id: string; name: string; grade: string };
+
+function RemovePlacement({ placementId, name }: { placementId: string; name: string }) {
+  const [state, action, pending] = useActionState<BuilderState, FormData>(withdrawPlacement, {});
+  return (
+    <form action={action} className="flex items-center gap-2">
+      <input type="hidden" name="placement_id" value={placementId} />
+      <Button
+        variant="bare"
+        type="submit"
+        disabled={pending}
+        aria-label={`Remove ${name} from this class`}
+        className="text-[11px] text-danger underline-offset-2 hover:underline"
+      >
+        {pending ? "Removing…" : "Remove"}
+      </Button>
+      {state.error ? <span className="text-[11px] text-danger">{state.error}</span> : null}
+    </form>
+  );
+}
+
+/** Who is in a class, and a picker to add more. Learners in the class's grades are listed first. */
+export function PlacementPanel({
+  classGroupId,
+  capacity,
+  placed,
+  candidates,
+  classGrades,
+}: {
+  classGroupId: string;
+  capacity: number;
+  placed: (PlacementLearner & { placementId: string })[];
+  candidates: (PlacementLearner & { gradeCode: string })[];
+  classGrades: string[];
+}) {
+  const [state, action, pending] = useActionState<BuilderState, FormData>(placeLearner, {});
+  const full = placed.length >= capacity;
+  const inGrade = candidates.filter((c) => classGrades.includes(c.gradeCode));
+  const otherGrades = candidates.filter((c) => !classGrades.includes(c.gradeCode));
+  const option = (c: PlacementLearner) => (
+    <option key={c.id} value={c.id}>
+      {c.name} · {c.grade}
+    </option>
+  );
+
+  return (
+    <div className="flex flex-col gap-2 rounded-[8px] bg-canvas p-3">
+      <p className="text-[12px] font-semibold text-ink">
+        Learners · {placed.length} of {capacity} places taken
+      </p>
+      {placed.length === 0 ? (
+        <p className="text-[12px] text-muted">Nobody is placed in this class yet.</p>
+      ) : (
+        <ul className="flex flex-col gap-1">
+          {placed.map((p) => (
+            <li key={p.placementId} className="flex flex-wrap items-center justify-between gap-2 text-[12px] text-black">
+              <span>
+                {p.name} <span className="text-muted">· {p.grade}</span>
+              </span>
+              <RemovePlacement placementId={p.placementId} name={p.name} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {full ? (
+        <p className="text-[11px] text-muted">This class is full. Raise its capacity or remove a learner to add someone.</p>
+      ) : candidates.length === 0 ? (
+        <p className="text-[11px] text-muted">
+          No other learners have an active enrolment. Approve enrolments in the Enrolment queue first.
+        </p>
+      ) : (
+        <form action={action} className="flex flex-col gap-2 md:flex-row md:items-center">
+          <input type="hidden" name="class_group_id" value={classGroupId} />
+          <Select aria-label="Learner to add" name="learner_id" defaultValue="" className="md:max-w-sm" required>
+            <option value="" disabled>
+              Choose a learner
+            </option>
+            {inGrade.length > 0 ? <optgroup label="In this class's grades">{inGrade.map(option)}</optgroup> : null}
+            {otherGrades.length > 0 ? <optgroup label="Other grades">{otherGrades.map(option)}</optgroup> : null}
+          </Select>
+          <Button type="submit" variant="secondary" className="w-fit" disabled={pending}>
+            {pending ? "Adding…" : "Add learner"}
+          </Button>
+          {state.error ? <span className="text-[11px] text-danger">{state.error}</span> : null}
+          {state.ok ? <span className="text-[11px] text-success">{state.ok}</span> : null}
+        </form>
+      )}
+    </div>
   );
 }

@@ -1,5 +1,5 @@
 import { Card, CardTitle, DataTable, EmptyState, PageHeading } from "@skolopals/ui/ui";
-import { ClassForm, MeetingLinkForm, RegenerateButton, RoomForm, TermForm } from "./builder-forms";
+import { ClassForm, MeetingLinkForm, PlacementPanel, RegenerateButton, RoomForm, TermForm } from "./builder-forms";
 import { createClient } from "@skolopals/shared/supabase/server";
 import { getGrades, getLanguages, getSubjects } from "@skolopals/shared/reference";
 import { getTutors } from "@/lib/admin";
@@ -18,16 +18,21 @@ export const metadata = { title: "Timetable" };
 
 export default async function TimetableBuilderPage() {
   const supabase = await createClient();
-  const [{ data: terms }, { data: rooms }, { data: classes }, subjects, languages, grades, tutors] =
+  const [{ data: terms }, { data: rooms }, { data: classes }, { data: activeEnrolments }, subjects, languages, grades, tutors] =
     await Promise.all([
       supabase.from("terms").select("*").order("year", { ascending: false }).order("term_number"),
       supabase.from("rooms").select("*").eq("is_active", true).order("name"),
       supabase
         .from("class_groups")
         .select(
-          "*, subjects(name), languages(name), rooms(name), terms(year, term_number), tutors(profiles(full_name)), class_group_grades(grade_code), class_schedules(day_of_week, starts_at_time, ends_at_time), class_sessions(id, session_date, meeting_url)",
+          "*, subjects(name), languages(name), rooms(name), terms(year, term_number), tutors(profiles(full_name)), class_group_grades(grade_code), class_schedules(day_of_week, starts_at_time, ends_at_time), class_sessions(id, session_date, meeting_url), class_enrolments(id, left_on, learners(id, full_name, grade_code))",
         )
         .order("name"),
+      // Only learners with an active (approved) enrolment can be placed.
+      supabase
+        .from("enrolments")
+        .select("learners(id, full_name, grade_code)")
+        .eq("status", "active"),
       getSubjects(),
       getLanguages(),
       getGrades(),
@@ -41,6 +46,15 @@ export default async function TimetableBuilderPage() {
   const activeTutors = tutors
     .filter((t) => t.status === "active")
     .map((t) => ({ id: t.id, full_name: t.profiles?.full_name ?? t.slug }));
+
+  const gradeName = new Map(grades.map((g) => [g.code, g.name]));
+  const placeable = [
+    ...new Map(
+      (activeEnrolments ?? [])
+        .flatMap((e) => (e.learners ? [e.learners] : []))
+        .map((l) => [l.id, { id: l.id, name: l.full_name, gradeCode: l.grade_code, grade: gradeName.get(l.grade_code) ?? l.grade_code }]),
+    ).values(),
+  ].sort((a, b) => a.name.localeCompare(b.name));
 
   const ready = termOptions.length > 0 && activeTutors.length > 0;
 
@@ -76,7 +90,7 @@ export default async function TimetableBuilderPage() {
         />
       )}
 
-      <Card>
+      <Card id="classes">
         <CardTitle>Classes this term</CardTitle>
         {(classes ?? []).length === 0 ? (
           <p className="text-[13px] text-muted">No classes yet.</p>
@@ -91,12 +105,22 @@ export default async function TimetableBuilderPage() {
                   : c.delivery_mode === "hybrid"
                     ? `${c.rooms?.name ?? "—"} + ${online}`
                     : (c.rooms?.name ?? "—");
+              const placed = (c.class_enrolments ?? [])
+                .filter((p) => p.left_on === null && p.learners)
+                .map((p) => ({
+                  placementId: p.id,
+                  id: p.learners!.id,
+                  name: p.learners!.full_name,
+                  grade: gradeName.get(p.learners!.grade_code) ?? p.learners!.grade_code,
+                }))
+                .sort((a, b) => a.name.localeCompare(b.name));
+              const placedIds = new Set(placed.map((p) => p.id));
               return (
-              <div key={c.id} className="flex flex-col gap-2 border-t border-line pt-4 first:border-0 first:pt-0">
+              <div key={c.id} id={`class-${c.id}`} className="flex flex-col gap-2 border-t border-line pt-4 first:border-0 first:pt-0">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <p className="text-[14px] font-bold text-ink">{c.name}</p>
                   <p className="text-[11px] text-muted">
-                    {c.class_sessions?.length ?? 0} sessions · capacity {c.capacity}
+                    {c.class_sessions?.length ?? 0} sessions · {placed.length} of {c.capacity} places taken
                   </p>
                 </div>
                 <p className="text-[12px] text-muted">
@@ -114,6 +138,13 @@ export default async function TimetableBuilderPage() {
                     )
                     .join(" · ") || "No weekly slots"}
                 </p>
+                <PlacementPanel
+                  classGroupId={c.id}
+                  capacity={c.capacity}
+                  placed={placed}
+                  candidates={placeable.filter((l) => !placedIds.has(l.id))}
+                  classGrades={(c.class_group_grades ?? []).map((g) => g.grade_code)}
+                />
                 {c.delivery_mode !== "in_centre" ? (
                   <MeetingLinkForm classGroupId={c.id} currentUrl={meetingUrl} />
                 ) : null}

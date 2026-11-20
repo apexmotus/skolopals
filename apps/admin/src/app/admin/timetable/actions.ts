@@ -229,3 +229,52 @@ export async function setMeetingLink(_prev: BuilderState, formData: FormData): P
   revalidatePath("/admin/timetable");
   return { ok: url ? "Meeting link saved on upcoming sessions." : "Meeting link removed." };
 }
+
+/** Place a learner into a class, against their active enrolment. */
+export async function placeLearner(_prev: BuilderState, formData: FormData): Promise<BuilderState> {
+  await requireRole("admin");
+  const classId = text(formData, "class_group_id");
+  const learnerId = text(formData, "learner_id");
+  if (!learnerId) return { error: "Choose a learner." };
+
+  const supabase = await createClient();
+  // The placement hangs off an enrolment; use the learner's current active one.
+  const { data: enrolment } = await supabase
+    .from("enrolments")
+    .select("id")
+    .eq("learner_id", learnerId)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!enrolment) return { error: "That learner has no active enrolment. Approve one in the Enrolment queue first." };
+
+  const { error } = await supabase
+    .from("class_enrolments")
+    .insert({ class_group_id: classId, learner_id: learnerId, enrolment_id: enrolment.id });
+  if (error) {
+    if (error.code === "23505") return { error: "That learner is already in this class." };
+    // The capacity trigger: "Class is full (capacity 6)".
+    if (/class is full/i.test(error.message)) return { error: error.message.replace(/^.*?(Class is full)/, "$1") + "." };
+    return { error: error.message };
+  }
+  revalidatePath("/admin/timetable");
+  revalidatePath("/admin/learners");
+  return { ok: "Learner placed." };
+}
+
+/** Take a learner out of a class. The placement is closed, not deleted, so attendance history stays. */
+export async function withdrawPlacement(_prev: BuilderState, formData: FormData): Promise<BuilderState> {
+  await requireRole("admin");
+  const placementId = text(formData, "placement_id");
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("class_enrolments")
+    .update({ left_on: new Date().toISOString().slice(0, 10) })
+    .eq("id", placementId)
+    .is("left_on", null);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/timetable");
+  revalidatePath("/admin/learners");
+  return { ok: "Learner removed from the class." };
+}

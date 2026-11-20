@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge, ButtonLink, Card, CardTitle, DetailRow, EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { getLearners } from "@/lib/admin";
 import { ENROLMENT_STATUS_LABEL, age, shortDate } from "@skolopals/shared/format";
@@ -62,7 +63,14 @@ export default async function LearnersPage() {
                 />
                 <DetailRow
                   label="Classes"
-                  value={placements.map((c) => c.class_groups?.name).filter(Boolean).join(", ") || "Not placed"}
+                  value={
+                    <>
+                      {placements.map((c) => c.class_groups?.name).filter(Boolean).join(", ") || "Not placed"}{" "}
+                      <Link href="/admin/timetable#classes" className="text-[12px] text-brand hover:underline">
+                        {placements.length > 0 ? "Manage" : "Place in a class"}
+                      </Link>
+                    </>
+                  }
                 />
               </Card>
             );
