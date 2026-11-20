@@ -2,6 +2,7 @@ import { DataTable, EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { getMyClasses, getTutorContext, getMySessions } from "@/lib/tutor";
 import { getRooms, getSubjects } from "@/lib/queries";
 import { dateTime, nowMs } from "@skolopals/shared/format";
+import { SessionWhere } from "@/components/session-where";
 
 export const metadata = { title: "My schedule" };
 
@@ -39,10 +40,16 @@ export default async function SchedulePage() {
             },
             { header: "When", cell: (s) => dateTime(s.startsAt) },
             {
-              header: "Room",
+              header: "Where",
               cell: (s) => {
-                const roomId = classGroupById.get(s.classGroupId)?.roomId;
-                return (roomId && roomName.get(roomId)) ?? "Online";
+                const classGroup = classGroupById.get(s.classGroupId);
+                return (
+                  <SessionWhere
+                    mode={classGroup?.deliveryMode}
+                    room={classGroup?.roomId ? roomName.get(classGroup.roomId) : undefined}
+                    meetingUrl={s.meetingUrl}
+                  />
+                );
               },
             },
             { header: "Status", cell: (s) => s.status },

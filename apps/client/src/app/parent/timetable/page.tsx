@@ -1,7 +1,8 @@
 import { EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { DataTable } from "@skolopals/ui/ui";
 import { getUpcomingSessions } from "@/lib/parent";
-import { DELIVERY_MODE_LABEL, dateTime } from "@skolopals/shared/format";
+import { dateTime } from "@skolopals/shared/format";
+import { SessionWhere } from "@/components/session-where";
 
 export const metadata = { title: "Timetable" };
 
@@ -28,10 +29,13 @@ export default async function TimetablePage() {
           { header: "When", cell: (s) => dateTime(s.starts_at) },
           {
             header: "Where",
-            cell: (s) =>
-              s.class_groups?.delivery_mode === "online"
-                ? DELIVERY_MODE_LABEL.online
-                : (s.class_groups?.rooms?.name ?? DELIVERY_MODE_LABEL.in_centre),
+            cell: (s) => (
+                <SessionWhere
+                  mode={s.class_groups?.delivery_mode}
+                  room={s.class_groups?.rooms?.name}
+                  meetingUrl={s.meeting_url}
+                />
+              ),
           },
         ]}
       />

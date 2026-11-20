@@ -3,10 +3,28 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@skolopals/shared/supabase/server";
 import { requireRole } from "@skolopals/shared/auth";
+import { normaliseMeetingUrl } from "@skolopals/shared/format";
 
 export type BuilderState = { error?: string; ok?: string };
 
 const text = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
+
+type Supabase = Awaited<ReturnType<typeof createClient>>;
+
+const BAD_MEETING_LINK = "That meeting link is not a valid https:// address.";
+
+/**
+ * The meeting link lives on each session, not the class: class_groups is
+ * publicly readable, class_sessions is not. Only today's and later sessions
+ * are touched, so past sessions keep the link they actually ran on.
+ */
+async function applyMeetingLink(supabase: Supabase, classId: string, url: string | null) {
+  return supabase
+    .from("class_sessions")
+    .update({ meeting_url: url })
+    .eq("class_group_id", classId)
+    .gte("session_date", new Date().toISOString().slice(0, 10));
+}
 
 export async function createTerm(_prev: BuilderState, formData: FormData): Promise<BuilderState> {
   await requireRole("admin");
@@ -63,6 +81,8 @@ export async function createClassGroup(_prev: BuilderState, formData: FormData):
   const days = formData.getAll("day_of_week").map(String).filter(Boolean);
   const startsAt = text(formData, "starts_at_time");
   const endsAt = text(formData, "ends_at_time");
+  const rawMeetingUrl = payload.delivery_mode === "in_centre" ? "" : text(formData, "meeting_url");
+  const meetingUrl = normaliseMeetingUrl(rawMeetingUrl);
 
   if (!payload.name || !payload.subject_code || !payload.tutor_id || !payload.term_id) {
     return { error: "Name, subject, tutor and term are all required." };
@@ -72,6 +92,7 @@ export async function createClassGroup(_prev: BuilderState, formData: FormData):
   if (payload.delivery_mode !== "online" && !payload.room_id) {
     return { error: "An in-centre class needs a room." };
   }
+  if (rawMeetingUrl && !meetingUrl) return { error: BAD_MEETING_LINK };
 
   const supabase = await createClient();
   const { data: created, error } = await supabase.from("class_groups").insert(payload).select("id").single();
@@ -114,6 +135,11 @@ export async function createClassGroup(_prev: BuilderState, formData: FormData):
   });
   if (genError) return { error: genError.message };
 
+  if (meetingUrl) {
+    const { error: linkError } = await applyMeetingLink(supabase, classId, meetingUrl);
+    if (linkError) return { error: `Class created, but the meeting link was not saved: ${linkError.message}` };
+  }
+
   revalidatePath("/admin/timetable");
   return { ok: `${payload.name} created with ${generated} sessions for the term.` };
 }
@@ -124,6 +150,42 @@ export async function regenerateSessions(_prev: BuilderState, formData: FormData
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("generate_class_sessions", { p_class_group_id: classId });
   if (error) return { error: error.message };
+
+  // Newly generated sessions start without a link; carry the current one over.
+  if (data) {
+    const { data: linked } = await supabase
+      .from("class_sessions")
+      .select("meeting_url")
+      .eq("class_group_id", classId)
+      .not("meeting_url", "is", null)
+      .order("session_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (linked?.meeting_url) {
+      await supabase
+        .from("class_sessions")
+        .update({ meeting_url: linked.meeting_url })
+        .eq("class_group_id", classId)
+        .is("meeting_url", null)
+        .gte("session_date", new Date().toISOString().slice(0, 10));
+    }
+  }
+
   revalidatePath("/admin/timetable");
   return { ok: data === 0 ? "Already up to date." : `Added ${data} sessions.` };
+}
+
+/** Set (or clear) the Zoom/Teams/Meet link on a class's upcoming sessions. */
+export async function setMeetingLink(_prev: BuilderState, formData: FormData): Promise<BuilderState> {
+  await requireRole("admin");
+  const classId = text(formData, "class_group_id");
+  const raw = text(formData, "meeting_url");
+  const url = normaliseMeetingUrl(raw);
+  if (raw && !url) return { error: BAD_MEETING_LINK };
+
+  const supabase = await createClient();
+  const { error } = await applyMeetingLink(supabase, classId, url);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/timetable");
+  return { ok: url ? "Meeting link saved on upcoming sessions." : "Meeting link removed." };
 }

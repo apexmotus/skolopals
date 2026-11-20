@@ -38,6 +38,7 @@ export type MyClassGroup = {
   name: string;
   subjectCode: string;
   languageCode: string;
+  deliveryMode: string;
   roomId?: string;
   capacity: number;
   isActive: boolean;
@@ -56,6 +57,7 @@ export type MyClassSession = {
   startsAt: string;
   endsAt: string;
   status: string;
+  meetingUrl?: string;
   notes: string;
 };
 

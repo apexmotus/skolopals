@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card, CardTitle, EmptyState, PageHeading, Select } from "@skolopals/ui/ui";
 import { RegisterRow } from "./register-form";
 import { getTutorContext } from "@/lib/tutor";
+import { SessionWhere } from "@/components/session-where";
 import { createClient } from "@skolopals/shared/supabase/server";
 import { dateTime, shortDate } from "@skolopals/shared/format";
 
@@ -17,7 +18,7 @@ export default async function RegisterPage({ searchParams }: PageProps<"/tutor/r
   // Sessions around today, so a tutor can mark a register they missed.
   const { data: sessions } = await supabase
     .from("class_sessions")
-    .select("id, session_date, starts_at, status, class_groups!inner(id, name, tutor_id)")
+    .select("id, session_date, starts_at, status, meeting_url, class_groups!inner(id, name, tutor_id, delivery_mode, rooms(name))")
     .eq("class_groups.tutor_id", tutor.id)
     .order("starts_at", { ascending: false })
     .limit(30);
@@ -81,6 +82,13 @@ export default async function RegisterPage({ searchParams }: PageProps<"/tutor/r
         <CardTitle>
           {session?.class_groups?.name} · {session ? shortDate(session.starts_at) : ""}
         </CardTitle>
+        <p className="text-[12px] text-muted">
+          <SessionWhere
+            mode={session?.class_groups?.delivery_mode}
+            room={session?.class_groups?.rooms?.name}
+            meetingUrl={session?.meeting_url}
+          />
+        </p>
         {learners.length === 0 ? (
           <p className="text-[13px] text-muted">
             No learners are placed in this class yet.{" "}

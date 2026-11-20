@@ -1,6 +1,6 @@
 import { Card, CardTitle, EmptyState, PageHeading, StatCard } from "@skolopals/ui/ui";
 import { getTutorContext, getMyClasses, getMyLearners, getMySessions, getSessionLoad } from "@/lib/tutor";
-import { dateTime, firstName, greeting, nowMs } from "@skolopals/shared/format";
+import { dateTime, firstName, greeting, meetingPlatform, nowMs } from "@skolopals/shared/format";
 
 export default async function TutorOverview() {
   const { profile, tutor } = await getTutorContext();
@@ -14,6 +14,7 @@ export default async function TutorOverview() {
     getSessionLoad(),
   ]);
   const classGroupName = new Map(classes.map((c) => [c.id, c.name]));
+  const isOnline = new Set(classes.filter((c) => c.deliveryMode !== "in_centre").map((c) => c.id));
 
   const thisMonth = load[0];
 
@@ -42,7 +43,19 @@ export default async function TutorOverview() {
             {sessions.map((s) => (
               <li key={s.id} className="flex flex-wrap justify-between gap-2 text-[13px] text-black">
                 <span>{classGroupName.get(s.classGroupId)}</span>
-                <span className="text-muted">{dateTime(s.startsAt)}</span>
+                <span className="flex gap-3">
+                  {isOnline.has(s.classGroupId) && s.meetingUrl ? (
+                    <a
+                      href={s.meetingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand hover:underline"
+                    >
+                      Start on {meetingPlatform(s.meetingUrl)}
+                    </a>
+                  ) : null}
+                  <span className="text-muted">{dateTime(s.startsAt)}</span>
+                </span>
               </li>
             ))}
           </ul>

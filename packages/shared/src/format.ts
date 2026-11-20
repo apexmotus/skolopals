@@ -144,6 +144,38 @@ export const DELIVERY_MODE_LABEL = {
   hybrid: "Hybrid",
 } as const;
 
+const MEETING_PLATFORMS: [RegExp, string][] = [
+  [/(^|\.)zoom\.(us|com)$/, "Zoom"],
+  [/(^|\.)teams\.(microsoft|live)\.com$/, "Teams"],
+  [/^meet\.google\.com$/, "Google Meet"],
+  [/(^|\.)webex\.com$/, "Webex"],
+  [/(^|\.)whereby\.com$/, "Whereby"],
+  [/^meet\.jit\.si$/, "Jitsi"],
+  [/(^|\.)skype\.com$/, "Skype"],
+];
+
+/** The video platform a meeting link points at, for labels like "Join on Zoom". */
+export function meetingPlatform(url: string) {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return MEETING_PLATFORMS.find(([re]) => re.test(host))?.[1] ?? "Online meeting";
+  } catch {
+    return "Online meeting";
+  }
+}
+
+/** An admin-entered meeting link as a clean https URL, or null if it is not one. */
+export function normaliseMeetingUrl(raw: string) {
+  const value = raw.trim();
+  if (!value) return null;
+  try {
+    const url = new URL(/^[a-z]+:\/\//i.test(value) ? value : `https://${value}`);
+    return url.protocol === "https:" && url.hostname.includes(".") ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Request-time clock helpers, kept out of component bodies. */
 export function hoursUntil(iso: string) {
   return (new Date(iso).getTime() - Date.now()) / 3_600_000;

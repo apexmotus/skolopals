@@ -7,6 +7,7 @@ import {
   createRoom,
   createTerm,
   regenerateSessions,
+  setMeetingLink,
   type BuilderState,
 } from "./actions";
 
@@ -197,6 +198,17 @@ export function ClassForm({
             <Input id="class_capacity" name="capacity" inputMode="numeric" defaultValue="6" required />
           </Field>
         </div>
+        {mode !== "in_centre" ? (
+          <Field label="Meeting link (Zoom, Teams, Google Meet or any platform)" htmlFor="meeting_url">
+            <Input
+              id="meeting_url"
+              name="meeting_url"
+              type="url"
+              inputMode="url"
+              placeholder="https://zoom.us/j/123456789"
+            />
+          </Field>
+        ) : null}
         <Field label="Meets on" htmlFor="days">
           <div className="flex flex-wrap gap-3 pt-1">
             {DAYS.map((d) => (
@@ -221,6 +233,35 @@ export function ClassForm({
         </Button>
       </form>
     </Card>
+  );
+}
+
+export function MeetingLinkForm({
+  classGroupId,
+  currentUrl,
+}: {
+  classGroupId: string;
+  currentUrl: string | null;
+}) {
+  const [state, action, pending] = useActionState<BuilderState, FormData>(setMeetingLink, {});
+  return (
+    <form action={action} className="flex flex-col gap-2 md:flex-row md:items-center">
+      <input type="hidden" name="class_group_id" value={classGroupId} />
+      <Input
+        aria-label="Meeting link"
+        name="meeting_url"
+        type="url"
+        inputMode="url"
+        defaultValue={currentUrl ?? ""}
+        placeholder="Paste a Zoom, Teams or Google Meet link"
+        className="md:max-w-md"
+      />
+      <Button type="submit" variant="secondary" className="w-fit" disabled={pending}>
+        {pending ? "Saving…" : currentUrl ? "Update link" : "Save link"}
+      </Button>
+      {state.error ? <span className="text-[11px] text-danger">{state.error}</span> : null}
+      {state.ok ? <span className="text-[11px] text-success">{state.ok}</span> : null}
+    </form>
   );
 }
 

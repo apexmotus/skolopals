@@ -1,9 +1,18 @@
 import { Card, CardTitle, DataTable, EmptyState, PageHeading } from "@skolopals/ui/ui";
-import { ClassForm, RegenerateButton, RoomForm, TermForm } from "./builder-forms";
+import { ClassForm, MeetingLinkForm, RegenerateButton, RoomForm, TermForm } from "./builder-forms";
 import { createClient } from "@skolopals/shared/supabase/server";
 import { getGrades, getLanguages, getSubjects } from "@skolopals/shared/reference";
 import { getTutors } from "@/lib/admin";
-import { clockTime, dayName, shortDate } from "@skolopals/shared/format";
+import { clockTime, dayName, meetingPlatform, shortDate } from "@skolopals/shared/format";
+
+/** The link on the class's latest linked session: what upcoming sessions use. */
+function currentMeetingUrl(sessions: { session_date: string; meeting_url: string | null }[]) {
+  return (
+    sessions
+      .filter((s) => s.meeting_url)
+      .sort((a, b) => b.session_date.localeCompare(a.session_date))[0]?.meeting_url ?? null
+  );
+}
 
 export const metadata = { title: "Timetable" };
 
@@ -16,7 +25,7 @@ export default async function TimetableBuilderPage() {
       supabase
         .from("class_groups")
         .select(
-          "*, subjects(name), languages(name), rooms(name), terms(year, term_number), tutors(profiles(full_name)), class_group_grades(grade_code), class_schedules(day_of_week, starts_at_time, ends_at_time), class_sessions(id)",
+          "*, subjects(name), languages(name), rooms(name), terms(year, term_number), tutors(profiles(full_name)), class_group_grades(grade_code), class_schedules(day_of_week, starts_at_time, ends_at_time), class_sessions(id, session_date, meeting_url)",
         )
         .order("name"),
       getSubjects(),
@@ -73,7 +82,16 @@ export default async function TimetableBuilderPage() {
           <p className="text-[13px] text-muted">No classes yet.</p>
         ) : (
           <div className="flex flex-col gap-4">
-            {(classes ?? []).map((c) => (
+            {(classes ?? []).map((c) => {
+              const meetingUrl = currentMeetingUrl(c.class_sessions ?? []);
+              const online = meetingUrl ? `Online (${meetingPlatform(meetingUrl)})` : "Online, no link yet";
+              const where =
+                c.delivery_mode === "online"
+                  ? online
+                  : c.delivery_mode === "hybrid"
+                    ? `${c.rooms?.name ?? "—"} + ${online}`
+                    : (c.rooms?.name ?? "—");
+              return (
               <div key={c.id} className="flex flex-col gap-2 border-t border-line pt-4 first:border-0 first:pt-0">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <p className="text-[14px] font-bold text-ink">{c.name}</p>
@@ -86,8 +104,7 @@ export default async function TimetableBuilderPage() {
                   {(c.class_group_grades ?? [])
                     .map((g) => g.grade_code.replace("grade_", "Gr "))
                     .join(", ")}{" "}
-                  · {c.tutors?.profiles?.full_name} ·{" "}
-                  {c.delivery_mode === "online" ? "Online" : (c.rooms?.name ?? "—")}
+                  · {c.tutors?.profiles?.full_name} · {where}
                 </p>
                 <p className="text-[12px] text-black">
                   {(c.class_schedules ?? [])
@@ -97,9 +114,13 @@ export default async function TimetableBuilderPage() {
                     )
                     .join(" · ") || "No weekly slots"}
                 </p>
+                {c.delivery_mode !== "in_centre" ? (
+                  <MeetingLinkForm classGroupId={c.id} currentUrl={meetingUrl} />
+                ) : null}
                 <RegenerateButton classGroupId={c.id} />
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>
