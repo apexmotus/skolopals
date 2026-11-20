@@ -19,9 +19,14 @@ export function SignupForm() {
         title="Create your account"
         description="For parents and guardians. You can register your learners once you are signed in."
       />
-      <Field label="Your full name" htmlFor="full_name">
-        <Input id="full_name" name="full_name" autoComplete="name" placeholder="Thandi Mokoena" required />
-      </Field>
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <Field label="First name" htmlFor="first_name" className="flex-1">
+          <Input id="first_name" name="first_name" autoComplete="given-name" placeholder="Thandi" required />
+        </Field>
+        <Field label="Last name" htmlFor="last_name" className="flex-1">
+          <Input id="last_name" name="last_name" autoComplete="family-name" placeholder="Mokoena" required />
+        </Field>
+      </div>
       <Field label="Email address" htmlFor="email">
         <Input
           id="email"

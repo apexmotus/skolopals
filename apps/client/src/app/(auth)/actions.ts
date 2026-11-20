@@ -52,10 +52,12 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirm") ?? "");
-  const fullName = String(formData.get("full_name") ?? "").trim();
+  const firstName = String(formData.get("first_name") ?? "").trim();
+  const lastName = String(formData.get("last_name") ?? "").trim();
+  const fullName = `${firstName} ${lastName}`.trim();
   const phone = String(formData.get("phone") ?? "").trim();
 
-  if (!fullName) return { error: "Tell us your name.", email };
+  if (!firstName || !lastName) return { error: "Tell us your first name and last name.", email };
   if (!email) return { error: "Enter your email address.", email };
   if (password.length < 8) return { error: "Use at least 8 characters for your password.", email };
   if (password !== confirm) return { error: "Passwords don’t match.", email };
@@ -67,7 +69,7 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
     email,
     password,
     options: {
-      data: { full_name: fullName, phone },
+      data: { first_name: firstName, last_name: lastName, full_name: fullName, phone },
       emailRedirectTo: `${await requestOrigin()}/auth/confirm`,
     },
   });

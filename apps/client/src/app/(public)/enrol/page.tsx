@@ -51,6 +51,31 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
     );
   }
 
+  // Enrolment records a guardian's consent for a child (POPIA s35), so only a parent account
+  // may submit one. Flag anyone else up front rather than after they have filled in the form.
+  if (!session.roles.includes("parent")) {
+    return (
+      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-4 py-6 md:px-[24px]">
+        <PageHeading title="Enrol a learner" description={`Signed in as ${session.profile.full_name}.`} />
+        <Card className="max-w-[640px] border-danger">
+          <CardTitle>Only a parent or guardian can enrol a learner</CardTitle>
+          <p className="text-[14px] leading-[1.6] text-muted">
+            Your account is not a parent or guardian account, so you cannot complete this form. An
+            enrolment records a parent’s or guardian’s permission to process their child’s information,
+            and the law requires that permission to come from them.
+          </p>
+          <p className="text-[14px] leading-[1.6] text-muted">
+            Ask the parent or guardian to create their own account and enrol their child. Their request
+            then appears in the admin enrolment queue for approval.
+          </p>
+          <div className="flex flex-wrap gap-[10px]">
+            <ButtonLink href="/">Back to the home page</ButtonLink>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   // Only tutors the centre could actually assign are offered as a preference.
   const preferred = tutorSlug ? tutors.find((t) => t.slug === tutorSlug)?.id : undefined;
 
@@ -74,6 +99,7 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
           tutors={tutors.map((t) => ({ id: t.id, fullName: t.fullName }))}
           consentTypes={consentTypes}
           defaultTutor={preferred}
+          me={{ fullName: session.profile.full_name, phone: session.profile.phone ?? "" }}
         />
       </div>
     </div>

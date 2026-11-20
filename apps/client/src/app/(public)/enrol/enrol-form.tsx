@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, type ReactNode } from "react";
 import { Button, Card, CardTitle, Field, FormMessage, Input, Select, cx } from "@skolopals/ui/ui";
 import { submitEnrolment, type EnrolState } from "./actions";
 import { money } from "@skolopals/shared/format";
@@ -8,6 +8,10 @@ import { money } from "@skolopals/shared/format";
 type Option = { code: string; name: string };
 type Pkg = Option & { subjectAllowance?: number; amountCents: number | null };
 type ConsentType = { code: string; name: string; description: string; isRequired: boolean };
+
+/** Covers `count` subjects: the first package, in display order, whose allowance is unlimited or big enough. */
+const packageFor = (packages: Pkg[], count: number) =>
+  packages.find((p) => p.subjectAllowance == null || p.subjectAllowance >= count);
 
 export function EnrolForm({
   packages,
@@ -17,6 +21,7 @@ export function EnrolForm({
   tutors,
   consentTypes,
   defaultTutor,
+  me,
 }: {
   packages: Pkg[];
   grades: Option[];
@@ -25,19 +30,38 @@ export function EnrolForm({
   tutors: { id: string; fullName: string }[];
   consentTypes: ConsentType[];
   defaultTutor?: string;
+  me: { fullName: string; phone: string };
 }) {
   const [state, action, pending] = useActionState<EnrolState, FormData>(submitEnrolment, {});
   const [packageCode, setPackageCode] = useState(packages[0]?.code ?? "");
   const [chosen, setChosen] = useState<string[]>([]);
+  const [upgradedTo, setUpgradedTo] = useState<string | null>(null);
+  const [ecSelf, setEcSelf] = useState(state.values?.ec_self === "on");
+  const [colSelf, setColSelf] = useState(state.values?.col_self === "on");
+  const v = state.values ?? {};
 
   const pkg = packages.find((p) => p.code === packageCode);
   const allowance = pkg?.subjectAllowance ?? null;
-  const atLimit = allowance !== null && chosen.length >= allowance;
 
-  const toggle = (code: string) =>
-    setChosen((prev) =>
-      prev.includes(code) ? prev.filter((c) => c !== code) : atLimit ? prev : [...prev, code],
-    );
+  // Picking more subjects than the package covers moves to the smallest package that covers
+  // them, rather than blocking the checkbox. The database enforces the allowance either way.
+  const toggle = (code: string) => {
+    const next = chosen.includes(code) ? chosen.filter((c) => c !== code) : [...chosen, code];
+    if (allowance !== null && next.length > allowance) {
+      const bigger = packageFor(packages, next.length);
+      if (!bigger) return;
+      setPackageCode(bigger.code);
+      setUpgradedTo(bigger.name);
+    }
+    setChosen(next);
+  };
+
+  const choosePackage = (p: Pkg) => {
+    setPackageCode(p.code);
+    setUpgradedTo(null);
+    // Keep what still fits; drop the most recent picks beyond the new allowance.
+    if (p.subjectAllowance != null) setChosen((prev) => prev.slice(0, p.subjectAllowance));
+  };
 
   const required = consentTypes.filter((c) => c.isRequired);
   const optional = consentTypes.filter((c) => !c.isRequired);
@@ -70,10 +94,7 @@ export function EnrolForm({
                   name="package_code"
                   value={p.code}
                   checked={packageCode === p.code}
-                  onChange={() => {
-                    setPackageCode(p.code);
-                    setChosen([]);
-                  }}
+                  onChange={() => choosePackage(p)}
                 />
               </span>
             </label>
@@ -83,14 +104,12 @@ export function EnrolForm({
 
       <Card>
         <CardTitle>2. About your child</CardTitle>
-        <Field label="Full name" htmlFor="full_name">
-          <Input id="full_name" name="full_name" defaultValue={state.values?.full_name} required />
-        </Field>
+        <NameFields prefix="" values={v} required />
         <Field label="Date of birth" htmlFor="date_of_birth">
-          <Input id="date_of_birth" name="date_of_birth" type="date" defaultValue={state.values?.date_of_birth} required />
+          <Input id="date_of_birth" name="date_of_birth" type="date" defaultValue={v.date_of_birth} required />
         </Field>
         <Field label="Grade in 2026" htmlFor="grade_code">
-          <Select id="grade_code" name="grade_code" defaultValue={state.values?.grade_code ?? ""} required>
+          <Select id="grade_code" name="grade_code" defaultValue={v.grade_code ?? ""} required>
             <option value="">Select a grade</option>
             {grades.map((g) => (
               <option key={g.code} value={g.code}>
@@ -100,10 +119,10 @@ export function EnrolForm({
           </Select>
         </Field>
         <Field label="School they attend" htmlFor="school_name">
-          <Input id="school_name" name="school_name" defaultValue={state.values?.school_name} />
+          <Input id="school_name" name="school_name" defaultValue={v.school_name} />
         </Field>
         <Field label="Home language" htmlFor="home_language_code">
-          <Select id="home_language_code" name="home_language_code" defaultValue={state.values?.home_language_code ?? ""}>
+          <Select id="home_language_code" name="home_language_code" defaultValue={v.home_language_code ?? ""}>
             <option value="">Prefer not to say</option>
             {languages.map((l) => (
               <option key={l.code} value={l.code}>
@@ -113,7 +132,7 @@ export function EnrolForm({
           </Select>
         </Field>
         <Field label="You are their" htmlFor="relationship">
-          <Select id="relationship" name="relationship" defaultValue="mother">
+          <Select id="relationship" name="relationship" defaultValue={v.relationship || "mother"}>
             {["mother", "father", "grandparent", "guardian", "other"].map((r) => (
               <option key={r} value={r}>
                 {r[0].toUpperCase() + r.slice(1)}
@@ -124,13 +143,19 @@ export function EnrolForm({
       </Card>
 
       <Card>
-        <CardTitle>
-          3. Subjects{allowance ? ` — choose up to ${allowance}` : ""}
-        </CardTitle>
+        <CardTitle>3. Subjects</CardTitle>
         <p className="text-[11px] text-muted">
+          {allowance
+            ? `${pkg?.name} covers ${allowance} subject${allowance === 1 ? "" : "s"}. Choose more and we will move you to a package that covers them.`
+            : `${pkg?.name ?? "This package"} covers all subjects.`}{" "}
           You can choose the language each subject is taught in. Mathematics in English and Physical
           Sciences in Afrikaans is a normal combination.
         </p>
+        {upgradedTo ? (
+          <FormMessage tone="success">
+            You chose {chosen.length} subjects, so we moved you to {upgradedTo}. Check the price in step 1.
+          </FormMessage>
+        ) : null}
         <div className="flex flex-col gap-2">
           {subjects.map((s) => {
             const picked = chosen.includes(s.code);
@@ -142,10 +167,9 @@ export function EnrolForm({
                     name="subject"
                     value={s.code}
                     checked={picked}
-                    disabled={!picked && atLimit}
                     onChange={() => toggle(s.code)}
                   />
-                  <span className={cx(!picked && atLimit && "text-muted")}>{s.name}</span>
+                  <span>{s.name}</span>
                 </label>
                 {picked ? (
                   <Select name={`medium_${s.code}`} defaultValue="english" className="max-w-[200px]">
@@ -180,42 +204,64 @@ export function EnrolForm({
       <Card>
         <CardTitle>5. Keeping your child safe</CardTitle>
         <p className="text-[11px] text-muted">
-          We need someone we can reach in an emergency. You can also name one other person allowed to
-          collect your child.
+          We need someone we can reach in an emergency. You can also name people allowed to collect your
+          child.
         </p>
-        <Field label="Emergency contact name" htmlFor="ec_name">
-          <Input id="ec_name" name="ec_name" defaultValue={state.values?.ec_name} required />
-        </Field>
-        <Field label="Relationship to your child" htmlFor="ec_relationship">
-          <Input id="ec_relationship" name="ec_relationship" placeholder="Aunt, grandparent…" />
-        </Field>
-        <Field label="Emergency contact phone" htmlFor="ec_phone">
-          <Input id="ec_phone" name="ec_phone" type="tel" defaultValue={state.values?.ec_phone} required />
-        </Field>
 
-        <p className="pt-2 text-[12px] font-bold text-ink">Authorised to collect (optional)</p>
-        <Field label="Name" htmlFor="col_name">
-          <Input id="col_name" name="col_name" />
-        </Field>
-        <Field label="Relationship" htmlFor="col_relationship">
-          <Input id="col_relationship" name="col_relationship" />
-        </Field>
-        <Field label="Phone" htmlFor="col_phone">
-          <Input id="col_phone" name="col_phone" type="tel" />
-        </Field>
-        <Field label="Last 4 digits of their ID" htmlFor="col_id_number_last4">
-          <Input
-            id="col_id_number_last4"
-            name="col_id_number_last4"
-            inputMode="numeric"
-            pattern="[0-9]{4}"
-            maxLength={4}
-            placeholder="4821"
-          />
-        </Field>
-        <p className="text-[11px] text-muted">
-          Four digits only — enough to check at the door, not enough to be worth stealing.
-        </p>
+        <p className="pt-2 text-[12px] font-bold text-ink">Emergency contact</p>
+        <SelfToggle
+          name="ec_self"
+          checked={ecSelf}
+          onChange={setEcSelf}
+          label="I am the emergency contact"
+          me={me}
+          phoneName="self_phone"
+          phoneValue={v.self_phone}
+        />
+        {ecSelf ? (
+          <p className="text-[11px] text-muted">
+            Please add a second person we can call if we cannot reach you.
+          </p>
+        ) : null}
+        <ContactFields
+          prefix="ec_"
+          values={v}
+          required
+          heading={ecSelf ? "Second emergency contact" : undefined}
+          relationshipPlaceholder="Aunt, grandparent…"
+        />
+
+        <p className="pt-4 text-[12px] font-bold text-ink">Authorised to collect (optional)</p>
+        <SelfToggle
+          name="col_self"
+          checked={colSelf}
+          onChange={setColSelf}
+          label="I am authorised to collect my child"
+          me={me}
+          // One phone field serves both toggles; only render it once.
+          phoneName={ecSelf ? undefined : "self_phone"}
+          phoneValue={v.self_phone}
+        />
+        <ContactFields
+          prefix="col_"
+          values={v}
+          heading={colSelf ? "Another person authorised to collect (optional)" : undefined}
+        >
+          <Field label="Last 4 digits of their ID" htmlFor="col_id_number_last4">
+            <Input
+              id="col_id_number_last4"
+              name="col_id_number_last4"
+              inputMode="numeric"
+              pattern="[0-9]{4}"
+              maxLength={4}
+              placeholder="4821"
+              defaultValue={v.col_id4}
+            />
+          </Field>
+          <p className="text-[11px] text-muted">
+            Four digits only — enough to check at the door, not enough to be worth stealing.
+          </p>
+        </ContactFields>
       </Card>
 
       <Card>
@@ -262,5 +308,115 @@ export function EnrolForm({
         {pending ? "Submitting…" : "Submit enrolment"}
       </Button>
     </form>
+  );
+}
+
+function NameFields({
+  prefix,
+  values,
+  required,
+}: {
+  prefix: string;
+  values: Record<string, string>;
+  required?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-4 sm:flex-row">
+      <Field label="First name" htmlFor={`${prefix}first_name`} className="flex-1">
+        <Input
+          id={`${prefix}first_name`}
+          name={`${prefix}first_name`}
+          defaultValue={values[`${prefix}first_name`]}
+          required={required}
+        />
+      </Field>
+      <Field label="Last name" htmlFor={`${prefix}last_name`} className="flex-1">
+        <Input
+          id={`${prefix}last_name`}
+          name={`${prefix}last_name`}
+          defaultValue={values[`${prefix}last_name`]}
+          required={required}
+        />
+      </Field>
+    </div>
+  );
+}
+
+function ContactFields({
+  prefix,
+  values,
+  required,
+  heading,
+  relationshipPlaceholder,
+  children,
+}: {
+  prefix: string;
+  values: Record<string, string>;
+  required?: boolean;
+  heading?: string;
+  relationshipPlaceholder?: string;
+  children?: ReactNode;
+}) {
+  return (
+    <>
+      {heading ? <p className="pt-2 text-[12px] font-semibold text-ink">{heading}</p> : null}
+      <NameFields prefix={prefix} values={values} required={required} />
+      <Field label="Relationship to your child" htmlFor={`${prefix}relationship`}>
+        <Input
+          id={`${prefix}relationship`}
+          name={`${prefix}relationship`}
+          placeholder={relationshipPlaceholder}
+          defaultValue={values[`${prefix}relationship`]}
+        />
+      </Field>
+      <Field label="Phone" htmlFor={`${prefix}phone`}>
+        <Input
+          id={`${prefix}phone`}
+          name={`${prefix}phone`}
+          type="tel"
+          defaultValue={values[`${prefix}phone`]}
+          required={required}
+        />
+      </Field>
+      {children}
+    </>
+  );
+}
+
+function SelfToggle({
+  name,
+  checked,
+  onChange,
+  label,
+  me,
+  phoneName,
+  phoneValue,
+}: {
+  name: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
+  me: { fullName: string; phone: string };
+  phoneName?: string;
+  phoneValue?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-2 rounded-[8px] border border-line p-3">
+      <label className="flex items-center gap-2 text-[13px] text-ink">
+        <input type="checkbox" name={name} checked={checked} onChange={(e) => onChange(e.target.checked)} />
+        {label}
+      </label>
+      {checked ? (
+        <p className="text-[12px] text-muted">
+          {me.fullName}
+          {me.phone ? ` · ${me.phone}` : ""}
+        </p>
+      ) : null}
+      {checked && !me.phone && phoneName ? (
+        <Field label="Your phone number" htmlFor={phoneName}>
+          <Input id={phoneName} name={phoneName} type="tel" defaultValue={phoneValue} required />
+        </Field>
+      ) : null}
+    </div>
   );
 }

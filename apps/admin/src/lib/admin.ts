@@ -89,6 +89,18 @@ export async function getTutors() {
   return data ?? [];
 }
 
+/** Every learner with their guardians, enrolments and current class placements. */
+export async function getLearners() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("learners")
+    .select(
+      "*, grades(name), learner_guardians(relationship, is_primary, guardians(profiles(full_name, phone))), enrolments(id, status, packages(name)), class_enrolments(id, left_on, class_groups(name))",
+    )
+    .order("full_name");
+  return data ?? [];
+}
+
 export async function getEnquiries() {
   const supabase = await createClient();
   const { data } = await supabase

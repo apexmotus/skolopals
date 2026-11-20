@@ -50,7 +50,7 @@ env differs.
 
 | Name | Kind | Value |
 |---|---|---|
-| `DATABASE_URL` | secret | UAT Postgres, direct connection or session pooler, port 5432 (`db.dhmjzshlznhqohvkdcpz.supabase.co`) |
+| `DATABASE_URL` | secret | UAT Postgres via the **transaction pooler**: `postgresql://postgres.dhmjzshlznhqohvkdcpz:<pw>@aws-0-eu-west-2.pooler.supabase.com:6543/postgres`. Not the direct `db.…` host (IPv6-only, unreachable from Vercel) and not session mode on 5432 (capped at 15 clients, which serverless instances exhaust). `db/scripts/seed-uat.sh` is the opposite: it needs 5432 |
 | `SUPABASE_URL` | secret | `https://dhmjzshlznhqohvkdcpz.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | secret | UAT project service-role / secret key |
 | `SUPABASE_JWT_SECRET` | secret, optional | Only if the UAT project still signs with the legacy HS256 secret |

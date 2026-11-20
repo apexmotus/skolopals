@@ -92,7 +92,20 @@ export async function getLearnerClassNames(tutorId: string) {
   return byLearner;
 }
 
-export type TutorSessionLoad = { month: string; sessions: number; hours: number };
+export type TutorReview = {
+  id: string;
+  rating: number;
+  comment: string;
+  publishedAt?: string;
+  createdAt: string;
+};
+
+/** Published reviews only — pending and rejected ones stay with the administrator. */
+export async function getMyReviews(tutorId: string) {
+  return api.get<TutorReview[]>(`/tutors/${tutorId}/reviews`);
+}
+
+export type TutorSessionLoad ={ month: string; sessions: number; hours: number };
 
 /** Sessions taught and hours, by month. Tutors are paid as staff, not a share.
  * Self-scoped by the API — there is no tutorId to pass. */

@@ -36,16 +36,28 @@ export function ContactForm() {
         </FormMessage>
       ) : (
         <form action={action} className="flex flex-col gap-[14px]">
-          <Field label="Your name" htmlFor="full_name">
-            <Input
-              id="full_name"
-              name="full_name"
-              autoComplete="name"
-              placeholder="Thandi Mokoena"
-              defaultValue={v.full_name}
-              required
-            />
-          </Field>
+          <div className="flex flex-col gap-[14px] sm:flex-row">
+            <Field label="First name" htmlFor="first_name" className="flex-1">
+              <Input
+                id="first_name"
+                name="first_name"
+                autoComplete="given-name"
+                placeholder="Thandi"
+                defaultValue={v.first_name}
+                required
+              />
+            </Field>
+            <Field label="Last name" htmlFor="last_name" className="flex-1">
+              <Input
+                id="last_name"
+                name="last_name"
+                autoComplete="family-name"
+                placeholder="Mokoena"
+                defaultValue={v.last_name}
+                required
+              />
+            </Field>
+          </div>
 
           {/* Either is enough: plenty of parents reach us on WhatsApp and
               do not use email. */}

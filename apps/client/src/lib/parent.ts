@@ -64,6 +64,16 @@ export async function getPublishedReports() {
   return data ?? [];
 }
 
+/** Resources shared with the family's learners. RLS applies the four-way audience check. */
+export async function getResources() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("resources")
+    .select("*, subjects(name)")
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
 /** Invoices with their derived payment state, plus the account balance. */
 export async function getAccount() {
   const supabase = await createClient();
