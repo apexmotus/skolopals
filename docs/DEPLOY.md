@@ -24,6 +24,11 @@ Three Vercel projects, deployed together at each stage (`apps/client` and `apps/
 > pass `--cwd apps/client` or `--cwd apps/admin`, as the project's Root Directory is already configured
 > in Vercel).
 
+> **Function region:** `api/`, `apps/client` and `apps/admin` each carry a `vercel.json` pinning
+> `"regions": ["lhr1"]` (London), next to the Supabase database (`eu-west-2`). Vercel's default is
+> `iad1` (Washington DC), which put every database round trip across the Atlantic. Keep the three
+> in the same region as the database if either ever moves.
+
 ## Aliases
 
 | Stage | api | client (`apps/client`) | admin (`apps/admin`) |

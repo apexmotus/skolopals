@@ -42,10 +42,10 @@ type Package = {
 /** Subjects grouped by the phase they are offered in. Drives /subjects. */
 export async function getSubjectsByPhase() {
   const [phases, grades, subjects, offerings] = await Promise.all([
-    api.get<Phase[]>("/reference/phases"),
-    api.get<Grade[]>("/reference/grades"),
-    api.get<Subject[]>("/reference/subjects"),
-    api.get<SubjectOffering[]>("/reference/subject-offerings"),
+    api.public.get<Phase[]>("/reference/phases", "reference"),
+    api.public.get<Grade[]>("/reference/grades", "reference"),
+    api.public.get<Subject[]>("/reference/subjects", "reference"),
+    api.public.get<SubjectOffering[]>("/reference/subject-offerings", "reference"),
   ]);
 
   const phaseOfGrade = new Map(grades.map((g) => [g.code, g.phaseCode]));
@@ -68,12 +68,12 @@ export async function getSubjectsByPhase() {
 
 /** The price list. Packages with the price in effect today. */
 export async function getPackages() {
-  const packages = await api.get<Package[]>("/packages");
+  const packages = await api.public.get<Package[]>("/packages");
 
   const amounts = await Promise.all(
     packages.map(async (p) => {
       try {
-        const { amountCents } = await api.get<{ amountCents: number }>(`/packages/${p.code}/price`);
+        const { amountCents } = await api.public.get<{ amountCents: number }>(`/packages/${p.code}/price`);
         return amountCents;
       } catch (error) {
         // No price has ever been set for this package — same as the old query finding no row.
@@ -108,7 +108,7 @@ export async function searchTutors(filters: TutorFilters = {}) {
   if (filters.grade) params.set("grade", filters.grade);
   if (filters.language) params.set("language", filters.language);
 
-  const { items } = await api.getPaged<TutorSummary>(`/tutors?${params}`);
+  const { items } = await api.public.getPaged<TutorSummary>(`/tutors?${params}`);
   return items;
 }
 
@@ -125,16 +125,16 @@ export type TutorQualification = {
 export async function getTutorBySlug(slug: string) {
   let tutor: TutorSummary & { bio: string };
   try {
-    tutor = await api.get(`/tutors/${slug}`);
+    tutor = await api.public.get(`/tutors/${slug}`);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return null;
     throw error;
   }
 
   const [competencies, qualifications, spokenLanguages] = await Promise.all([
-    api.get<TutorCompetency[]>(`/tutors/${tutor.id}/competencies`),
-    api.get<TutorQualification[]>(`/tutors/${tutor.id}/qualifications`),
-    api.get<{ languageCode: string }[]>(`/tutors/${tutor.id}/spoken-languages`),
+    api.public.get<TutorCompetency[]>(`/tutors/${tutor.id}/competencies`),
+    api.public.get<TutorQualification[]>(`/tutors/${tutor.id}/qualifications`),
+    api.public.get<{ languageCode: string }[]>(`/tutors/${tutor.id}/spoken-languages`),
   ]);
 
   return {
@@ -153,7 +153,7 @@ export type TutorReview = {
 };
 
 export async function getPublishedReviews(tutorId: string, limit = 5) {
-  const reviews = await api.get<TutorReview[]>(`/tutors/${tutorId}/reviews`);
+  const reviews = await api.public.get<TutorReview[]>(`/tutors/${tutorId}/reviews`);
   return reviews.slice(0, limit);
 }
 
@@ -173,13 +173,13 @@ export type PublicTimetableEntry = {
 
 /** The published weekly timetable. Omits meeting links by construction. */
 export async function getPublicTimetable() {
-  return api.get<PublicTimetableEntry[]>("/timetable/public");
+  return api.public.get<PublicTimetableEntry[]>("/timetable/public");
 }
 
 export type OperatingHour = { dayOfWeek: number; opensAt: string; closesAt: string; purpose: string };
 
 export async function getOperatingHours() {
-  return api.get<OperatingHour[]>("/reference/operating-hours");
+  return api.public.get<OperatingHour[]>("/reference/operating-hours", "reference");
 }
 
 export type Programme = {
@@ -198,8 +198,9 @@ export type Programme = {
 
 export async function getPublishedProgrammes() {
   // GET /programmes returns every programme to an admin actor (not just published ones) and
-  // never applies the "still running or upcoming" cutoff - both are applied here, same as before.
+  // never applies the "still running or upcoming" cutoff - both are applied here. (The read is
+  // anonymous now, so the published filter is belt-and-braces.)
   const today = new Date().toISOString().slice(0, 10);
-  const programmes = await api.get<Programme[]>("/programmes");
+  const programmes = await api.public.get<Programme[]>("/programmes");
   return programmes.filter((p) => p.isPublished && p.endsOn >= today);
 }

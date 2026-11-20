@@ -7,13 +7,13 @@ import { createClient } from "@skolopals/shared/supabase/server";
 export const metadata = { title: "Enrolment queue" };
 
 export default async function EnrolmentQueuePage() {
-  const [queue, tutors] = await Promise.all([getEnrolmentQueue(), getTutors()]);
-  const today = new Date().toISOString().slice(0, 10);
-
   const supabase = await createClient();
-  const { data: prices } = await supabase
-    .from("package_prices")
-    .select("package_code, amount_cents, effective_from, effective_to");
+  const [queue, tutors, { data: prices }] = await Promise.all([
+    getEnrolmentQueue(),
+    getTutors(),
+    supabase.from("package_prices").select("package_code, amount_cents, effective_from, effective_to"),
+  ]);
+  const today = new Date().toISOString().slice(0, 10);
   const priceOf = (code: string) =>
     (prices ?? []).find(
       (p) => p.package_code === code && p.effective_from <= today && (!p.effective_to || p.effective_to > today),

@@ -14,13 +14,14 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
   const sp = await searchParams;
   const tutorSlug = Array.isArray(sp.tutor) ? sp.tutor[0] : sp.tutor;
 
-  const [session, packages, grades, subjects, languages, tutors] = await Promise.all([
+  const [session, packages, grades, subjects, languages, tutors, consentTypes] = await Promise.all([
     getSession(),
     getPackages(),
     getGrades(),
     getSubjects(),
     getLanguages(),
     searchTutors(),
+    api.public.get<ConsentType[]>("/reference/consent-types", "reference"),
   ]);
 
   const monthly = packages.filter((p) => p.billingPeriod === "monthly");
@@ -49,8 +50,6 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
       </div>
     );
   }
-
-  const consentTypes = await api.get<ConsentType[]>("/reference/consent-types");
 
   // Only tutors the centre could actually assign are offered as a preference.
   const preferred = tutorSlug ? tutors.find((t) => t.slug === tutorSlug)?.id : undefined;

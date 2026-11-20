@@ -3,7 +3,7 @@ import { ClsService } from 'nestjs-cls';
 import type { Pool } from 'pg';
 import type { AppClsStore } from '../common/types/app-cls-store.js';
 import { PG_POOL } from './database.constants.js';
-import { applyRlsContext } from './rls-context.js';
+import { beginWithRlsContext } from './rls-context.js';
 import { TransactionContext } from './transaction.context.js';
 
 /**
@@ -30,8 +30,7 @@ export class UnitOfWork {
 
     const client = await this.pool.connect();
     try {
-      await client.query('BEGIN');
-      await applyRlsContext(client, this.cls);
+      await beginWithRlsContext(client, this.cls);
       const result = await this.ctx.run(client, fn);
       await client.query('COMMIT');
       return result;

@@ -1,5 +1,6 @@
 import { Button } from "@skolopals/ui/ui";
 import Link from "next/link";
+import { Suspense } from "react";
 import { NavLink } from "@skolopals/ui/nav-link";
 import { Logo } from "@skolopals/ui/logo";
 import { CENTRE, CENTRE_ADDRESS } from "@/lib/centre";
@@ -16,9 +17,7 @@ const LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
-export async function PublicNav() {
-  const session = await getSession();
-
+export function PublicNav() {
   return (
     <header className="flex min-h-[68px] w-full flex-wrap items-center justify-between border-b border-[#EAE6DF] bg-[#FFFFFF] px-4 md:h-[68px] md:flex-nowrap md:px-[32px]">
       <div className="flex flex-wrap items-center md:h-full md:flex-nowrap">
@@ -42,42 +41,53 @@ export async function PublicNav() {
           ))}
         </nav>
       </div>
-      <div className="flex items-center gap-[12px]">
-        {session ? (
-          <>
-            <Link
-              href={clientHomeFor(session.roles)}
-              className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-[8px] border border-[#CBD5E1] bg-[#FFFFFF] px-[18px] py-[9px] text-[14px] font-semibold leading-none text-[#1E293B] transition-colors hover:border-[#1B2559] hover:text-[#1B2559]"
-            >
-              Dashboard
-            </Link>
-            <form action={signOut}>
-              <Button variant="bare"
-                type="submit"
-                className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-[8px] border-none bg-[#6A1B9A] px-[18px] py-[9px] text-[14px] font-semibold leading-none text-[#FFFFFF] transition-colors hover:bg-[#581582]"
-              >
-                Log out
-              </Button>
-            </form>
-          </>
-        ) : (
-          <>
-            <Link
-              href="/login"
-              className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-[8px] border border-[#CBD5E1] bg-[#FFFFFF] px-[18px] py-[9px] text-[14px] font-semibold leading-none text-[#1E293B] transition-colors hover:border-[#1B2559] hover:text-[#1B2559]"
-            >
-              Login
-            </Link>
-            <Link
-              href="/enrol"
-              className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-[8px] border-none bg-[#D81B7A] px-[18px] py-[9px] text-[14px] font-semibold leading-none text-[#FFFFFF] transition-colors hover:bg-[#be166b]"
-            >
-              Enrol
-            </Link>
-          </>
-        )}
-      </div>
+      {/* The session lookup is an API round trip; stream it in so the nav and page don't wait. */}
+      <Suspense fallback={<div aria-hidden className="h-[36px] w-[170px]" />}>
+        <NavAccount />
+      </Suspense>
     </header>
+  );
+}
+
+async function NavAccount() {
+  const session = await getSession();
+
+  return (
+    <div className="flex items-center gap-[12px]">
+      {session ? (
+        <>
+          <Link
+            href={clientHomeFor(session.roles)}
+            className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-[8px] border border-[#CBD5E1] bg-[#FFFFFF] px-[18px] py-[9px] text-[14px] font-semibold leading-none text-[#1E293B] transition-colors hover:border-[#1B2559] hover:text-[#1B2559]"
+          >
+            Dashboard
+          </Link>
+          <form action={signOut}>
+            <Button variant="bare"
+              type="submit"
+              className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-[8px] border-none bg-[#6A1B9A] px-[18px] py-[9px] text-[14px] font-semibold leading-none text-[#FFFFFF] transition-colors hover:bg-[#581582]"
+            >
+              Log out
+            </Button>
+          </form>
+        </>
+      ) : (
+        <>
+          <Link
+            href="/login"
+            className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-[8px] border border-[#CBD5E1] bg-[#FFFFFF] px-[18px] py-[9px] text-[14px] font-semibold leading-none text-[#1E293B] transition-colors hover:border-[#1B2559] hover:text-[#1B2559]"
+          >
+            Login
+          </Link>
+          <Link
+            href="/enrol"
+            className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-[8px] border-none bg-[#D81B7A] px-[18px] py-[9px] text-[14px] font-semibold leading-none text-[#FFFFFF] transition-colors hover:bg-[#be166b]"
+          >
+            Enrol
+          </Link>
+        </>
+      )}
+    </div>
   );
 }
 

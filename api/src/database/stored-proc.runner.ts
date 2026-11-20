@@ -8,7 +8,7 @@ import {
 } from 'pg';
 import type { AppClsStore } from '../common/types/app-cls-store.js';
 import { PG_POOL } from './database.constants.js';
-import { applyRlsContext } from './rls-context.js';
+import { beginWithRlsContext } from './rls-context.js';
 import type { SpParam } from './sp-param.js';
 import { SqlErrorMapper } from './sql-error.mapper.js';
 import { TransactionContext } from './transaction.context.js';
@@ -211,8 +211,7 @@ export class StoredProcRunner {
 
     const client = await this.pool.connect();
     try {
-      await client.query('BEGIN');
-      await applyRlsContext(client, this.cls);
+      await beginWithRlsContext(client, this.cls);
       const res = await client.query<T>(sql, values);
       await client.query('COMMIT');
       return { rows: res.rows, rowCount: res.rowCount ?? 0 };

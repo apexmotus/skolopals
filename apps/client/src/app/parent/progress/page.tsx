@@ -7,17 +7,19 @@ import { shortDate } from "@skolopals/shared/format";
 export const metadata = { title: "Progress reports" };
 
 export default async function ProgressPage() {
-  const session = await getSession();
   const supabase = await createClient();
 
   // RLS already limits this to published reports for this family's learners.
-  const { data: reports } = await supabase
-    .from("progress_reports")
-    .select(
-      "*, learners(full_name), terms(year, term_number), progress_report_subjects(*, subjects(name), achievement_levels(label)), report_acknowledgements(guardian_id, acknowledged_at, comment)",
-    )
-    .not("published_at", "is", null)
-    .order("issued_on", { ascending: false });
+  const [session, { data: reports }] = await Promise.all([
+    getSession(),
+    supabase
+      .from("progress_reports")
+      .select(
+        "*, learners(full_name), terms(year, term_number), progress_report_subjects(*, subjects(name), achievement_levels(label)), report_acknowledgements(guardian_id, acknowledged_at, comment)",
+      )
+      .not("published_at", "is", null)
+      .order("issued_on", { ascending: false }),
+  ]);
 
   const rows = reports ?? [];
 

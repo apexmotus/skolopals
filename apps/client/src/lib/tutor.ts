@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { api, ApiError } from "@skolopals/shared/api";
 import { requireRole } from "@skolopals/shared/auth";
@@ -14,18 +15,23 @@ type MyTutorProfile = {
 };
 
 /** The signed-in tutor's staff record. Admin-created, so it always exists. */
-export async function getTutorContext() {
+export const getTutorContext = cache(async () => {
+  // Both lookups start together rather than one after the other. The tutor record is settled
+  // up front so its failure can't escape unhandled while the role check runs, and is only
+  // inspected after that check passes — a non-tutor is still redirected, never shown an error.
+  const tutorLookup = api.get<MyTutorProfile>("/tutors/me").then(
+    (tutor) => ({ tutor }),
+    (error: unknown) => ({ error }),
+  );
   const session = await requireRole("tutor");
-  let tutor: MyTutorProfile;
-  try {
-    tutor = await api.get<MyTutorProfile>("/tutors/me");
-  } catch (error) {
+  const result = await tutorLookup;
+  if ("error" in result) {
     // A tutor role without a tutor record means an incomplete admin setup.
-    if (error instanceof ApiError && error.status === 404) redirect("/");
-    throw error;
+    if (result.error instanceof ApiError && result.error.status === 404) redirect("/");
+    throw result.error;
   }
-  return { profile: session.profile, tutor };
-}
+  return { profile: session.profile, tutor: result.tutor };
+});
 
 export type MyClassGroup = {
   id: string;

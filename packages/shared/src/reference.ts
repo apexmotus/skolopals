@@ -10,19 +10,19 @@ export type Room = { id: string; name: string; capacity: number; isActive: boole
 
 /** CAPS phases, in curriculum order. Loaded from the API's `reference` module, never hard-coded. */
 export async function getPhases() {
-  return api.get<Phase[]>("/reference/phases");
+  return api.public.get<Phase[]>("/reference/phases", "reference");
 }
 
 export async function getGrades() {
-  return api.get<Grade[]>("/reference/grades");
+  return api.public.get<Grade[]>("/reference/grades", "reference");
 }
 
 export async function getSubjects() {
-  return api.get<Subject[]>("/reference/subjects");
+  return api.public.get<Subject[]>("/reference/subjects", "reference");
 }
 
 export async function getLanguages() {
-  return api.get<Language[]>("/reference/languages");
+  return api.public.get<Language[]>("/reference/languages", "reference");
 }
 
 export async function getRooms() {

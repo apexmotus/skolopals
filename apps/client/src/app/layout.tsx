@@ -7,9 +7,11 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
+// Only a fallback in the font stack (--font-sans), so it isn't preloaded on every page.
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  preload: false,
 });
 
 /** Absolute base for social previews; falls back to the dev server locally. */

@@ -32,13 +32,14 @@ describe('StoredProcRunner', () => {
     ]);
 
     expect(result.rows).toEqual([{ id: '1' }]);
-    expect(query.mock.calls[0]?.[0]).toBe('BEGIN');
-    expect(query.mock.calls[1]?.[0]).toContain('select set_config'); // applyRlsContext
-    expect(query.mock.calls[3]).toEqual([
+    // BEGIN and the RLS settings share one round trip (beginWithRlsContext).
+    expect(query.mock.calls[0]?.[0]).toMatch(/^begin; select set_config\('request\.jwt\.claims', '\{\}', true\), set_config\('role', 'anon', true\)$/);
+    expect(query.mock.calls[1]).toEqual([
       'select * from public.get_widget(p_id := $1)',
       ['abc'],
     ]);
-    expect(query.mock.calls[4]?.[0]).toBe('COMMIT');
+    expect(query.mock.calls[2]?.[0]).toBe('COMMIT');
+    expect(query).toHaveBeenCalledTimes(3);
   });
 
   it('rejects a function name that is not schema-qualified, mapped to a generic 500 (never a raw internal message)', async () => {
@@ -70,7 +71,7 @@ describe('StoredProcRunner', () => {
     );
 
     expect(rows).toEqual([{ role: 'parent' }, { role: 'tutor' }]);
-    expect(query.mock.calls[3]).toEqual([
+    expect(query.mock.calls[1]).toEqual([
       'select role from public.user_roles where user_id = $1',
       ['user-1'],
     ]);
@@ -109,14 +110,10 @@ describe('StoredProcRunner', () => {
     );
     const query = vi
       .fn()
-      .mockResolvedValueOnce(undefined) // BEGIN
-      .mockResolvedValueOnce(undefined) // set_config
-      .mockResolvedValueOnce(undefined) // set local role
+      .mockResolvedValueOnce(undefined) // BEGIN + RLS settings
       .mockRejectedValueOnce(deadlock) // the actual call
       .mockResolvedValueOnce(undefined) // ROLLBACK after the failed attempt
-      .mockResolvedValueOnce(undefined) // BEGIN (attempt 2)
-      .mockResolvedValueOnce(undefined) // set_config
-      .mockResolvedValueOnce(undefined) // set local role
+      .mockResolvedValueOnce(undefined) // BEGIN + RLS settings (attempt 2)
       .mockResolvedValueOnce({ rows: [{ ok: true }], rowCount: 1 }) // the actual call succeeds
       .mockResolvedValueOnce(undefined); // COMMIT
     const client = makeClient(query);

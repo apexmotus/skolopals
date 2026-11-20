@@ -26,7 +26,7 @@ describe('UnitOfWork', () => {
     const result = await uow.run(() => Promise.resolve('ok'));
 
     expect(result).toBe('ok');
-    expect(client.query).toHaveBeenCalledWith('BEGIN');
+    expect(client.query).toHaveBeenCalledWith(expect.stringMatching(/^begin; /));
     expect(client.query).toHaveBeenCalledWith('COMMIT');
     expect(client.query).not.toHaveBeenCalledWith('ROLLBACK');
     expect(client.release).toHaveBeenCalledTimes(1);
@@ -43,7 +43,7 @@ describe('UnitOfWork', () => {
 
     await expect(uow.run(() => Promise.reject(failure))).rejects.toBe(failure);
 
-    expect(client.query).toHaveBeenCalledWith('BEGIN');
+    expect(client.query).toHaveBeenCalledWith(expect.stringMatching(/^begin; /));
     expect(client.query).toHaveBeenCalledWith('ROLLBACK');
     expect(client.query).not.toHaveBeenCalledWith('COMMIT');
     expect(client.release).toHaveBeenCalledTimes(1);
