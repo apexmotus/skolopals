@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
-import { Button, Field, FormMessage, Input, PageHeading } from "@skolopals/ui/ui";
+import { useActionState, useEffect, useRef } from "react";
+import { Button, ButtonLink, Field, FormMessage, Input, PageHeading } from "@skolopals/ui/ui";
 import { signup, type AuthState } from "../actions";
 
 /**
@@ -12,9 +12,41 @@ import { signup, type AuthState } from "../actions";
  */
 export function SignupForm() {
   const [state, action, pending] = useActionState<AuthState, FormData>(signup, {});
+  const dialog = useRef<HTMLDialogElement>(null);
+
+  // A successful sign-up returns a message rather than redirecting, because email confirmation
+  // means there is no session yet. Show it as a modal instead of a line under a reset form.
+  useEffect(() => {
+    if (state.message && !dialog.current?.open) dialog.current?.showModal();
+  }, [state]);
 
   return (
     <form action={action} className="flex flex-col gap-4">
+      <dialog
+        ref={dialog}
+        aria-labelledby="check-email-title"
+        className="m-auto w-[calc(100%-32px)] max-w-[440px] rounded-[14px] border border-line bg-white p-6 text-center shadow-xl backdrop:bg-black/40"
+      >
+        <div className="flex flex-col items-center gap-3">
+          <img src="/icons/message-square.svg" alt="" width={32} height={32} />
+          <h2 id="check-email-title" className="text-[20px] font-bold text-ink">
+            Check your email
+          </h2>
+          <p className="text-[13px] leading-[1.6] text-muted">
+            We sent a confirmation link to <span className="font-semibold text-ink">{state.email}</span>.
+            Click the link to activate your account, then log in.
+          </p>
+          <p className="text-[12px] text-muted">
+            Can’t see it? Check your spam or promotions folder.
+          </p>
+          <div className="flex flex-wrap justify-center gap-[10px] pt-2">
+            <ButtonLink href="/login">Go to log in</ButtonLink>
+            <Button type="button" variant="secondary" onClick={() => dialog.current?.close()}>
+              Close
+            </Button>
+          </div>
+        </div>
+      </dialog>
       <PageHeading
         title="Create your account"
         description="For parents and guardians. You can register your learners once you are signed in."
@@ -56,7 +88,6 @@ export function SignupForm() {
         <Input id="confirm" name="confirm" type="password" autoComplete="new-password" minLength={8} required />
       </Field>
       {state.error ? <FormMessage>{state.error}</FormMessage> : null}
-      {state.message ? <FormMessage tone="success">{state.message}</FormMessage> : null}
       <Button type="submit" className="w-fit" disabled={pending}>
         {pending ? "Creating account…" : "Create account"}
       </Button>
