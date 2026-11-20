@@ -26,7 +26,8 @@ esac
 
 run() {
   printf '  > %s\n' "$(basename "$1")"
-  psql "$URL" -v ON_ERROR_STOP=1 -q \
+  # No pager: a paged result set would pause the run mid-transaction.
+  psql "$URL" -v ON_ERROR_STOP=1 -q -P pager=off \
     -c "set skp.project_ref = '$UAT_REF'" \
     -f "$1"
 }

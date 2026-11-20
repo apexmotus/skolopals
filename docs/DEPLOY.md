@@ -1,7 +1,7 @@
 # Deploy pipeline
 
 ```
-push to main ──▶ DEV (auto, aliased preview) ──▶ smoke test ──▶ UAT (approval, alias flip) ──▶ PROD (approval, prod build)
+push to main ──▶ DEV (auto, aliased preview) ──▶ smoke test ──▶ UAT (approval, own build on UAT Supabase) ──▶ smoke test ──▶ PROD (approval, prod build)
 ```
 
 GitHub Actions (`.github/workflows/deploy.yml`) owns every deploy via the Vercel CLI. The Vercel
@@ -37,9 +37,32 @@ Three Vercel projects, deployed together at each stage (`apps/client` and `apps/
 | uat | `skolopals-api-uat.vercel.app` | `skolopals-web-uat.vercel.app` | `skolopals-admin-uat.vercel.app` |
 | production | `skolopals-api.vercel.app` (+ existing `skolopals-omega.vercel.app`) | `skolopals-web.vercel.app` | `skolopals-admin.vercel.app` |
 
-**UAT is not a rebuild.** `deploy-uat` only re-aliases the exact dev deployment (byte-identical
-artifact) to the uat alias — it doesn't rebuild any app. Production *does* rebuild, because its
-build-time env (`API_URL`, `CORS_ORIGINS`) differs from dev/uat.
+**UAT is its own build on its own database.** UAT uses a separate Supabase project,
+`dhmjzshlznhqohvkdcpz`, so `deploy-uat` rebuilds all three apps from the same commit as dev. It
+overrides the Vercel preview env with the values on the `uat` GitHub Environment (below), and then
+aliases the result to the uat hostnames. Before deploying, the job refuses unless `DATABASE_URL`,
+`SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_URL` all contain the UAT project ref. After deploying, it
+checks `/api/health/ready` (which proves the database and Redis are reachable), and the
+`smoke-uat` job runs the Playwright smoke tests. Production rebuilds too, because its build-time
+env differs.
+
+### UAT configuration — `uat` GitHub Environment
+
+| Name | Kind | Value |
+|---|---|---|
+| `DATABASE_URL` | secret | UAT Postgres, direct connection or session pooler, port 5432 (`db.dhmjzshlznhqohvkdcpz.supabase.co`) |
+| `SUPABASE_URL` | secret | `https://dhmjzshlznhqohvkdcpz.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | secret | UAT project service-role / secret key |
+| `SUPABASE_JWT_SECRET` | secret, optional | Only if the UAT project still signs with the legacy HS256 secret |
+| `REDIS_URL` | secret | A Redis that is **not** the dev/prod one (or a separate database index), so cached rows from one database are never served by another |
+| `NEXT_PUBLIC_SUPABASE_URL` | variable | `https://dhmjzshlznhqohvkdcpz.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | variable | UAT project publishable (anon) key |
+
+These are applied with `vercel deploy --env` (runtime) and, for the web apps' build-time
+`NEXT_PUBLIC_*`, written into the pulled `.vercel/.env.preview.local` before `vercel build`. The
+job also sets `API_URL` (uat api), `NEXT_PUBLIC_SITE_URL`, and the api's `ADMIN_SITE_URL` and
+`CLIENT_SITE_URL` to the uat hostnames, so auth emails and invite links land on UAT. Nothing about
+UAT is stored on the Vercel projects.
 
 ## Environment values — where they live
 
@@ -49,8 +72,9 @@ Per the pipeline's own design principle, GitHub is meant to be the single source
 `SUPABASE_JWT_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_URL`, and `REDIS_URL` stay configured
 directly on the `skolopals` (api) Vercel project (already set there, correctly, as of 2026-11-08)
 rather than being duplicated into GitHub secrets, because:
-- They're identical across dev/uat/production right now (one shared Supabase project/Postgres —
-  see "Deferred decisions" below), so there's no per-stage value to gate.
+- They're identical across dev and production right now (one shared Supabase project/Postgres —
+  see "Deferred decisions" below), so there's no per-stage value to gate. UAT is the exception: it
+  has its own project and takes its values from the `uat` GitHub Environment (see above).
 - Some are Vercel "sensitive" env vars, which **cannot be read back** via the API/dashboard once
   set — re-extracting them into GitHub would need the user to re-paste every value by hand.
 
@@ -81,13 +105,13 @@ Actions → the `Deploy` run → **Review deployments** → tick `uat` (or `prod
 
 ## Deferred decisions (not solved here, flagged on purpose)
 
-- **One shared Supabase project/Postgres across dev, uat, and production.** Normally each stage
-  would get its own database. Revisit once this matters (e.g. before real user data exists in
+- **One shared Supabase project/Postgres across dev and production** (UAT has its own since
+  2026-11-20). Normally each stage would get its own database. Revisit once this matters (e.g. before real user data exists in
   production) — splitting later means adding per-stage `DATABASE_URL`/`SUPABASE_*` GitHub secrets
   and removing the Vercel-level ones this doc describes above.
 - **`skolopals-omega.vercel.app`** (the api project's original auto-assigned domain) still exists
   alongside the new `skolopals-api.vercel.app` alias. Harmless — both point at the same production
   deployment — but worth removing once nothing references the old one.
-- **Smoke coverage is dev-only in CI** (`smoke-dev` job). Nothing currently re-runs it against uat
-  or production automatically after their deploys; `pnpm --filter @skolopals/client run smoke <url>`
+- **Smoke coverage is dev and uat only in CI** (`smoke-dev`, `smoke-uat`). Nothing re-runs it against
+  production automatically after its deploy; `pnpm --filter @skolopals/client run smoke <url>`
   and `pnpm --filter @skolopals/admin run smoke <url>` can be run by hand against any stage.
