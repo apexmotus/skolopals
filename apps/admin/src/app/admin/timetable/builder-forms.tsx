@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import { Button, Card, CardTitle, Field, FormMessage, Input, Select } from "@skolopals/ui/ui";
 import {
   createClassGroup,
@@ -107,8 +107,18 @@ export function ClassForm({
   terms: { id: string; label: string }[];
   rooms: { id: string; name: string }[];
 }) {
-  const [state, action, pending] = useActionState<BuilderState, FormData>(createClassGroup, {});
   const [mode, setMode] = useState("in_centre");
+  // `created` bumps on success and keys the form, so it clears only then. A
+  // plain `action={...}` form is reset by React after every submit, which threw
+  // away the grades and days on a failed save and left `mode` out of step.
+  const [state, action, pending] = useActionState<BuilderState & { created?: number }, FormData>(
+    async (prev, formData) => {
+      const result = await createClassGroup(prev, formData);
+      if (result.ok) setMode("in_centre");
+      return { ...result, created: (prev.created ?? 0) + (result.ok ? 1 : 0) };
+    },
+    {},
+  );
 
   return (
     <Card>
@@ -117,7 +127,15 @@ export function ClassForm({
         The tutor must already be recorded as teaching this subject, in this language, at every grade the
         class covers. Sessions for the whole term are generated when you save.
       </p>
-      <form action={action} className="flex flex-col gap-3">
+      <form
+        key={state.created ?? 0}
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          startTransition(() => action(formData));
+        }}
+        className="flex flex-col gap-3"
+      >
         <Field label="Class name" htmlFor="class_name">
           <Input id="class_name" name="name" placeholder="Grade 7 Mathematics (English)" required />
         </Field>

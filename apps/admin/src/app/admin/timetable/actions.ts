@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@skolopals/shared/supabase/server";
 import { requireRole } from "@skolopals/shared/auth";
-import { normaliseMeetingUrl } from "@skolopals/shared/format";
+import { dayName, normaliseMeetingUrl } from "@skolopals/shared/format";
+import { getGrades, getLanguages, getSubjects } from "@skolopals/shared/reference";
 
 export type BuilderState = { error?: string; ok?: string };
 
@@ -18,6 +19,35 @@ const BAD_MEETING_LINK = "That meeting link is not a valid https:// address.";
  * publicly readable, class_sessions is not. Only today's and later sessions
  * are touched, so past sessions keep the link they actually ran on.
  */
+/**
+ * The competency trigger says "Tutor is not recorded as teaching <subject> in
+ * <language> at: <grades>" in codes. Spell it out with names, and say where to fix it.
+ */
+async function competencyMessage(
+  supabase: Supabase,
+  tutorId: string,
+  subjectCode: string,
+  languageCode: string,
+  dbMessage: string,
+) {
+  const missing = (dbMessage.split(/at:\s*/)[1] ?? "").split(/,\s*/).filter(Boolean);
+  const [subjects, languages, grades, { data: tutor }] = await Promise.all([
+    getSubjects(),
+    getLanguages(),
+    getGrades(),
+    supabase.from("tutors").select("profiles(full_name)").eq("id", tutorId).maybeSingle(),
+  ]);
+  const name = <T extends { code: string; name: string }>(list: T[], code: string) =>
+    list.find((x) => x.code === code)?.name ?? code;
+  const who = tutor?.profiles?.full_name ?? "This tutor";
+  const gradeNames = missing.map((g) => name(grades, g)).join(", ");
+  return (
+    `${who} is not recorded as teaching ${name(subjects, subjectCode)} in ` +
+    `${name(languages, languageCode)} at ${gradeNames || "every grade chosen"}. ` +
+    "Add it to their subjects on the Tutors page, or choose another tutor."
+  );
+}
+
 async function applyMeetingLink(supabase: Supabase, classId: string, url: string | null) {
   return supabase
     .from("class_sessions")
@@ -108,7 +138,13 @@ export async function createClassGroup(_prev: BuilderState, formData: FormData):
     await supabase.from("class_groups").delete().eq("id", classId);
     return {
       error: /not recorded as teaching/i.test(gradeError.message)
-        ? gradeError.message.replace(/^.*?:\s*/, "")
+        ? await competencyMessage(
+            supabase,
+            payload.tutor_id,
+            payload.subject_code,
+            payload.language_code,
+            gradeError.message,
+          )
         : gradeError.message,
     };
   }
@@ -124,8 +160,12 @@ export async function createClassGroup(_prev: BuilderState, formData: FormData):
   if (scheduleError) {
     await supabase.from("class_groups").delete().eq("id", classId);
     return {
+      // "...on ISO day 6 between 15:00:00 and 16:00:00" -> "...on Saturday between 15:00 and 16:00"
       error: /not open for tutoring/i.test(scheduleError.message)
-        ? scheduleError.message.replace(/^.*?:\s*/, "")
+        ? scheduleError.message
+            .replace(/^.*?(The centre)/, "$1")
+            .replace(/ISO day (\d)/, (_, d: string) => dayName(Number(d)))
+            .replace(/(\d{2}:\d{2}):\d{2}/g, "$1")
         : scheduleError.message,
     };
   }
