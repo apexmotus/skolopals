@@ -108,39 +108,176 @@ jobs:
         if: needs.deploy-dev.outputs.admin_url != ''
         run: pnpm --filter @skolopals/admin run smoke https://skolopals-admin-dev.vercel.app
 
+  # UAT has its own Supabase project (dhmjzshlznhqohvkdcpz), so it is a real
+  # build, not an alias of the dev deployment: the web apps inline the Supabase
+  # URL/key at build time, and the api needs UAT's database at runtime. All UAT
+  # values come from the `uat` GitHub Environment and override the Vercel
+  # project's preview env for these deployments only. See docs/DEPLOY.md.
   deploy-uat:
-    name: Deploy (uat) — alias flip only
+    name: Deploy (uat)
     needs: [deploy-dev, smoke-dev]
     runs-on: ubuntu-latest
     environment: uat
+    outputs:
+      admin_url: ${{ steps.deploy-admin.outputs.url }}
+    env:
+      UAT_SUPABASE_REF: dhmjzshlznhqohvkdcpz
+      UAT_API_URL: https://skolopals-api-uat.vercel.app/api/v1
+      UAT_WEB_ORIGIN: https://skolopals-web-uat.vercel.app
+      UAT_ADMIN_ORIGIN: https://skolopals-admin-uat.vercel.app
     steps:
-      - run: npm install -g vercel@latest
+      - name: Guard — UAT config must be set and point at the UAT Supabase project
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          missing=0
+          for name in DATABASE_URL SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY REDIS_URL \
+                      NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is not set on the uat GitHub Environment. See docs/DEPLOY.md." >&2
+              missing=1
+            fi
+          done
+          [ "$missing" = 0 ] || exit 1
+          # A UAT deploy wired to the shared dev/prod database is the failure this
+          # job exists to prevent, so refuse rather than deploy.
+          for name in DATABASE_URL SUPABASE_URL NEXT_PUBLIC_SUPABASE_URL; do
+            case "${!name}" in
+              *"$UAT_SUPABASE_REF"*) ;;
+              *) echo "::error::$name does not point at the UAT Supabase project ($UAT_SUPABASE_REF)." >&2; exit 1 ;;
+            esac
+          done
 
-      - name: Alias api dev deployment to uat
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+      - run: npm install -g vercel@latest
+      - run: pnpm install --frozen-lockfile
+
+      - name: Deploy api (uat)
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_API }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
         run: |
-          vercel alias set "${{ needs.deploy-dev.outputs.api_url }}" skolopals-api-uat.vercel.app \
+          rm -rf .vercel api/.vercel
+          vercel pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel build --token="${{ secrets.VERCEL_TOKEN }}"
+          # SUPABASE_JWT_SECRET is optional (HS256 fallback only); an empty value
+          # would fail the api's env validation, so pass it only when set.
+          jwt=()
+          if [ -n "$SUPABASE_JWT_SECRET" ]; then jwt=(--env SUPABASE_JWT_SECRET="$SUPABASE_JWT_SECRET"); fi
+          url=$(vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}" \
+            --env CORS_ORIGINS="${{ vars.CORS_ORIGINS }}" \
+            --env DATABASE_URL="$DATABASE_URL" \
+            --env SUPABASE_URL="$SUPABASE_URL" \
+            --env SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_SERVICE_ROLE_KEY" \
+            --env REDIS_URL="$REDIS_URL" \
+            --env ADMIN_SITE_URL="$UAT_ADMIN_ORIGIN" \
+            --env CLIENT_SITE_URL="$UAT_WEB_ORIGIN" \
+            "${jwt[@]}")
+          vercel alias set "$url" skolopals-api-uat.vercel.app \
             --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
 
-      - name: Alias client web dev deployment to uat
+      # NEXT_PUBLIC_* are inlined at build time, so they must be in the env file
+      # `vercel build` reads, replacing the preview values `vercel pull` wrote.
+      - name: Deploy client web (uat)
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
         run: |
-          vercel alias set "${{ needs.deploy-dev.outputs.web_url }}" skolopals-web-uat.vercel.app \
+          rm -rf .vercel
+          vercel pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
+          envfile=.vercel/.env.preview.local
+          sed -i '/^NEXT_PUBLIC_SUPABASE_URL=/d;/^NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=/d;/^NEXT_PUBLIC_SITE_URL=/d;/^API_URL=/d' "$envfile"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=\"$NEXT_PUBLIC_SUPABASE_URL\""
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=\"$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY\""
+            echo "NEXT_PUBLIC_SITE_URL=\"$UAT_WEB_ORIGIN\""
+            echo "API_URL=\"$UAT_API_URL\""
+          } >> "$envfile"
+          NEXT_PUBLIC_SITE_URL="$UAT_WEB_ORIGIN" API_URL="$UAT_API_URL" \
+            vercel build --token="${{ secrets.VERCEL_TOKEN }}"
+          url=$(vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}" \
+            --env API_URL="$UAT_API_URL" \
+            --env NEXT_PUBLIC_SITE_URL="$UAT_WEB_ORIGIN" \
+            --env NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+            --env NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY")
+          vercel alias set "$url" skolopals-web-uat.vercel.app \
             --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
 
-      - name: Alias admin web dev deployment to uat
-        if: env.VERCEL_PROJECT_ID != '' && needs.deploy-dev.outputs.admin_url != ''
+      - name: Deploy admin web (uat)
+        id: deploy-admin
+        if: env.VERCEL_PROJECT_ID != ''
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
         run: |
-          vercel alias set "${{ needs.deploy-dev.outputs.admin_url }}" skolopals-admin-uat.vercel.app \
+          rm -rf .vercel
+          vercel pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
+          envfile=.vercel/.env.preview.local
+          sed -i '/^NEXT_PUBLIC_SUPABASE_URL=/d;/^NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=/d;/^NEXT_PUBLIC_SITE_URL=/d;/^API_URL=/d' "$envfile"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=\"$NEXT_PUBLIC_SUPABASE_URL\""
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=\"$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY\""
+            echo "NEXT_PUBLIC_SITE_URL=\"$UAT_ADMIN_ORIGIN\""
+            echo "API_URL=\"$UAT_API_URL\""
+          } >> "$envfile"
+          NEXT_PUBLIC_SITE_URL="$UAT_ADMIN_ORIGIN" API_URL="$UAT_API_URL" \
+            vercel build --token="${{ secrets.VERCEL_TOKEN }}"
+          url=$(vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}" \
+            --env API_URL="$UAT_API_URL" \
+            --env NEXT_PUBLIC_SITE_URL="$UAT_ADMIN_ORIGIN" \
+            --env NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+            --env NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          vercel alias set "$url" skolopals-admin-uat.vercel.app \
             --scope=apex-motus --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Smoke test api (uat) — reaches the UAT database and Redis
+        run: curl -sf --retry 5 --retry-delay 5 --retry-connrefused https://skolopals-api-uat.vercel.app/api/health/ready
+
+  smoke-uat:
+    name: Smoke test (uat)
+    needs: deploy-uat
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright (with retry — apt mirrors are occasionally flaky on GitHub-hosted runners)
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 15
+          command: pnpm --filter @skolopals/client exec playwright install --with-deps chromium
+      - name: Smoke test client web
+        run: pnpm --filter @skolopals/client run smoke https://skolopals-web-uat.vercel.app
+      - name: Smoke test admin web
+        if: needs.deploy-uat.outputs.admin_url != ''
+        run: pnpm --filter @skolopals/admin run smoke https://skolopals-admin-uat.vercel.app
 
   deploy-prod:
     name: Deploy (production)
-    needs: deploy-uat
+    needs: [deploy-uat, smoke-uat]
     runs-on: ubuntu-latest
     environment: production
     steps:
