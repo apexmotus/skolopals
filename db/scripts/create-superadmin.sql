@@ -12,16 +12,18 @@
 --
 -- Targets hosted Supabase (real GoTrue auth schema), not the db/local shim.
 --
--- Usage: set the four values below, then run the whole file. Safe to re-run.
+-- Usage: either run ./create-superadmin.sh <email> <password> [first] [last]
+-- (which feeds the app.sa_* settings below), or set the four values below by
+-- hand and run the whole file. Safe to re-run.
 -- Do not commit this file with a real password in it; change the password
 -- after first sign-in.
 
 do $$
 declare
-  v_email      text := 'mollodagod@gmail.com';
-  v_password   text := 'CHANGE_ME';
-  v_first_name text := 'CHANGE_ME';
-  v_last_name  text := 'CHANGE_ME';
+  v_email      text := coalesce(nullif(current_setting('app.sa_email', true), ''), 'mollodagod@gmail.com');
+  v_password   text := coalesce(nullif(current_setting('app.sa_password', true), ''), 'CHANGE_ME');
+  v_first_name text := coalesce(nullif(current_setting('app.sa_first_name', true), ''), 'CHANGE_ME');
+  v_last_name  text := coalesce(nullif(current_setting('app.sa_last_name', true), ''), 'CHANGE_ME');
   v_user_id    uuid;
   v_created    boolean := false;
 begin

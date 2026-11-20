@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { FormMessage, cx } from "@skolopals/ui/ui";
+import { Button, FormMessage, cx } from "@skolopals/ui/ui";
 import { markAttendance, type ActionState } from "../actions";
 
 const OPTIONS = [
@@ -32,7 +32,7 @@ export function RegisterRow({
           <input type="hidden" name="session_id" value={sessionId} />
           <input type="hidden" name="learner_id" value={learnerId} />
           {OPTIONS.map((o) => (
-            <button
+            <Button variant="bare"
               key={o.value}
               type="submit"
               name="status"
@@ -44,7 +44,7 @@ export function RegisterRow({
               )}
             >
               {o.label}
-            </button>
+            </Button>
           ))}
         </form>
       </div>

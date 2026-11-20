@@ -1,3 +1,4 @@
+import { Button } from "@skolopals/ui/ui";
 import Link from "next/link";
 import { NavLink } from "@skolopals/ui/nav-link";
 import { Logo } from "@skolopals/ui/logo";
@@ -51,12 +52,12 @@ export async function PublicNav() {
               Dashboard
             </Link>
             <form action={signOut}>
-              <button
+              <Button variant="bare"
                 type="submit"
                 className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-[8px] border-none bg-[#6A1B9A] px-[18px] py-[9px] text-[14px] font-semibold leading-none text-[#FFFFFF] transition-colors hover:bg-[#581582]"
               >
                 Log out
-              </button>
+              </Button>
             </form>
           </>
         ) : (

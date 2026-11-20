@@ -8,7 +8,8 @@
     "./logo": "./src/logo.tsx",
     "./nav-link": "./src/nav-link.tsx",
     "./coming-soon": "./src/coming-soon.tsx",
-    "./app-shell": "./src/app-shell.tsx"
+    "./app-shell": "./src/app-shell.tsx",
+    "./loading-screen": "./src/loading-screen.tsx"
   },
   "scripts": {
     "lint": "eslint src/",

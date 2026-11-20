@@ -1,3 +1,4 @@
+import { Button } from "./button";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -163,9 +164,9 @@ export function AppShell({
               </Link>
             ) : null}
             <form action={signOutAction}>
-              <button className="rounded-full bg-white/[0.07] px-[10px] py-[6px] text-[11px] font-semibold text-white">
+              <Button variant="bare" className="rounded-full bg-white/[0.07] px-[10px] py-[6px] text-[11px] font-semibold text-white">
                 Log out
-              </button>
+              </Button>
             </form>
           </div>
         </div>

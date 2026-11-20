@@ -59,13 +59,13 @@ export function ApproveForm({
       <form action={declineAction}>
         <input type="hidden" name="enrolment_id" value={enrolmentId} />
         {declineState.error ? <FormMessage>{declineState.error}</FormMessage> : null}
-        <button
+        <Button variant="bare"
           type="submit"
           disabled={declining}
           className="text-[12px] text-muted underline-offset-2 hover:underline"
         >
           {declining ? "Declining…" : "Decline this enrolment"}
-        </button>
+        </Button>
       </form>
     </div>
   );

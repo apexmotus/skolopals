@@ -120,9 +120,9 @@ export function RemoveCompetencyButton({ tutorId, competencyId }: { tutorId: str
     <form action={action} className="flex items-center gap-2">
       <input type="hidden" name="tutor_id" value={tutorId} />
       <input type="hidden" name="competency_id" value={competencyId} />
-      <button type="submit" disabled={pending} className="text-[11px] text-muted hover:text-danger hover:underline">
+      <Button variant="bare" type="submit" disabled={pending} className="text-[11px] text-muted hover:text-danger hover:underline">
         {pending ? "Removing…" : "Remove"}
-      </button>
+      </Button>
       {state.error ? <span className="text-[11px] text-danger">{state.error}</span> : null}
     </form>
   );

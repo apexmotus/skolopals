@@ -229,13 +229,13 @@ export function RegenerateButton({ classGroupId }: { classGroupId: string }) {
   return (
     <form action={action} className="flex items-center gap-3">
       <input type="hidden" name="class_group_id" value={classGroupId} />
-      <button
+      <Button variant="bare"
         type="submit"
         disabled={pending}
         className="text-[12px] text-brand underline-offset-2 hover:underline"
       >
         {pending ? "Generating…" : "Regenerate sessions"}
-      </button>
+      </Button>
       {state.error ? <span className="text-[11px] text-danger">{state.error}</span> : null}
       {state.ok ? <span className="text-[11px] text-success">{state.ok}</span> : null}
     </form>
