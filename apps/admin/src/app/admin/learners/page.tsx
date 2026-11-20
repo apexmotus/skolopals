@@ -1,4 +1,4 @@
-import { Badge, Card, CardTitle, DetailRow, EmptyState, PageHeading } from "@skolopals/ui/ui";
+import { Badge, ButtonLink, Card, CardTitle, DetailRow, EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { getLearners } from "@/lib/admin";
 import { ENROLMENT_STATUS_LABEL, age, shortDate } from "@skolopals/shared/format";
 
@@ -23,9 +23,14 @@ export default async function LearnersPage() {
               <Card key={l.id}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <CardTitle>{l.full_name}</CardTitle>
-                  <Badge tone={STATUS_TONE[l.status as keyof typeof STATUS_TONE] ?? "neutral"}>
-                    {l.status.charAt(0).toUpperCase() + l.status.slice(1)}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge tone={STATUS_TONE[l.status as keyof typeof STATUS_TONE] ?? "neutral"}>
+                      {l.status.charAt(0).toUpperCase() + l.status.slice(1)}
+                    </Badge>
+                    <ButtonLink href={`/admin/learners/${l.id}`} variant="secondary">
+                      Edit
+                    </ButtonLink>
+                  </div>
                 </div>
                 <DetailRow label="Grade" value={l.grades?.name ?? l.grade_code} />
                 <DetailRow label="Age" value={`${age(l.date_of_birth)} years`} />

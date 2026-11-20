@@ -1,4 +1,4 @@
-import { Card, CardTitle, DetailRow, EmptyState, PageHeading } from "@skolopals/ui/ui";
+import { ButtonLink, Card, CardTitle, DetailRow, EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { getLearners } from "@/lib/parent";
 import { age } from "@skolopals/shared/format";
 
@@ -16,11 +16,16 @@ export default async function LearnersPage() {
         <div className="flex flex-col gap-4">
           {learners.map((l) => (
             <Card key={l.id}>
-              <CardTitle>{l.full_name}</CardTitle>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <CardTitle>{l.full_name}</CardTitle>
+                <ButtonLink href={`/parent/learners/${l.id}`} variant="secondary">
+                  Edit details
+                </ButtonLink>
+              </div>
               <DetailRow label="Grade" value={l.grades?.name ?? l.grade_code} />
               <DetailRow label="Age" value={`${age(l.date_of_birth)} years`} />
               <DetailRow label="School" value={l.school_name || "Not recorded"} />
-              <DetailRow label="Status" value={l.status} />
+              <DetailRow label="Status" value={l.status[0].toUpperCase() + l.status.slice(1)} />
             </Card>
           ))}
         </div>
