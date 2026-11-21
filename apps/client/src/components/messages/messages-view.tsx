@@ -65,7 +65,7 @@ export async function MessagesView({ openThreadId }: { openThreadId?: string }) 
                     {m.profiles?.full_name ?? "Someone"}
                     <span className="pl-2 font-normal text-muted">{dateTime(m.created_at)}</span>
                   </span>
-                  <p className="whitespace-pre-wrap text-[13px] leading-[1.5] text-black">{m.body}</p>
+                  <p className="whitespace-pre-wrap text-[13px] leading-[1.5] text-ink">{m.body}</p>
                 </div>
               </div>
             ))}

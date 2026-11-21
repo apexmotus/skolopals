@@ -10,7 +10,9 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         </Link>
         <p className="text-[26px] font-bold md:text-[32px]">Skolopals Centre Administration</p>
       </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-4 p-6 md:p-14">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-col p-6 md:p-14">
+        <div className="flex w-full max-w-[480px] flex-col gap-4">{children}</div>
+      </div>
     </div>
   );
 }

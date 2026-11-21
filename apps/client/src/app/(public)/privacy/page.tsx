@@ -40,15 +40,15 @@ export default async function PrivacyPage() {
 
       <Card>
         <CardTitle>Who we are</CardTitle>
-        <p className="text-[13px] leading-[1.7] text-black">
+        <p className="text-[13px] leading-[1.7] text-ink">
           {CENTRE.name} is an after-school education support centre at {CENTRE_ADDRESS}. We are the{" "}
           <strong>responsible party</strong> for the personal information described here.
         </p>
-        <p className="text-[13px] leading-[1.7] text-black">
+        <p className="text-[13px] leading-[1.7] text-ink">
           <strong>Information Officer:</strong> {CENTRE.informationOfficer}
           <br />
           <strong>Phone:</strong>{" "}
-          <a href={CENTRE.phoneLink} className="text-brand hover:underline">
+          <a href={CENTRE.phoneLink} className="text-accent hover:underline">
             {CENTRE.phone}
           </a>
           <br />
@@ -58,12 +58,12 @@ export default async function PrivacyPage() {
 
       <Card>
         <CardTitle>Your child&rsquo;s information, and your permission</CardTitle>
-        <p className="text-[13px] leading-[1.7] text-black">
+        <p className="text-[13px] leading-[1.7] text-ink">
           Most of the people we hold information about are children. Section 35 of POPIA prohibits
           processing a child&rsquo;s personal information <strong>unless a parent or legal guardian has
           consented</strong>.
         </p>
-        <ul className="flex list-disc flex-col gap-2 pl-5 text-[13px] leading-[1.6] text-black">
+        <ul className="flex list-disc flex-col gap-2 pl-5 text-[13px] leading-[1.6] text-ink">
           <li>
             We will not register a learner, run an assessment, or place a child in a class until you have
             given consent. Our system refuses to activate an enrolment without it.
@@ -108,11 +108,11 @@ export default async function PrivacyPage() {
 
       <Card>
         <CardTitle>Health information</CardTitle>
-        <p className="text-[13px] leading-[1.7] text-black">
+        <p className="text-[13px] leading-[1.7] text-ink">
           Allergies and medical conditions are <strong>special personal information</strong> under section
           26 of POPIA. We collect them only so we can look after your child safely on our premises.
         </p>
-        <p className="text-[13px] leading-[1.7] text-black">
+        <p className="text-[13px] leading-[1.7] text-ink">
           Health information is visible <strong>only to the centre manager and administrators</strong>.
           Tutors are not given access to it through our system. Where a tutor must know something to keep
           a child safe during a session, the centre manager tells them directly.
@@ -121,7 +121,7 @@ export default async function PrivacyPage() {
 
       <Card>
         <CardTitle>Who sees what</CardTitle>
-        <p className="text-[13px] leading-[1.7] text-black">
+        <p className="text-[13px] leading-[1.7] text-ink">
           These limits are enforced by our database, not only by what each screen chooses to show.
         </p>
         <DataTable
@@ -142,13 +142,13 @@ export default async function PrivacyPage() {
 
       <Card>
         <CardTitle>Your information leaves South Africa</CardTitle>
-        <p className="text-[13px] leading-[1.7] text-black">
+        <p className="text-[13px] leading-[1.7] text-ink">
           Our systems are hosted in <strong>London, United Kingdom</strong>, so your and your child&rsquo;s
           information is stored outside South Africa. Section 72 of POPIA permits this where the recipient
           is bound to protection substantially similar to POPIA, which the United Kingdom&rsquo;s regime and
           our agreement with our hosting provider meet.
         </p>
-        <p className="text-[13px] leading-[1.7] text-black">
+        <p className="text-[13px] leading-[1.7] text-ink">
           If you would prefer your child&rsquo;s information not to leave South Africa, speak to our
           Information Officer and we will tell you honestly what we can and cannot offer.
         </p>
@@ -178,14 +178,14 @@ export default async function PrivacyPage() {
 
       <Card>
         <CardTitle>Your rights</CardTitle>
-        <ul className="flex list-disc flex-col gap-1 pl-5 text-[13px] leading-[1.6] text-black">
+        <ul className="flex list-disc flex-col gap-1 pl-5 text-[13px] leading-[1.6] text-ink">
           <li>Ask what we hold about you or your child, and get a copy</li>
           <li>Correct or delete anything wrong, misleading or out of date</li>
           <li>Object to processing, and withdraw any consent</li>
           <li>Opt out of marketing messages, on any message</li>
           <li>Complain to us, and then to the Information Regulator</li>
         </ul>
-        <p className="text-[13px] leading-[1.7] text-black">
+        <p className="text-[13px] leading-[1.7] text-ink">
           Write to our Information Officer or call {CENTRE.phone}. We respond within{" "}
           <strong>30 days</strong>. There is no charge to ask what we hold.
         </p>
@@ -193,13 +193,13 @@ export default async function PrivacyPage() {
 
       <Card>
         <CardTitle>Complaining to the Regulator</CardTitle>
-        <p className="text-[13px] leading-[1.7] text-black">
+        <p className="text-[13px] leading-[1.7] text-ink">
           If you are not satisfied with our response you may complain to the Information Regulator (South
           Africa), JD House, 27 Stiemens Street, Braamfontein, Johannesburg.
         </p>
         <p className="text-[12px] text-muted">
           See also our{" "}
-          <Link href="/safeguarding" className="text-brand hover:underline">
+          <Link href="/safeguarding" className="text-accent hover:underline">
             safeguarding page
           </Link>{" "}
           for how we keep children safe on the premises.

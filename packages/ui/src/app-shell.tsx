@@ -142,7 +142,7 @@ export function AppShell({
               href={item.href}
               exact={item.exact}
               className={`flex min-h-11 items-center gap-[10px] rounded-[6px] px-3 py-[10px] text-[14px] text-white hover:bg-white/[0.05] md:text-[13px] ${rail ? "md:max-lg:justify-center md:max-lg:px-0" : ""}`}
-              activeClassName="bg-white/[0.09] hover:bg-white/[0.09]"
+              activeClassName="bg-white/[0.09] font-semibold shadow-[inset_3px_0_0_var(--color-sun)] hover:bg-white/[0.09]"
               title={rail ? item.label : undefined}
             >
               <Icon icon={item.icon} />

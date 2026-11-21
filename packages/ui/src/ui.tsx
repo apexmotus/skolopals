@@ -78,8 +78,8 @@ export function StatCard({
 type BadgeTone = "neutral" | "location" | "brand" | "success" | "danger" | "warning" | "onDark";
 
 const badgeTones: Record<BadgeTone, string> = {
-  neutral: "bg-[#DCE7F3] text-[#334155] font-semibold",
-  location: "bg-[#DCE7F3] text-[#334155] font-semibold tracking-[0.01em] px-[14px] py-[6px] text-[12px] leading-none",
+  neutral: "bg-[#DCE7F3] text-muted font-semibold",
+  location: "bg-[#DCE7F3] text-muted font-semibold tracking-[0.01em] px-[14px] py-[6px] text-[12px] leading-none",
   brand: "bg-brand-soft text-brand font-semibold",
   success: "bg-success-soft text-success",
   danger: "bg-danger-soft text-danger font-semibold",
@@ -202,9 +202,9 @@ export function Rating({ rating, count, className }: { rating: number; count: nu
 
 export function DetailRow({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-4 text-[13px]">
-      <span className="text-muted">{label}</span>
-      <span className="text-right font-semibold text-ink">{value}</span>
+    <div className="flex items-baseline justify-between gap-4 text-[13px]">
+      <span className="shrink-0 text-muted">{label}</span>
+      <span className="min-w-0 text-right font-semibold text-ink">{value}</span>
     </div>
   );
 }
@@ -233,7 +233,7 @@ export function DataTable<T>({
   empty?: ReactNode;
 }) {
   return (
-    <div className="w-full md:overflow-x-auto md:rounded-[10px] md:border md:border-line md:bg-white">
+    <div className="surface-light w-full md:overflow-x-auto md:rounded-[10px] md:border md:border-line md:bg-white">
       <table className="w-full text-left max-md:block md:min-w-[560px] md:table-fixed">
         <thead className="bg-subtle max-md:hidden">
           <tr>
@@ -306,7 +306,7 @@ export function StatusState({
     <div className={cx("flex min-h-[560px] flex-col items-center justify-center gap-4 text-center", className)}>
       <img src="/icons/status-circle.svg" alt="" width={72} height={72} />
       <img src={icon} alt="" width={32} height={32} />
-      <h1 className="text-[28px] text-black">{title}</h1>
+      <h1 className="text-[28px] text-ink">{title}</h1>
       <p className="max-w-[520px] text-[12px] leading-[1.5] text-muted">{description}</p>
       {children ? <div className="flex flex-wrap justify-center gap-[10px]">{children}</div> : null}
     </div>

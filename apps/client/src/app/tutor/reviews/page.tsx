@@ -20,7 +20,7 @@ export default async function ReviewsPage() {
           {reviews.map((r) => (
             <Card key={r.id}>
               <p className="text-[13px] text-star">{"★".repeat(r.rating) + "☆".repeat(5 - r.rating)}</p>
-              {r.comment ? <p className="text-[13px] leading-[1.6] text-black">{r.comment}</p> : null}
+              {r.comment ? <p className="text-[13px] leading-[1.6] text-ink">{r.comment}</p> : null}
               <p className="text-[11px] text-muted">{shortDate(r.publishedAt ?? r.createdAt)}</p>
             </Card>
           ))}

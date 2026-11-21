@@ -25,7 +25,7 @@ export async function ResourceList() {
           primary: true,
           cell: (r) =>
             r.url ? (
-              <a href={r.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-brand underline">
+              <a href={r.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-accent underline">
                 {r.title}
               </a>
             ) : (

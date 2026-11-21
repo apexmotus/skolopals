@@ -37,21 +37,21 @@ export default async function AdminDashboard() {
         <Card className="flex-1">
           <CardTitle>Outstanding fees</CardTitle>
           <p className="text-[28px] text-ink">{money(d.outstandingCents)}</p>
-          <Link href="/admin/billing" className="text-[12px] text-brand hover:underline">
+          <Link href="/admin/billing" className="text-[12px] text-accent hover:underline">
             Go to billing
           </Link>
         </Card>
         <Card className="flex-1">
           <CardTitle>New enquiries</CardTitle>
           <p className="text-[28px] text-ink">{d.newEnquiries}</p>
-          <Link href="/admin/enquiries" className="text-[12px] text-brand hover:underline">
+          <Link href="/admin/enquiries" className="text-[12px] text-accent hover:underline">
             Review enquiries
           </Link>
         </Card>
         <Card className="flex-1">
           <CardTitle>Users & invitations</CardTitle>
           <p className="text-[13px] text-muted">Invite new users and manage centre accounts.</p>
-          <Link href="/admin/users" className="text-[12px] text-brand hover:underline">
+          <Link href="/admin/users" className="text-[12px] text-accent hover:underline">
             Add or manage users
           </Link>
         </Card>

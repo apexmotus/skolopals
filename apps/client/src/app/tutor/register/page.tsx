@@ -92,7 +92,7 @@ export default async function RegisterPage({ searchParams }: PageProps<"/tutor/r
         {learners.length === 0 ? (
           <p className="text-[13px] text-muted">
             No learners are placed in this class yet.{" "}
-            <Link href="/tutor/learners" className="text-brand hover:underline">
+            <Link href="/tutor/learners" className="text-accent hover:underline">
               My learners
             </Link>
           </p>

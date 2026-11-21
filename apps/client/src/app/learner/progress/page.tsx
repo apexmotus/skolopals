@@ -23,7 +23,7 @@ export default async function ProgressPage() {
               <CardTitle>
                 Term {r.terms?.term_number} {r.terms?.year}
               </CardTitle>
-              {r.summary ? <p className="text-[13px] leading-[1.6] text-black">{r.summary}</p> : null}
+              {r.summary ? <p className="text-[13px] leading-[1.6] text-ink">{r.summary}</p> : null}
               {r.attendance_note ? <p className="text-[12px] text-muted">{r.attendance_note}</p> : null}
 
               {(r.progress_report_subjects ?? []).map((s) => (

@@ -21,7 +21,21 @@ function activeLabel(items: Item[], pathname: string) {
  * that opens the workspace navigation in a drawer. The drawer is a native
  * <dialog>, so focus is trapped and Esc closes it.
  */
-export function MobileNav({ items, workspace, children }: { items: Item[]; workspace: string; children: ReactNode }) {
+// Literal class names, so Tailwind sees them.
+const HIDE_FROM = { md: "md:hidden", lg: "lg:hidden" } as const;
+
+export function MobileNav({
+  items,
+  workspace,
+  breakpoint = "md",
+  children,
+}: {
+  items: Item[];
+  workspace: string;
+  /** Width from which the page shows its own full navigation and this bar disappears. */
+  breakpoint?: keyof typeof HIDE_FROM;
+  children: ReactNode;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDialogElement>(null);
@@ -43,7 +57,9 @@ export function MobileNav({ items, workspace, children }: { items: Item[]; works
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-3 bg-night px-4 md:hidden">
+      <header
+        className={`sticky top-0 z-40 flex h-14 items-center justify-between gap-3 border-b border-white/10 bg-night px-4 ${HIDE_FROM[breakpoint]}`}
+      >
         <Link href="/" className="shrink-0" aria-label="Home">
           <Logo height={28} />
         </Link>
@@ -72,7 +88,7 @@ export function MobileNav({ items, workspace, children }: { items: Item[]; works
           // Backdrop click, or any link inside (covers same-page links, where the path does not change).
           if (e.target === e.currentTarget || (e.target as HTMLElement).closest("a")) setOpen(false);
         }}
-        className="m-0 h-dvh max-h-none w-[min(84vw,300px)] max-w-none bg-night p-0 backdrop:bg-plum-950/70 open:flex md:hidden"
+        className={`m-0 h-dvh max-h-none w-[min(84vw,300px)] max-w-none bg-night p-0 backdrop:bg-plum-950/70 open:flex ${HIDE_FROM[breakpoint]}`}
       >
         <div className="flex w-full flex-col gap-[22px] overflow-y-auto p-5">
           <div className="flex items-center justify-between">

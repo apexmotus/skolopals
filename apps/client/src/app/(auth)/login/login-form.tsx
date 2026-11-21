@@ -24,7 +24,7 @@ export function LoginForm({ next }: { next: string }) {
       </Button>
       <p className="text-center text-[12px] text-muted">
         New to Skolopals?{" "}
-        <Link href="/signup" className="text-brand underline-offset-2 hover:underline">
+        <Link href="/signup" className="text-accent underline-offset-2 hover:underline">
           Sign Up
         </Link>
       </p>

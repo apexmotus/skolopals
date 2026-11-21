@@ -19,7 +19,7 @@ export default async function LearnerOverview() {
         ) : (
           <ul className="flex flex-col gap-2">
             {upcoming.map((s) => (
-              <li key={s.id} className="flex flex-wrap justify-between gap-2 text-[13px] text-black">
+              <li key={s.id} className="flex flex-wrap justify-between gap-2 text-[13px] text-ink">
                 <span>{s.class_groups?.name}</span>
                 <span className="text-muted">{dateTime(s.starts_at)}</span>
               </li>

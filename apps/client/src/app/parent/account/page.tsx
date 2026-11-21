@@ -37,7 +37,7 @@ export default async function AccountPage() {
                   header: "Invoice",
                   primary: true,
                   cell: (i) => (
-                    <Link href={`/parent/account/${i.id}`} className="text-brand hover:underline">
+                    <Link href={`/parent/account/${i.id}`} className="text-accent hover:underline">
                       {i.invoice_number ?? ""}
                     </Link>
                   ),

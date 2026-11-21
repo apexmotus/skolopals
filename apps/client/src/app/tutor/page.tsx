@@ -41,7 +41,7 @@ export default async function TutorOverview() {
         ) : (
           <ul className="flex flex-col gap-2">
             {sessions.map((s) => (
-              <li key={s.id} className="flex flex-wrap justify-between gap-2 text-[13px] text-black">
+              <li key={s.id} className="flex flex-wrap justify-between gap-2 text-[13px] text-ink">
                 <span>{classGroupName.get(s.classGroupId)}</span>
                 <span className="flex gap-3">
                   {isOnline.has(s.classGroupId) && s.meetingUrl ? (
@@ -49,7 +49,7 @@ export default async function TutorOverview() {
                       href={s.meetingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-brand hover:underline"
+                      className="text-accent hover:underline"
                     >
                       Start on {meetingPlatform(s.meetingUrl)}
                     </a>

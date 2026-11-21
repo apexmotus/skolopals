@@ -23,7 +23,7 @@ export default async function ParentLearnerPage({ params }: PageProps<"/parent/l
 
   return (
     <>
-      <Link href="/parent/learners" className="w-fit text-[12px] text-brand underline-offset-2 hover:underline">
+      <Link href="/parent/learners" className="w-fit text-[12px] text-accent underline-offset-2 hover:underline">
         ← My learners
       </Link>
       <PageHeading title={learner.full_name} description="Keep your child’s details and safety contacts up to date." />

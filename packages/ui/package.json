@@ -13,7 +13,8 @@
     "./page-skeleton": "./src/page-skeleton.tsx",
     "./learner-edit": "./src/learner-edit.tsx",
     "./stepper": "./src/stepper.tsx",
-    "./dialog": "./src/dialog.tsx"
+    "./dialog": "./src/dialog.tsx",
+    "./mobile-nav": "./src/mobile-nav.tsx"
   },
   "scripts": {
     "lint": "eslint src/",

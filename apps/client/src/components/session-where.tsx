@@ -14,7 +14,7 @@ export function SessionWhere({
   if (mode !== "online" && mode !== "hybrid") return <>{place}</>;
 
   const join = meetingUrl ? (
-    <a href={meetingUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
+    <a href={meetingUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
       Join on {meetingPlatform(meetingUrl)}
     </a>
   ) : (

@@ -40,16 +40,18 @@
   --color-magenta: #d81b7a;
   --color-purple-auth: #6a1b9a;
   --color-link: #0277bd;
+  /* Accent text: magenta on light surfaces, yellow on the plum canvas (see below). */
+  --color-accent: #d81b7a;
   --color-ink: #1b2559;
   --color-muted: #334155;
   --color-nav: #1e293b;
   --color-line: #eae6df;
   --color-canvas: #faf8f5;
   --color-subtle: #f4f1ea;
-  --color-night: #1b2559;
+  --color-night: #2a1040;
   --color-star: #d97706;
   --color-success: #2f7259;
-  --color-success-soft: rgba(47, 114, 89, 0.09);
+  --color-success-soft: #edf3f0;
   --color-danger: #b91c1c;
   --color-danger-soft: #fee2e2;
   --color-warning: #9a6a18;
@@ -71,9 +73,40 @@
   --shadow-card: 0 4px 16px 0 rgba(27, 37, 89, 0.05);
 }
 
-body {
-  background: var(--bg-canvas);
-  color: var(--text-body);
+/*
+ * Dark plum canvas, light surfaces (SPEC-2026-11 §7.2).
+ *
+ * The canvas is plum, so text that sits straight on it must be light. Rather
+ * than restyle every page, the text tokens flip: on the canvas `text-ink` is
+ * near-white, `text-muted` is lilac, `text-link` / `text-accent` are yellow.
+ * Every light surface (cards, tables, dialogs, inputs: anything bg-white,
+ * plus `.surface-light`) sets them back, so content inside a surface keeps
+ * the navy-on-white design. Utilities still win: these live in the base layer.
+ */
+@layer base {
+  body {
+    background: var(--color-plum-950);
+    color: var(--color-on-dark-muted);
+    --color-ink: var(--color-on-dark);
+    --color-muted: var(--color-on-dark-muted);
+    --color-nav: var(--color-on-dark);
+    --color-line: rgb(255 255 255 / 0.14);
+    --color-link: var(--color-sun);
+    --color-accent: var(--color-sun);
+  }
+
+  .surface-light,
+  .bg-white,
+  .bg-canvas,
+  .bg-subtle {
+    color: #334155;
+    --color-ink: #1b2559;
+    --color-muted: #334155;
+    --color-nav: #1e293b;
+    --color-line: #eae6df;
+    --color-link: #0277bd;
+    --color-accent: #d81b7a;
+  }
 }
 
 :focus-visible {

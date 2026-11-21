@@ -39,14 +39,14 @@ export default async function ParentOverview() {
         ) : (
           <ul className="flex flex-col gap-2">
             {upcoming.map((s) => (
-              <li key={s.id} className="flex flex-wrap justify-between gap-2 text-[13px] text-black">
+              <li key={s.id} className="flex flex-wrap justify-between gap-2 text-[13px] text-ink">
                 <span>{s.class_groups?.name}</span>
                 <span className="text-muted">{dateTime(s.starts_at)}</span>
               </li>
             ))}
           </ul>
         )}
-        <Link href="/parent/timetable" className="text-[12px] text-brand hover:underline">
+        <Link href="/parent/timetable" className="text-[12px] text-accent hover:underline">
           Full timetable
         </Link>
       </Card>
@@ -54,11 +54,11 @@ export default async function ParentOverview() {
       {learners.length === 0 && (
         <Card>
           <CardTitle>Register your first learner</CardTitle>
-          <p className="text-[13px] text-black">
+          <p className="text-[13px] text-ink">
             Choose a package and register your child to get started. The centre will arrange an initial
             assessment and place them in a class.
           </p>
-          <Link href="/enrol" className="text-[12px] text-brand hover:underline">
+          <Link href="/enrol" className="text-[12px] text-accent hover:underline">
             Start enrolment
           </Link>
         </Card>

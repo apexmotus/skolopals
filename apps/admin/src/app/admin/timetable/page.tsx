@@ -130,7 +130,7 @@ export default async function TimetableBuilderPage() {
                     .join(", ")}{" "}
                   · {c.tutors?.profiles?.full_name} · {where}
                 </p>
-                <p className="text-[12px] text-black">
+                <p className="text-[12px] text-ink">
                   {(c.class_schedules ?? [])
                     .map(
                       (s) =>

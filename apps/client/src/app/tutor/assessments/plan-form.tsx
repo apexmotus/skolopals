@@ -77,7 +77,7 @@ export function PlanForm({
         <button
           type="button"
           onClick={() => setRows((r) => [...r, r.length])}
-          className="w-fit text-[12px] text-brand hover:underline"
+          className="w-fit text-[12px] text-accent hover:underline"
         >
           Add another goal
         </button>

@@ -60,7 +60,7 @@ export default async function InfoPage({ params }: PageProps<"/[page]">) {
       <PageHeading title={page.title} description={page.description} />
       <Card className="max-w-[760px]">
         {page.body.map((p) => (
-          <p key={p} className="text-[13px] leading-[1.6] text-black">
+          <p key={p} className="text-[13px] leading-[1.6] text-ink">
             {p}
           </p>
         ))}

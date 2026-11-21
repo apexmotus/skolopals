@@ -66,7 +66,7 @@ export default async function LearnersPage() {
                   value={
                     <>
                       {placements.map((c) => c.class_groups?.name).filter(Boolean).join(", ") || "Not placed"}{" "}
-                      <Link href="/admin/timetable#classes" className="text-[12px] text-brand hover:underline">
+                      <Link href="/admin/timetable#classes" className="text-[12px] text-accent hover:underline">
                         {placements.length > 0 ? "Manage" : "Place in a class"}
                       </Link>
                     </>

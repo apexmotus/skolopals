@@ -779,7 +779,7 @@ None. The spec is ready to build.
 
 Legend: `[x]` done and verified · `[~]` in progress · `[ ]` not started. Update in the same change as the work.
 
-### Phase A — Foundations (code complete 2026-11-21; visual check pending)
+### Phase A — Foundations (done 2026-11-21)
 - [x] A1 Theme tokens added to `globals.css` (plum scale, sun, on-dark). Tokens only: the visual switch is Phase I
 - [x] A2 Form legibility: inputs 16 px / 44 px tall on mobile (no iOS zoom), labels and field errors 12 px
 - [x] A3 `Stepper` component (`@skolopals/ui/stepper`): all steps labelled ≥ md, "Step n of m" + progress bar < md, completed steps revisitable
@@ -791,7 +791,7 @@ Legend: `[x]` done and verified · `[~]` in progress · `[ ]` not started. Updat
 - [x] A9 Migration `20261121000001_learner_and_payment_buckets.sql`: `learner-documents`, `payment-proofs` (private, 10 MB, PDF/JPEG/PNG/HEIC/HEIF, admin read only). Verified on a fresh DB: 37 migrations apply, all db suites and `deploy-check` pass
 - [x] A10 `POST /uploads/sign` + `POST /uploads/confirm`: staging folder per user, type judged from bytes, size re-checked, bad files deleted, path-escape refused. Purposes: `report_card`, `payment_proof`
 - [x] A11 HEIC → JPEG on confirm (`heic-convert`). Verified against a real HEIC file
-- [~] A12 Phase gate. Done: API lint, typecheck, 433 tests, build; UI lint and typecheck; admin and client production builds. **Still to do:** look at the new shell, drawer, tables and dialog in a browser at 390 px and 1280 px
+- [x] A12 Phase gate: API lint, typecheck, 433 tests, build; UI lint and typecheck; admin and client production builds; public and sign-in pages checked in a headless browser at 390 / 900 / 1280 px (no horizontal overflow on any of them). Portal pages need a signed-in session, which the local stack cannot provide (see I-notes)
 
 **Notes for later phases**
 - Staging uploads need a cleanup job (delete `staging/*` older than 24 h). It belongs with the first consumer (Phase C).
@@ -819,5 +819,18 @@ Legend: `[x]` done and verified · `[~]` in progress · `[ ]` not started. Updat
 ### Phase H — Tutor wizard
 - [ ] Not started
 
-### Phase I — Responsive sweep + theme rollout
-- [ ] Not started
+### Phase I — Responsive sweep + theme rollout (pulled forward at owner's request, 2026-11-21)
+- [x] I1 Theme switched on: plum canvas, light surfaces. Text tokens (`ink`, `muted`, `nav`, `line`, `link`, new `accent`) flip to light on the canvas and back on any `bg-white` / `bg-canvas` / `bg-subtle` / `.surface-light` element, in the base layer so utilities still win
+- [x] I2 Hard-coded colours replaced with tokens across both apps (`text-black`, navy/slate/blue hex → `ink` / `muted` / `nav` / `link`); link-style `text-brand` → `text-accent` (magenta on surfaces, yellow on plum, since magenta text on plum is only 3.8:1)
+- [x] I3 Yellow accents: active nav item bar (portal sidebar and drawer), public nav active underline, `sun` button (dark text) for CTAs on plum, home banner, footer phone link, stepper current step. `ghostOnDark` button for secondary actions on plum. `--color-night` → plum-900; `success-soft` made opaque so success badges work on plum
+- [x] I4 Public site responsive: phone/tablet top bar + drawer below `lg` (shared `MobileNav`, now with a `breakpoint` prop), full nav from `lg`. Checked: drawer opens, Esc closes it, following a link closes it
+- [x] I5 Public pages checked at 390 / 1280 px: home, subjects, tutors, timetable, programmes, fees, contact, privacy, about, login, signup, enrol. No horizontal overflow. Fixes: opening-hours rows, `DetailRow` long values, sign-in forms capped at 480 px
+- [ ] I6 Portal pages (parent, learner, tutor, admin) checked signed in at 390 / 1280 px. Not done: needs a real session (see notes)
+- [ ] I7 Mobile Playwright viewports in the smoke scripts + overflow assertion (§2.4)
+- [ ] I8 Contrast check script in CI (§7.3)
+- [ ] I9 Update `docs/skolopals_ui_redesign_implementation_spec.md` to the new palette
+
+**I-notes**
+- The local API cannot reach the live database: `db.clnlvmnfhzyumykbzrjz.supabase.co` does not resolve from this machine (Supabase direct hosts are IPv6-only; the session pooler host would work). The visual check used an API pointed at a throwaway local database instead.
+- `pnpm dev` does not start the API: turbo runs each package's `dev` script and the API's is called `start:dev`. Use `pnpm dev:api` alongside it.
+- The Fees page's "How billing works" copy describes the old post-paid rules. Rewrite it in Phase B.

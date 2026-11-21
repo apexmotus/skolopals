@@ -24,7 +24,7 @@ export default async function AdminTutorsPage() {
             header: "Name",
             primary: true,
             cell: (t) => (
-              <Link href={`/admin/tutors/${t.id}`} className="text-brand hover:underline">
+              <Link href={`/admin/tutors/${t.id}`} className="text-accent hover:underline">
                 {t.profiles?.full_name ?? t.slug}
               </Link>
             ),

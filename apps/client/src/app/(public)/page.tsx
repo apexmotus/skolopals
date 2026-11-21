@@ -43,18 +43,18 @@ export default async function HomePage() {
   return (
     <div className="mx-auto flex w-full max-w-[1280px] flex-col px-4 md:px-[24px]">
       {/* 4.2 Hero Banner Section */}
-      <section className="relative mt-[24px] overflow-hidden rounded-[20px] bg-[#EDF4FB] bg-[linear-gradient(135deg,#EEF4FA_0%,#E6EFF8_100%)] px-6 py-9 md:px-[56px] md:py-[48px]">
+      <section className="surface-light relative mt-[24px] overflow-hidden rounded-[20px] bg-[#EDF4FB] bg-[linear-gradient(135deg,#EEF4FA_0%,#E6EFF8_100%)] px-6 py-9 md:px-[56px] md:py-[48px]">
         <div className="relative z-10 grid grid-cols-1 items-center gap-[40px] md:grid-cols-[1.25fr_0.75fr]">
           {/* Left Column (Copy & CTAs) */}
           <div className="flex min-w-0 flex-col items-start">
-            <span className="mb-[20px] inline-flex items-center rounded-[9999px] bg-[#DCE7F3] px-[14px] py-[6px] text-[12px] font-semibold leading-none tracking-[0.01em] text-[#334155]">
+            <span className="mb-[20px] inline-flex items-center rounded-[9999px] bg-[#DCE7F3] px-[14px] py-[6px] text-[12px] font-semibold leading-none tracking-[0.01em] text-muted">
               Damonsville · Brits · North West
             </span>
             <h1 className="mb-[16px] text-[42px] font-extrabold leading-[1.15] tracking-[-0.02em]">
               <span style={{ color: "#1B2559" }}>Learning Today. </span>
               <span style={{ color: "#D81B7A" }}>Succeeding Tomorrow.</span>
             </h1>
-            <p className="mb-[28px] max-w-[580px] text-[16px] font-medium leading-[1.5] tracking-[0] text-[#334155]">
+            <p className="mb-[28px] max-w-[580px] text-[16px] font-medium leading-[1.5] tracking-[0] text-muted">
               Affordable after-school tutoring, homework support and reading intervention for Grade R to Grade 12,
               following the CAPS curriculum.
             </p>
@@ -67,7 +67,7 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/pricing"
-                className="inline-flex items-center justify-center rounded-[8px] border-[1.5px] border-[#1B2559] bg-[rgba(255,255,255,0.7)] px-[24px] py-[12px] text-[14px] font-bold leading-none text-[#1B2559] transition-colors hover:bg-white"
+                className="inline-flex items-center justify-center rounded-[8px] border-[1.5px] border-[#1B2559] bg-[rgba(255,255,255,0.7)] px-[24px] py-[12px] text-[14px] font-bold leading-none text-ink transition-colors hover:bg-white"
               >
                 See our fees
               </Link>
@@ -142,31 +142,31 @@ export default async function HomePage() {
 
       {/* 4.3 "How Skolopals works" Process Grid */}
       <section className="mt-[40px]">
-        <h2 className="mb-[20px] text-[28px] font-extrabold leading-[1.25] tracking-[-0.015em] text-[#1B2559]">
+        <h2 className="mb-[20px] text-[28px] font-extrabold leading-[1.25] tracking-[-0.015em] text-ink">
           How Skolopals works
         </h2>
         <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-4">
           {CHAIN.map((s) => (
             <div
               key={s.title}
-              className={`relative flex flex-col gap-2 overflow-hidden rounded-[12px] border border-black/[0.04] border-t-[4px] px-[22px] pt-[20px] pb-[24px] ${s.accentClass}`}
+              className={`surface-light relative flex flex-col gap-2 overflow-hidden rounded-[12px] border border-black/[0.04] border-t-[4px] px-[22px] pt-[20px] pb-[24px] ${s.accentClass}`}
             >
-              <h3 className="text-[16px] font-bold leading-[1.35] text-[#1B2559]">{s.title}</h3>
-              <p className="text-[14px] font-normal leading-[1.5] text-[#334155]">{s.body}</p>
+              <h3 className="text-[16px] font-bold leading-[1.35] text-ink">{s.title}</h3>
+              <p className="text-[14px] font-normal leading-[1.5] text-muted">{s.body}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* 4.4 Full-Width Pricing Callout Banner */}
-      <section className="mt-[24px] w-full rounded-[12px] border border-[#F5E6B8] bg-[#FDF4D7] px-[28px] py-[22px]">
-        <h2 className="mb-[6px] text-[22px] font-extrabold leading-[1.3] tracking-[-0.01em] text-[#1B2559]">
+      <section className="surface-light mt-[24px] w-full rounded-[12px] border border-[#F5E6B8] bg-[#FDF4D7] px-[28px] py-[22px]">
+        <h2 className="mb-[6px] text-[22px] font-extrabold leading-[1.3] tracking-[-0.01em] text-ink">
           Small groups, from <span className="text-[#D81B7A]">{fromPriceText}</span> a month
         </h2>
-        <p className="text-[14px] font-normal leading-[1.5] text-[#334155]">
+        <p className="text-[14px] font-normal leading-[1.5] text-muted">
           One subject, two subjects, three, or all-subject support. Homework assistance and one-on-one tutoring are
           available too.{" "}
-          <Link href="/pricing" className="font-semibold text-[#0277BD] no-underline hover:underline">
+          <Link href="/pricing" className="font-semibold text-link no-underline hover:underline">
             See the full price list.
           </Link>
         </p>
@@ -176,15 +176,15 @@ export default async function HomePage() {
       <section className="mt-[36px]">
         <h2
           id="subjects"
-          className="mb-[20px] text-[28px] font-extrabold leading-[1.25] tracking-[-0.015em] text-[#1B2559]"
+          className="mb-[20px] text-[28px] font-extrabold leading-[1.25] tracking-[-0.015em] text-ink"
         >
           What we teach
         </h2>
         <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-4">
           {phases.map((p) => (
             <Card key={p.code} className="gap-2 px-[22px] pt-[20px] pb-[24px]">
-              <h3 className="text-[16px] font-bold leading-[1.35] text-[#1B2559]">{p.name}</h3>
-              <p className="text-[14px] font-normal leading-[1.5] text-[#334155]">{p.subjects.join(" · ")}</p>
+              <h3 className="text-[16px] font-bold leading-[1.35] text-ink">{p.name}</h3>
+              <p className="text-[14px] font-normal leading-[1.5] text-muted">{p.subjects.join(" · ")}</p>
             </Card>
           ))}
         </div>
@@ -193,7 +193,7 @@ export default async function HomePage() {
       {/* Featured Tutors */}
       {featured.length > 0 ? (
         <section className="mt-[40px]">
-          <h2 className="mb-[20px] text-[28px] font-extrabold leading-[1.25] tracking-[-0.015em] text-[#1B2559]">
+          <h2 className="mb-[20px] text-[28px] font-extrabold leading-[1.25] tracking-[-0.015em] text-ink">
             Our tutors
           </h2>
           <div className="grid grid-cols-1 gap-[18px] md:grid-cols-3">
@@ -205,11 +205,13 @@ export default async function HomePage() {
       ) : null}
 
       {/* Bottom CTA Banner */}
-      <section className="mt-[40px] flex flex-col items-start justify-between gap-4 rounded-[12px] bg-[#1B2559] px-[28px] py-[24px] sm:flex-row sm:items-center">
+      <section className="mt-[40px] flex flex-col items-start justify-between gap-4 rounded-[12px] border border-plum-700 bg-plum-800 px-[28px] py-[24px] sm:flex-row sm:items-center">
         <h2 className="text-[22px] font-extrabold leading-[1.3] tracking-[-0.01em] text-white">
-          Ready to get started?
+          Ready to get <span className="text-sun">started?</span>
         </h2>
-        <ButtonLink href="/enrol">Enrol a learner</ButtonLink>
+        <ButtonLink href="/enrol" variant="sun">
+          Enrol a learner
+        </ButtonLink>
       </section>
 
       <PublicFooter />

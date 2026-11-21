@@ -293,7 +293,7 @@ export function RegenerateButton({ classGroupId }: { classGroupId: string }) {
       <Button variant="bare"
         type="submit"
         disabled={pending}
-        className="text-[12px] text-brand underline-offset-2 hover:underline"
+        className="text-[12px] text-accent underline-offset-2 hover:underline"
       >
         {pending ? "Generating…" : "Regenerate sessions"}
       </Button>
@@ -358,7 +358,7 @@ export function PlacementPanel({
       ) : (
         <ul className="flex flex-col gap-1">
           {placed.map((p) => (
-            <li key={p.placementId} className="flex flex-wrap items-center justify-between gap-2 text-[12px] text-black">
+            <li key={p.placementId} className="flex flex-wrap items-center justify-between gap-2 text-[12px] text-ink">
               <span>
                 {p.name} <span className="text-muted">· {p.grade}</span>
               </span>

@@ -16,9 +16,9 @@ export default async function TimetablePage() {
         <CardTitle>Opening hours</CardTitle>
         <ul className="flex flex-col gap-1">
           {hours.map((h) => (
-            <li key={`${h.dayOfWeek}-${h.opensAt}`} className="flex justify-between text-[13px]">
-              <span className="text-muted">{dayName(h.dayOfWeek)}</span>
-              <span className="text-ink">
+            <li key={`${h.dayOfWeek}-${h.opensAt}`} className="flex justify-between gap-4 text-[13px]">
+              <span className="shrink-0 text-muted">{dayName(h.dayOfWeek)}</span>
+              <span className="min-w-0 text-right text-ink">
                 {clockTime(h.opensAt)} – {clockTime(h.closesAt)}
                 {h.purpose === "administration" ? " · tests, catch-up and parent meetings" : ""}
               </span>

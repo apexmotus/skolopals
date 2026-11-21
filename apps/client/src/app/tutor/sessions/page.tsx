@@ -19,7 +19,7 @@ export default async function SessionsPage() {
       <PageHeading title="Sessions taught" description="Your record of sessions and hours delivered at the centre." />
 
       <Card>
-        <p className="text-[13px] text-black">
+        <p className="text-[13px] text-ink">
           {rate
             ? `You are paid by the centre: ${BASIS_LABEL[rate.payBasis] ?? rate.payBasis}, ${money(rate.amountCents)}.`
             : "No pay rate is recorded yet. Ask the centre manager to set one."}
