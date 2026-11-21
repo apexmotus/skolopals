@@ -55,6 +55,19 @@
   --color-warning: #9a6a18;
   --color-warning-soft: #fdf3dc;
 
+  /* Dark purple + yellow theme (SPEC-2026-11 §7). Darker shades of the logo's
+     purple #6a1b9a, and the logo's yellow. Yellow is an accent: dark text on
+     a yellow fill, yellow text on plum, never yellow text on white. */
+  --color-plum-950: #1e0b2e;
+  --color-plum-900: #2a1040;
+  --color-plum-800: #3a1658;
+  --color-plum-700: #4e1d76;
+  --color-purple: #6a1b9a;
+  --color-sun: #f5c211;
+  --color-sun-soft: #fdf4d7;
+  --color-on-dark: #f6f1fa;
+  --color-on-dark-muted: #c9b8d9;
+
   --shadow-card: 0 4px 16px 0 rgba(27, 37, 89, 0.05);
 }
 

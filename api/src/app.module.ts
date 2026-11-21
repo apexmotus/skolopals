@@ -23,6 +23,7 @@ import { ResourcesModule } from './modules/resources/resources.module.js';
 import { ReviewsModule } from './modules/reviews/reviews.module.js';
 import { TimetableModule } from './modules/timetable/timetable.module.js';
 import { TutorsModule } from './modules/tutors/tutors.module.js';
+import { UploadsModule } from './modules/uploads/uploads.module.js';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { TutorsModule } from './modules/tutors/tutors.module.js';
     ResourcesModule,
     ReviewsModule,
     FinanceModule,
+    UploadsModule,
   ],
 })
 export class AppModule {}

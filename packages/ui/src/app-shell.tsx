@@ -18,6 +18,7 @@ import {
   UserRoundCheck,
   type LucideIcon,
 } from "lucide-react";
+import { MobileNav } from "./mobile-nav";
 import { NavLink } from "./nav-link";
 import { Logo } from "./logo";
 import { initials } from "@skolopals/shared/format";
@@ -123,53 +124,81 @@ export function AppShell({
 }) {
   const nav = NAV[role];
 
-  return (
-    <div className="flex min-h-screen w-full flex-col md:flex-row">
-      <aside className="flex w-full shrink-0 flex-col gap-[22px] bg-night p-5 md:sticky md:top-0 md:h-screen md:w-[220px]">
-        <Link href="/" className="w-fit">
-          <Logo height={38} />
-        </Link>
-        <span className="w-fit rounded-full bg-white/[0.09] px-[10px] py-[5px] text-[11px] text-white">
+  // One body for both places it appears. In the drawer it is always full
+  // width; in the sidebar it collapses to an icon rail between md and lg.
+  const body = (rail: boolean) => {
+    const hideOnRail = rail ? "md:max-lg:sr-only" : "";
+    return (
+      <>
+        <span
+          className={`w-fit rounded-full bg-white/[0.09] px-[10px] py-[5px] text-[12px] text-white ${rail ? "md:max-lg:hidden" : ""}`}
+        >
           {nav.workspace}
         </span>
-        <nav aria-label="Workspace" className="flex flex-row flex-wrap gap-[6px] md:flex-col md:flex-nowrap">
+        <nav aria-label="Workspace" className="flex flex-col gap-[6px]">
           {nav.items.map((item) => (
             <NavLink
               key={item.href}
               href={item.href}
               exact={item.exact}
-              className="flex items-start gap-[10px] rounded-[6px] px-3 py-[10px] text-[13px] text-white hover:bg-white/[0.05]"
+              className={`flex min-h-11 items-center gap-[10px] rounded-[6px] px-3 py-[10px] text-[14px] text-white hover:bg-white/[0.05] md:text-[13px] ${rail ? "md:max-lg:justify-center md:max-lg:px-0" : ""}`}
               activeClassName="bg-white/[0.09] hover:bg-white/[0.09]"
+              title={rail ? item.label : undefined}
             >
               <Icon icon={item.icon} />
-              {item.label}
+              <span className={hideOnRail}>{item.label}</span>
             </NavLink>
           ))}
         </nav>
-        <div className="hidden flex-1 md:block" />
-        <div className="flex flex-col gap-[10px] rounded-[10px] border border-white/[0.08] bg-white/[0.05] p-3">
+        <div className="flex-1" />
+        <div
+          className={`flex flex-col gap-[10px] rounded-[10px] border border-white/[0.08] bg-white/[0.05] p-3 ${rail ? "md:max-lg:items-center md:max-lg:p-2" : ""}`}
+        >
           <div className="flex items-center gap-[10px]">
-            <span className="flex size-9 items-center justify-center rounded-[18px] bg-white/[0.08] text-[12px] font-bold text-white">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-[18px] bg-white/[0.08] text-[12px] font-bold text-white">
               {initials(profile.full_name || "?")}
             </span>
-            <div className="flex min-w-0 flex-col gap-[2px]">
+            <div className={`flex min-w-0 flex-col gap-[2px] ${rail ? "md:max-lg:hidden" : ""}`}>
               <span className="truncate text-[13px] font-semibold text-white">{profile.full_name}</span>
-              <span className="text-[11px] text-white/70">{subtitle ?? nav.workspace}</span>
+              <span className="text-[12px] text-white/70">{subtitle ?? nav.workspace}</span>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className={`flex gap-2 ${rail ? "md:max-lg:flex-col" : ""}`}>
             {helpHref ? (
-              <Link href={helpHref} className="rounded-full bg-white/[0.07] px-[10px] py-[6px] text-[11px] font-semibold text-white">
+              <Link
+                href={helpHref}
+                className="flex min-h-9 items-center justify-center rounded-full bg-white/[0.07] px-3 text-[12px] font-semibold text-white"
+              >
                 Help
               </Link>
             ) : null}
             <form action={signOutAction}>
-              <Button variant="bare" className="rounded-full bg-white/[0.07] px-[10px] py-[6px] text-[11px] font-semibold text-white">
+              <Button
+                variant="bare"
+                className="min-h-9 rounded-full bg-white/[0.07] px-3 text-[12px] font-semibold text-white"
+              >
                 Log out
               </Button>
             </form>
           </div>
         </div>
+      </>
+    );
+  };
+
+  return (
+    <div className="flex min-h-screen w-full flex-col md:flex-row">
+      <MobileNav
+        items={nav.items.map(({ href, label, exact }) => ({ href, label, exact }))}
+        workspace={nav.workspace}
+      >
+        {body(false)}
+      </MobileNav>
+      <aside className="hidden shrink-0 flex-col gap-[22px] bg-night p-5 md:sticky md:top-0 md:flex md:h-screen md:w-[84px] md:overflow-y-auto md:px-3 lg:w-[220px] lg:px-5">
+        <Link href="/" className="w-fit md:max-lg:self-center" aria-label="Home">
+          <Logo height={38} />
+        </Link>
+        {body(true)}
       </aside>
       <main className="flex min-w-0 flex-1 flex-col gap-5 p-4 md:p-[30px]">{children}</main>
     </div>

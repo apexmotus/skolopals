@@ -287,6 +287,7 @@ describe('TutorsManager — vetting documents (never proxy bytes)', () => {
 
     expect(result.uploadUrl).toBe('https://storage/signed');
     expect(createUploadUrl).toHaveBeenCalledWith(
+      'tutor-documents',
       expect.stringMatching(/^t1\/id\/.+\.pdf$/),
     );
     expect(repo.createDocumentRecord).toHaveBeenCalledWith(
@@ -323,7 +324,10 @@ describe('TutorsManager — vetting documents (never proxy bytes)', () => {
     const dtos = await manager.listDocuments('t1');
 
     expect(dtos[0]?.downloadUrl).toBe('https://storage/download');
-    expect(createDownloadUrl).toHaveBeenCalledWith('t1/id/x.pdf');
+    expect(createDownloadUrl).toHaveBeenCalledWith(
+      'tutor-documents',
+      't1/id/x.pdf',
+    );
   });
 });
 

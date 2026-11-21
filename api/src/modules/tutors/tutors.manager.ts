@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CacheService } from '../../common/cache/cache.service.js';
 import { BusinessRuleException } from '../../common/exceptions/business-rule.exception.js';
+import { STORAGE_BUCKETS } from '../../common/file-storage/file-storage.constants.js';
 import { FileStorageService } from '../../common/file-storage/file-storage.service.js';
 import { PagedResult } from '../../common/types/paged-result.js';
 import type { AuthUser } from '../../common/types/auth-user.js';
@@ -205,6 +206,7 @@ export class TutorsManager {
     return Promise.all(
       rows.map(async (row) => {
         const downloadUrl = await this.fileStorage.createDownloadUrl(
+          STORAGE_BUCKETS.tutorDocuments,
           row.storage_path,
         );
         return TutorsMapper.documentToDto(row, downloadUrl);
@@ -219,7 +221,10 @@ export class TutorsManager {
     const extension = dto.fileName.slice(dto.fileName.lastIndexOf('.'));
     const storagePath = `${tutorId}/${dto.docType}/${randomUUID()}${extension}`;
     const { signedUrl, token } =
-      await this.fileStorage.createUploadUrl(storagePath);
+      await this.fileStorage.createUploadUrl(
+        STORAGE_BUCKETS.tutorDocuments,
+        storagePath,
+      );
     const row = await this.repo.createDocumentRecord(
       tutorId,
       dto.docType,

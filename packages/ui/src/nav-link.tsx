@@ -11,18 +11,20 @@ export function NavLink({
   exact,
   className,
   activeClassName,
+  title,
   children,
 }: {
   href: string;
   exact?: boolean;
   className?: string;
   activeClassName?: string;
+  title?: string;
   children: ReactNode;
 }) {
   const pathname = usePathname();
   const active = exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
   return (
-    <Link href={href} aria-current={active ? "page" : undefined} className={cx(className, active && activeClassName)}>
+    <Link href={href} title={title} aria-current={active ? "page" : undefined} className={cx(className, active && activeClassName)}>
       {children}
     </Link>
   );

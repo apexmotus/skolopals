@@ -111,8 +111,9 @@ export function Badge({
 
 /* Forms -------------------------------------------------------------------- */
 
+// 16px below md: iOS Safari zooms the page on focus for anything smaller.
 const inputClass =
-  "h-[42px] w-full rounded-[6px] border border-line bg-white px-3 text-[13px] text-ink placeholder:text-muted";
+  "h-[44px] w-full rounded-[6px] border border-line bg-white px-3 text-[16px] text-ink placeholder:text-muted md:h-[42px] md:text-[13px]";
 
 export function Field({
   label,
@@ -129,13 +130,18 @@ export function Field({
 }) {
   return (
     <div className={cx("flex min-w-0 flex-col gap-[6px]", className)}>
-      <label htmlFor={htmlFor} className="text-[11px] text-ink">
+      <label htmlFor={htmlFor} className="text-[12px] text-ink">
         {label}
       </label>
       {children}
-      {error ? <p className="text-[11px] text-danger">{error}</p> : null}
+      {error ? <p className="text-[12px] text-danger">{error}</p> : null}
     </div>
   );
+}
+
+/** Lays fields side by side from md up; stacked on phones. */
+export function FieldRow({ className, children }: { className?: string; children: ReactNode }) {
+  return <div className={cx("grid grid-cols-1 gap-3 md:grid-cols-2", className)}>{children}</div>;
 }
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
@@ -205,46 +211,75 @@ export function DetailRow({ label, value }: { label: string; value: ReactNode })
 
 export type Column<T> = { header: string; cell: (row: T) => ReactNode; primary?: boolean };
 
+// Below md each row is restyled as a card: the primary column is its title and
+// every other cell shows its header as a label. One DOM for both layouts, so
+// cells holding forms never render twice (duplicate ids, duplicate state).
+// With rowHref, a link covers the card; controls inside cells are lifted above it.
+const aboveRowLink =
+  "max-md:[&_a]:relative max-md:[&_a]:z-[1] max-md:[&_button]:relative max-md:[&_button]:z-[1] max-md:[&_input]:relative max-md:[&_input]:z-[1] max-md:[&_select]:relative max-md:[&_select]:z-[1] max-md:[&_textarea]:relative max-md:[&_textarea]:z-[1] max-md:[&_label]:relative max-md:[&_label]:z-[1] max-md:[&_summary]:relative max-md:[&_summary]:z-[1]";
+
 export function DataTable<T>({
   columns,
   rows,
   rowKey,
+  rowHref,
   empty,
 }: {
   columns: Column<T>[];
   rows: T[];
   rowKey: (row: T) => string;
+  /** Makes the whole card tappable on phones. Keep a link in the primary cell for keyboard users. */
+  rowHref?: (row: T) => string;
   empty?: ReactNode;
 }) {
   return (
-    <div className="w-full overflow-x-auto rounded-[10px] border border-line bg-white">
-      <table className="w-full min-w-[560px] table-fixed text-left">
-        <thead className="bg-subtle">
+    <div className="w-full md:overflow-x-auto md:rounded-[10px] md:border md:border-line md:bg-white">
+      <table className="w-full text-left max-md:block md:min-w-[560px] md:table-fixed">
+        <thead className="bg-subtle max-md:hidden">
           <tr>
             {columns.map((c) => (
-              <th key={c.header} className="p-3 text-[11px] font-bold text-muted">
+              <th key={c.header} className="p-3 text-[12px] font-bold text-muted">
                 {c.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="max-md:flex max-md:flex-col max-md:gap-3">
           {rows.length === 0 ? (
-            <tr className="border-t border-line">
-              <td colSpan={columns.length} className="p-3 text-[13px] text-muted">
+            <tr className="border-line max-md:block max-md:rounded-[10px] max-md:border max-md:bg-white md:border-t">
+              <td colSpan={columns.length} className="p-3 text-[13px] text-muted max-md:block max-md:p-4">
                 {empty ?? "Nothing to show yet."}
               </td>
             </tr>
           ) : (
-            rows.map((row) => (
-              <tr key={rowKey(row)} className="border-t border-line">
-                {columns.map((c) => (
-                  <td key={c.header} className={cx("p-3 text-[13px]", c.primary ? "text-ink" : "text-muted")}>
-                    {c.cell(row)}
-                  </td>
-                ))}
-              </tr>
-            ))
+            rows.map((row) => {
+              const href = rowHref?.(row);
+              return (
+                <tr
+                  key={rowKey(row)}
+                  className="relative border-line max-md:flex max-md:flex-col max-md:gap-2 max-md:rounded-[10px] max-md:border max-md:bg-white max-md:p-4 max-md:shadow-card md:border-t"
+                >
+                  {columns.map((c, i) => (
+                    <td
+                      key={c.header}
+                      data-label={c.header}
+                      className={cx(
+                        "p-3 text-[13px] max-md:p-0",
+                        c.primary
+                          ? "text-ink max-md:order-first max-md:text-[15px] max-md:font-semibold"
+                          : "text-muted max-md:flex max-md:items-start max-md:justify-between max-md:gap-4 max-md:text-right max-md:before:shrink-0 max-md:before:text-left max-md:before:text-[12px] max-md:before:content-[attr(data-label)]",
+                        href && aboveRowLink,
+                      )}
+                    >
+                      {href && i === 0 ? (
+                        <Link href={href} aria-hidden tabIndex={-1} className="absolute inset-0 md:hidden" />
+                      ) : null}
+                      {c.cell(row)}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>
