@@ -14,9 +14,9 @@ export default async function AdminDashboard() {
         <StatCard label="Active learners" value={String(d.activeLearners)} hint="Target: 30–50 in year one" />
         <StatCard label="Active tutors" value={String(d.activeTutors)} />
         <StatCard
-          label="Awaiting approval"
+          label="Applications to review"
           value={String(d.pendingEnrolments)}
-          hint={d.pendingEnrolments > 0 ? "Enrolments to review" : undefined}
+          hint={d.pendingEnrolments > 0 ? "Report card and test done" : undefined}
         />
       </div>
 

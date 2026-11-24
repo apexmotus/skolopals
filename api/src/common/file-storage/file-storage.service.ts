@@ -84,6 +84,31 @@ export class FileStorageService {
       );
   }
 
+  /**
+   * Deletes uploads left in `staging/<user id>/` longer than `olderThanMs`:
+   * files a parent uploaded but never submitted. Returns how many went.
+   */
+  async removeStaleStaging(bucket: StorageBucket, olderThanMs: number): Promise<number> {
+    const cutoff = Date.now() - olderThanMs;
+    const storage = this.client.storage.from(bucket);
+    const { data: folders, error } = await storage.list('staging', { limit: 1000 });
+    if (error)
+      throw new Error(`Failed to list "${bucket}/staging": ${error.message}`);
+
+    const stale: string[] = [];
+    for (const folder of folders) {
+      const { data: files, error: listError } = await storage.list(`staging/${folder.name}`, { limit: 1000 });
+      if (listError)
+        throw new Error(`Failed to list "${bucket}/staging/${folder.name}": ${listError.message}`);
+      for (const file of files) {
+        if (file.created_at && Date.parse(file.created_at) < cutoff)
+          stale.push(`staging/${folder.name}/${file.name}`);
+      }
+    }
+    if (stale.length > 0) await this.remove(bucket, stale);
+    return stale.length;
+  }
+
   async remove(bucket: StorageBucket, paths: string[]): Promise<void> {
     const { error } = await this.client.storage.from(bucket).remove(paths);
     if (error)

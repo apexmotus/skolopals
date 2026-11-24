@@ -3,6 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import type { EnvConfig } from './config/env.schema.js';
 import { AppConfigModule } from './config/config.module.js';
+import { AptitudeModule } from './modules/aptitude/aptitude.module.js';
+import { JobsModule } from './modules/jobs/jobs.module.js';
+import { LearnerDocumentsModule } from './modules/learner-documents/learner-documents.module.js';
+import { PaymentsModule } from './modules/payments/payments.module.js';
 import { AssessmentModule } from './modules/assessment/assessment.module.js';
 import { AttendanceModule } from './modules/attendance/attendance.module.js';
 import { BillingModule } from './modules/billing/billing.module.js';
@@ -66,6 +70,10 @@ import { UploadsModule } from './modules/uploads/uploads.module.js';
     TutorsModule,
     PackagesModule,
     EnrolmentModule,
+    AptitudeModule,
+    LearnerDocumentsModule,
+    PaymentsModule,
+    JobsModule,
     TimetableModule,
     AttendanceModule,
     ProgrammesModule,

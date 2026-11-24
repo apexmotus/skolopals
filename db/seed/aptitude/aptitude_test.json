@@ -1,0 +1,891 @@
+{
+  "schemaVersion": "1.0.0",
+  "test": {
+    "id": "literacy-logic-aptitude-en-za",
+    "title": "Literacy and Logic Aptitude Check",
+    "language": "en-ZA",
+    "audience": {
+      "gradeRange": "R-12",
+      "curriculum": "CAPS",
+      "notes": "Grade R-2 learners may need the tutor to read items aloud. Text is kept short at the lower difficulty bands."
+    },
+    "instructions": "Read each question carefully. Choose the one answer you think is best. Some questions get harder as you go. Take your time, but try not to spend too long on any one question.",
+    "blueprint": {
+      "bankSize": 55,
+      "testLength": 25,
+      "literacyItems": 12,
+      "logicItems": 13,
+      "estimatedMinutes": 20
+    },
+    "adaptive": {
+      "startDifficulty": 3,
+      "minDifficulty": 1,
+      "maxDifficulty": 5,
+      "stepSize": 1,
+      "selection": "Backend selects each next item from the bank, matching the section blueprint and the current difficulty estimate. Stop after 25 items or when the estimate is stable. Do not reuse an item or a passage within one test. Keep each passage's items together where possible.",
+      "shuffleOptions": false
+    }
+  },
+  "difficultyBands": [
+    { "level": 1, "gradeBand": "Grade R-2", "notes": "Very short text, picture-supported where possible" },
+    { "level": 2, "gradeBand": "Grades 3-4", "notes": "Short, simple sentences" },
+    { "level": 3, "gradeBand": "Grades 5-6", "notes": "Short passages, one step of reasoning" },
+    { "level": 4, "gradeBand": "Grades 7-9", "notes": "Longer passages, inference and multi-step reasoning" },
+    { "level": 5, "gradeBand": "Grades 10-12", "notes": "Abstract reasoning and nuanced reading" }
+  ],
+  "scoring": {
+    "method": "Backend estimates a final difficulty band from the adaptive run. Sub-scores are percent correct per section.",
+    "subscores": ["literacy", "logic"],
+    "levels": [
+      {
+        "label": "Emerging",
+        "bands": [1, 2],
+        "tutorNote": "Needs foundational support. Start with guided reading of short texts and with basic patterns and categories before moving on to harder material."
+      },
+      {
+        "label": "Developing",
+        "bands": [3],
+        "tutorNote": "Can read and reason with some support. Focus on finding meaning that is not stated directly and on multi-step if-then reasoning."
+      },
+      {
+        "label": "Secure",
+        "bands": [4],
+        "tutorNote": "Working at grade level. Stretch with longer texts and more abstract analogies, and check the main idea of longer passages."
+      },
+      {
+        "label": "Extending",
+        "bands": [5],
+        "tutorNote": "Strong comprehension and reasoning. Offer challenge material and independent extension tasks."
+      }
+    ]
+  },
+  "passages": [
+    {
+      "id": "P1",
+      "title": "Thandi and the Red Bicycle",
+      "text": "Thandi has a red bicycle. Every Saturday she rides it to the shop with her brother, Sipho. They buy bread and milk. Then they ride home together."
+    },
+    {
+      "id": "P2",
+      "title": "Rain in the Karoo",
+      "text": "The Karoo is a dry region in South Africa. Farmers there watch the sky carefully, because rain falls for only a short time each year. When the rain finally comes, dry riverbeds fill with water and small plants bloom quickly across the veld. Within a few weeks the flowers fade, and the land becomes dry again."
+    },
+    {
+      "id": "P3",
+      "title": "The Library Fine",
+      "text": "The school library has changed its late-return policy. Before, learners paid a fine of R2 for every day a book was overdue. Now they help shelve books for one hour instead. Mr Dlamini, the librarian, says this helps learners understand how books are organised. He also says the fine often stopped poorer learners from borrowing at all."
+    },
+    {
+      "id": "P4",
+      "title": "Checking the News",
+      "text": "Many people assume a newspaper report is accurate simply because it is printed. However, a careful reader checks whether the report names its sources, whether its claims can be verified, and whether the writer has a stake in the outcome. A report that fails these checks should be treated as an opinion rather than as fact."
+    },
+    {
+      "id": "P5",
+      "title": "The Ripple Effect",
+      "text": "Economists sometimes describe a multiplier effect. When a town's largest employer closes, the loss spreads beyond the lost jobs. Shops lose customers, suppliers lose orders, and families spend less, which can cost other workers their jobs too. The effect is strongest in small towns, where few other employers exist to take on displaced workers."
+    }
+  ],
+  "items": [
+    {
+      "id": "LIT-01",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "literal",
+      "difficulty": 1,
+      "passageId": "P1",
+      "stem": "What colour is Thandi's bicycle?",
+      "options": [
+        { "id": "A", "text": "Blue" },
+        { "id": "B", "text": "Green" },
+        { "id": "C", "text": "Red" },
+        { "id": "D", "text": "Yellow" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LIT-02",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "literal",
+      "difficulty": 1,
+      "passageId": "P1",
+      "stem": "Who rides to the shop with Thandi?",
+      "options": [
+        { "id": "A", "text": "Her mother" },
+        { "id": "B", "text": "Her brother, Sipho" },
+        { "id": "C", "text": "Her friend" },
+        { "id": "D", "text": "Her dog" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LIT-03",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "literal",
+      "difficulty": 2,
+      "passageId": "P1",
+      "stem": "What do Thandi and Sipho buy at the shop?",
+      "options": [
+        { "id": "A", "text": "Bread and milk" },
+        { "id": "B", "text": "Eggs and sugar" },
+        { "id": "C", "text": "Juice and rice" },
+        { "id": "D", "text": "Sweets and bread" }
+      ],
+      "answerId": "A"
+    },
+    {
+      "id": "LIT-04",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "literal",
+      "difficulty": 2,
+      "passageId": "P2",
+      "stem": "Why do farmers in the Karoo watch the sky carefully?",
+      "options": [
+        { "id": "A", "text": "To count the stars" },
+        { "id": "B", "text": "Because rain falls for only a short time each year" },
+        { "id": "C", "text": "To find out when the bus arrives" },
+        { "id": "D", "text": "Because the sky is always cloudy" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LIT-05",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "literal",
+      "difficulty": 2,
+      "passageId": "P2",
+      "stem": "What happens to the flowers within a few weeks?",
+      "options": [
+        { "id": "A", "text": "They grow into trees" },
+        { "id": "B", "text": "They fade" },
+        { "id": "C", "text": "They spread to the river" },
+        { "id": "D", "text": "Farmers pick them" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LIT-06",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "inference",
+      "difficulty": 3,
+      "passageId": "P2",
+      "stem": "What can you infer about the Karoo?",
+      "options": [
+        { "id": "A", "text": "It gets heavy rain all year" },
+        { "id": "B", "text": "It is usually dry and gets rain only rarely" },
+        { "id": "C", "text": "It is close to the sea" },
+        { "id": "D", "text": "It has no plants at all" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LIT-07",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "literal",
+      "difficulty": 3,
+      "passageId": "P3",
+      "stem": "How much was the old fine for an overdue book?",
+      "options": [
+        { "id": "A", "text": "R2 for every day overdue" },
+        { "id": "B", "text": "R2 for every week overdue" },
+        { "id": "C", "text": "Nothing, learners were not fined" },
+        { "id": "D", "text": "R20 once" }
+      ],
+      "answerId": "A"
+    },
+    {
+      "id": "LIT-08",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "literal",
+      "difficulty": 4,
+      "passageId": "P3",
+      "stem": "What problem with the old fine does the passage mention?",
+      "options": [
+        { "id": "A", "text": "It was too small to matter" },
+        { "id": "B", "text": "It often stopped poorer learners from borrowing" },
+        { "id": "C", "text": "It was paid to the bus company" },
+        { "id": "D", "text": "It was never collected" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LIT-09",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "inference",
+      "difficulty": 4,
+      "passageId": "P3",
+      "stem": "Which statement is best supported by the passage?",
+      "options": [
+        { "id": "A", "text": "Helping to shelve books can teach learners how books are organised" },
+        { "id": "B", "text": "The library has stopped lending books" },
+        { "id": "C", "text": "The librarian dislikes poorer learners" },
+        { "id": "D", "text": "Learners now never return books late" }
+      ],
+      "answerId": "A"
+    },
+    {
+      "id": "LIT-10",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "literal",
+      "difficulty": 4,
+      "passageId": "P4",
+      "stem": "What does a careful reader check?",
+      "options": [
+        { "id": "A", "text": "Whether the newspaper is expensive" },
+        { "id": "B", "text": "Whether the report names its sources" },
+        { "id": "C", "text": "Whether the report is long" },
+        { "id": "D", "text": "Whether the photos are in colour" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LIT-11",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "main-idea",
+      "difficulty": 4,
+      "passageId": "P4",
+      "stem": "What is the main point of the passage?",
+      "options": [
+        { "id": "A", "text": "Printed news is always reliable" },
+        { "id": "B", "text": "Reports should be checked before being accepted as fact" },
+        { "id": "C", "text": "Newspapers should be shorter" },
+        { "id": "D", "text": "Writers should avoid giving opinions" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LIT-12",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "inference",
+      "difficulty": 5,
+      "passageId": "P4",
+      "stem": "How should a report that fails these checks be treated?",
+      "options": [
+        { "id": "A", "text": "As verified fact" },
+        { "id": "B", "text": "As an opinion rather than fact" },
+        { "id": "C", "text": "As a poem" },
+        { "id": "D", "text": "As a secret" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LIT-13",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "vocabulary",
+      "difficulty": 5,
+      "passageId": "P5",
+      "stem": "As used in the passage, what does 'multiplier effect' most nearly mean?",
+      "options": [
+        { "id": "A", "text": "Jobs being multiplied by the employer" },
+        { "id": "B", "text": "A single loss spreading through the wider local economy" },
+        { "id": "C", "text": "Towns doubling their population" },
+        { "id": "D", "text": "Workers earning more money" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LIT-14",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "literal",
+      "difficulty": 5,
+      "passageId": "P5",
+      "stem": "Why is the effect strongest in small towns?",
+      "options": [
+        { "id": "A", "text": "They have more shops" },
+        { "id": "B", "text": "Few other employers exist to take on displaced workers" },
+        { "id": "C", "text": "They pay higher wages" },
+        { "id": "D", "text": "Their employers cannot close" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LIT-15",
+      "section": "literacy",
+      "skill": "comprehension",
+      "subskill": "main-idea",
+      "difficulty": 5,
+      "passageId": "P5",
+      "stem": "Which title best suits the passage?",
+      "options": [
+        { "id": "A", "text": "Why Small Towns Close" },
+        { "id": "B", "text": "How One Job Loss Can Ripple Through a Community" },
+        { "id": "C", "text": "The History of Local Employers" },
+        { "id": "D", "text": "Shops and Their Customers" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-PAT-01",
+      "section": "logic",
+      "skill": "pattern",
+      "difficulty": 1,
+      "stem": "What comes next? 2, 4, 6, ?",
+      "options": [
+        { "id": "A", "text": "7" },
+        { "id": "B", "text": "8" },
+        { "id": "C", "text": "9" },
+        { "id": "D", "text": "10" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-PAT-02",
+      "section": "logic",
+      "skill": "pattern",
+      "difficulty": 1,
+      "stem": "What comes next? A, B, C, ?",
+      "options": [
+        { "id": "A", "text": "D" },
+        { "id": "B", "text": "E" },
+        { "id": "C", "text": "F" },
+        { "id": "D", "text": "G" }
+      ],
+      "answerId": "A"
+    },
+    {
+      "id": "LOG-PAT-03",
+      "section": "logic",
+      "skill": "pattern",
+      "difficulty": 2,
+      "stem": "What comes next? 1, 3, 5, 7, ?",
+      "options": [
+        { "id": "A", "text": "8" },
+        { "id": "B", "text": "9" },
+        { "id": "C", "text": "10" },
+        { "id": "D", "text": "11" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-PAT-04",
+      "section": "logic",
+      "skill": "pattern",
+      "difficulty": 2,
+      "stem": "What comes next? 5, 10, 15, 20, ?",
+      "options": [
+        { "id": "A", "text": "22" },
+        { "id": "B", "text": "24" },
+        { "id": "C", "text": "25" },
+        { "id": "D", "text": "30" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-PAT-05",
+      "section": "logic",
+      "skill": "pattern",
+      "difficulty": 3,
+      "stem": "What comes next? 2, 4, 8, 16, ?",
+      "options": [
+        { "id": "A", "text": "24" },
+        { "id": "B", "text": "30" },
+        { "id": "C", "text": "32" },
+        { "id": "D", "text": "36" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-PAT-06",
+      "section": "logic",
+      "skill": "pattern",
+      "difficulty": 3,
+      "stem": "What comes next? 1, 1, 2, 3, 5, ?",
+      "options": [
+        { "id": "A", "text": "6" },
+        { "id": "B", "text": "7" },
+        { "id": "C", "text": "8" },
+        { "id": "D", "text": "9" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-PAT-07",
+      "section": "logic",
+      "skill": "pattern",
+      "difficulty": 4,
+      "stem": "What comes next? 3, 6, 11, 18, 27, ?",
+      "options": [
+        { "id": "A", "text": "36" },
+        { "id": "B", "text": "38" },
+        { "id": "C", "text": "40" },
+        { "id": "D", "text": "45" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-PAT-08",
+      "section": "logic",
+      "skill": "pattern",
+      "difficulty": 4,
+      "stem": "What comes next? Z, X, V, T, ?",
+      "options": [
+        { "id": "A", "text": "P" },
+        { "id": "B", "text": "Q" },
+        { "id": "C", "text": "R" },
+        { "id": "D", "text": "S" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-PAT-09",
+      "section": "logic",
+      "skill": "pattern",
+      "difficulty": 5,
+      "stem": "What comes next? 2, 6, 12, 20, 30, ?",
+      "options": [
+        { "id": "A", "text": "36" },
+        { "id": "B", "text": "40" },
+        { "id": "C", "text": "42" },
+        { "id": "D", "text": "44" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-PAT-10",
+      "section": "logic",
+      "skill": "pattern",
+      "difficulty": 5,
+      "stem": "What comes next? 2, 3, 6, 7, 14, 15, ?",
+      "options": [
+        { "id": "A", "text": "16" },
+        { "id": "B", "text": "28" },
+        { "id": "C", "text": "30" },
+        { "id": "D", "text": "45" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-ANA-01",
+      "section": "logic",
+      "skill": "analogy",
+      "difficulty": 1,
+      "stem": "Dog is to puppy as cat is to ___",
+      "options": [
+        { "id": "A", "text": "kitten" },
+        { "id": "B", "text": "calf" },
+        { "id": "C", "text": "cub" },
+        { "id": "D", "text": "foal" }
+      ],
+      "answerId": "A"
+    },
+    {
+      "id": "LOG-ANA-02",
+      "section": "logic",
+      "skill": "analogy",
+      "difficulty": 1,
+      "stem": "Hot is to cold as day is to ___",
+      "options": [
+        { "id": "A", "text": "sun" },
+        { "id": "B", "text": "night" },
+        { "id": "C", "text": "light" },
+        { "id": "D", "text": "warm" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-ANA-03",
+      "section": "logic",
+      "skill": "analogy",
+      "difficulty": 2,
+      "stem": "Pen is to write as knife is to ___",
+      "options": [
+        { "id": "A", "text": "cut" },
+        { "id": "B", "text": "eat" },
+        { "id": "C", "text": "cook" },
+        { "id": "D", "text": "spoon" }
+      ],
+      "answerId": "A"
+    },
+    {
+      "id": "LOG-ANA-04",
+      "section": "logic",
+      "skill": "analogy",
+      "difficulty": 2,
+      "stem": "Bird is to nest as bee is to ___",
+      "options": [
+        { "id": "A", "text": "honey" },
+        { "id": "B", "text": "flower" },
+        { "id": "C", "text": "hive" },
+        { "id": "D", "text": "wing" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-ANA-05",
+      "section": "logic",
+      "skill": "analogy",
+      "difficulty": 3,
+      "stem": "Doctor is to hospital as teacher is to ___",
+      "options": [
+        { "id": "A", "text": "pupil" },
+        { "id": "B", "text": "school" },
+        { "id": "C", "text": "book" },
+        { "id": "D", "text": "chalk" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-ANA-06",
+      "section": "logic",
+      "skill": "analogy",
+      "difficulty": 3,
+      "stem": "Leaf is to tree as page is to ___",
+      "options": [
+        { "id": "A", "text": "paper" },
+        { "id": "B", "text": "book" },
+        { "id": "C", "text": "ink" },
+        { "id": "D", "text": "chapter" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-ANA-07",
+      "section": "logic",
+      "skill": "analogy",
+      "difficulty": 4,
+      "stem": "Tadpole is to frog as caterpillar is to ___",
+      "options": [
+        { "id": "A", "text": "cocoon" },
+        { "id": "B", "text": "butterfly" },
+        { "id": "C", "text": "egg" },
+        { "id": "D", "text": "moth" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-ANA-08",
+      "section": "logic",
+      "skill": "analogy",
+      "difficulty": 4,
+      "stem": "Thermometer is to temperature as ruler is to ___",
+      "options": [
+        { "id": "A", "text": "weight" },
+        { "id": "B", "text": "length" },
+        { "id": "C", "text": "time" },
+        { "id": "D", "text": "volume" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-ANA-09",
+      "section": "logic",
+      "skill": "analogy",
+      "difficulty": 5,
+      "stem": "Sculptor is to clay as weaver is to ___",
+      "options": [
+        { "id": "A", "text": "loom" },
+        { "id": "B", "text": "thread" },
+        { "id": "C", "text": "cloth" },
+        { "id": "D", "text": "needle" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-ANA-10",
+      "section": "logic",
+      "skill": "analogy",
+      "difficulty": 5,
+      "stem": "Gloomy is to sad as cheerful is to ___",
+      "options": [
+        { "id": "A", "text": "bored" },
+        { "id": "B", "text": "happy" },
+        { "id": "C", "text": "noisy" },
+        { "id": "D", "text": "quiet" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-ODD-01",
+      "section": "logic",
+      "skill": "odd-one-out",
+      "difficulty": 1,
+      "stem": "Which one does not belong? Apple, Banana, Carrot, Mango",
+      "options": [
+        { "id": "A", "text": "Apple" },
+        { "id": "B", "text": "Banana" },
+        { "id": "C", "text": "Carrot" },
+        { "id": "D", "text": "Mango" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-ODD-02",
+      "section": "logic",
+      "skill": "odd-one-out",
+      "difficulty": 1,
+      "stem": "Which one does not belong? Dog, Cat, Cow, Table",
+      "options": [
+        { "id": "A", "text": "Dog" },
+        { "id": "B", "text": "Cat" },
+        { "id": "C", "text": "Cow" },
+        { "id": "D", "text": "Table" }
+      ],
+      "answerId": "D"
+    },
+    {
+      "id": "LOG-ODD-03",
+      "section": "logic",
+      "skill": "odd-one-out",
+      "difficulty": 2,
+      "stem": "Which one does not belong? Square, Circle, Triangle, Cube",
+      "options": [
+        { "id": "A", "text": "Square" },
+        { "id": "B", "text": "Circle" },
+        { "id": "C", "text": "Triangle" },
+        { "id": "D", "text": "Cube" }
+      ],
+      "answerId": "D"
+    },
+    {
+      "id": "LOG-ODD-04",
+      "section": "logic",
+      "skill": "odd-one-out",
+      "difficulty": 2,
+      "stem": "Which one does not belong? Monday, Friday, Sunday, March",
+      "options": [
+        { "id": "A", "text": "Monday" },
+        { "id": "B", "text": "Friday" },
+        { "id": "C", "text": "Sunday" },
+        { "id": "D", "text": "March" }
+      ],
+      "answerId": "D"
+    },
+    {
+      "id": "LOG-ODD-05",
+      "section": "logic",
+      "skill": "odd-one-out",
+      "difficulty": 3,
+      "stem": "Which one does not belong? Run, Walk, Jump, Sleep",
+      "options": [
+        { "id": "A", "text": "Run" },
+        { "id": "B", "text": "Walk" },
+        { "id": "C", "text": "Jump" },
+        { "id": "D", "text": "Sleep" }
+      ],
+      "answerId": "D"
+    },
+    {
+      "id": "LOG-ODD-06",
+      "section": "logic",
+      "skill": "odd-one-out",
+      "difficulty": 3,
+      "stem": "Which one does not belong? 2, 4, 9, 16",
+      "options": [
+        { "id": "A", "text": "2" },
+        { "id": "B", "text": "4" },
+        { "id": "C", "text": "9" },
+        { "id": "D", "text": "16" }
+      ],
+      "answerId": "A"
+    },
+    {
+      "id": "LOG-ODD-07",
+      "section": "logic",
+      "skill": "odd-one-out",
+      "difficulty": 4,
+      "stem": "Which one does not belong? Mercury, Venus, Earth, Moon",
+      "options": [
+        { "id": "A", "text": "Mercury" },
+        { "id": "B", "text": "Venus" },
+        { "id": "C", "text": "Earth" },
+        { "id": "D", "text": "Moon" }
+      ],
+      "answerId": "D"
+    },
+    {
+      "id": "LOG-ODD-08",
+      "section": "logic",
+      "skill": "odd-one-out",
+      "difficulty": 4,
+      "stem": "Which one does not belong? Sprint, Marathon, Hurdles, Chess",
+      "options": [
+        { "id": "A", "text": "Sprint" },
+        { "id": "B", "text": "Marathon" },
+        { "id": "C", "text": "Hurdles" },
+        { "id": "D", "text": "Chess" }
+      ],
+      "answerId": "D"
+    },
+    {
+      "id": "LOG-ODD-09",
+      "section": "logic",
+      "skill": "odd-one-out",
+      "difficulty": 5,
+      "stem": "Which one does not belong? 1/2, 0.5, 2/4, 3/5",
+      "options": [
+        { "id": "A", "text": "1/2" },
+        { "id": "B", "text": "0.5" },
+        { "id": "C", "text": "2/4" },
+        { "id": "D", "text": "3/5" }
+      ],
+      "answerId": "D"
+    },
+    {
+      "id": "LOG-ODD-10",
+      "section": "logic",
+      "skill": "odd-one-out",
+      "difficulty": 5,
+      "stem": "Which one does not belong? 17, 19, 27, 29",
+      "options": [
+        { "id": "A", "text": "17" },
+        { "id": "B", "text": "19" },
+        { "id": "C", "text": "27" },
+        { "id": "D", "text": "29" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-IF-01",
+      "section": "logic",
+      "skill": "if-then",
+      "difficulty": 1,
+      "stem": "If it rains, the ground gets wet. It is raining. What must be true?",
+      "options": [
+        { "id": "A", "text": "The ground is wet" },
+        { "id": "B", "text": "The ground is dry" },
+        { "id": "C", "text": "It is sunny" },
+        { "id": "D", "text": "It is not raining" }
+      ],
+      "answerId": "A"
+    },
+    {
+      "id": "LOG-IF-02",
+      "section": "logic",
+      "skill": "if-then",
+      "difficulty": 1,
+      "stem": "If a child has a library card, they can borrow books. Lerato has a library card. What can Lerato do?",
+      "options": [
+        { "id": "A", "text": "Borrow books" },
+        { "id": "B", "text": "Pay R50" },
+        { "id": "C", "text": "Close the library" },
+        { "id": "D", "text": "Sell books" }
+      ],
+      "answerId": "A"
+    },
+    {
+      "id": "LOG-IF-03",
+      "section": "logic",
+      "skill": "if-then",
+      "difficulty": 2,
+      "stem": "All Grade 5 learners write this test. Naledi wrote this test. Is Naledi in Grade 5?",
+      "options": [
+        { "id": "A", "text": "Yes, always" },
+        { "id": "B", "text": "No" },
+        { "id": "C", "text": "We cannot tell from this information" },
+        { "id": "D", "text": "She is in Grade 4" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-IF-04",
+      "section": "logic",
+      "skill": "if-then",
+      "difficulty": 2,
+      "stem": "If the shop is open, Mrs Khumalo buys bread. The shop is closed. Does Mrs Khumalo buy bread?",
+      "options": [
+        { "id": "A", "text": "Yes" },
+        { "id": "B", "text": "No" },
+        { "id": "C", "text": "Cannot be determined" },
+        { "id": "D", "text": "Only on Sundays" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-IF-05",
+      "section": "logic",
+      "skill": "if-then",
+      "difficulty": 3,
+      "stem": "If a shape has four equal sides, it is a rhombus. This shape has four equal sides. What is true?",
+      "options": [
+        { "id": "A", "text": "It is a rhombus" },
+        { "id": "B", "text": "It is a circle" },
+        { "id": "C", "text": "It has three corners" },
+        { "id": "D", "text": "It has no sides" }
+      ],
+      "answerId": "A"
+    },
+    {
+      "id": "LOG-IF-06",
+      "section": "logic",
+      "skill": "if-then",
+      "difficulty": 3,
+      "stem": "All mammals breathe air. Whales are mammals. What follows?",
+      "options": [
+        { "id": "A", "text": "Whales breathe water" },
+        { "id": "B", "text": "Whales breathe air" },
+        { "id": "C", "text": "Mammals are whales" },
+        { "id": "D", "text": "Whales cannot breathe" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-IF-07",
+      "section": "logic",
+      "skill": "if-then",
+      "difficulty": 4,
+      "stem": "Thabo runs faster than Lebo. Lebo runs faster than Ayanda. Who runs slowest?",
+      "options": [
+        { "id": "A", "text": "Thabo" },
+        { "id": "B", "text": "Lebo" },
+        { "id": "C", "text": "Ayanda" },
+        { "id": "D", "text": "Cannot be determined" }
+      ],
+      "answerId": "C"
+    },
+    {
+      "id": "LOG-IF-08",
+      "section": "logic",
+      "skill": "if-then",
+      "difficulty": 4,
+      "stem": "If A is true, then B is true. B is false. What do we know?",
+      "options": [
+        { "id": "A", "text": "A is true" },
+        { "id": "B", "text": "A is false" },
+        { "id": "C", "text": "B is true" },
+        { "id": "D", "text": "Nothing" }
+      ],
+      "answerId": "B"
+    },
+    {
+      "id": "LOG-IF-09",
+      "section": "logic",
+      "skill": "if-then",
+      "difficulty": 5,
+      "stem": "If Zanele arrives before 7:00, she gets a seat. If she gets a seat, she can read the notice. Zanele did not get a seat. What can we say?",
+      "options": [
+        { "id": "A", "text": "She did not arrive before 7:00" },
+        { "id": "B", "text": "She arrived before 7:00" },
+        { "id": "C", "text": "She can read the notice" },
+        { "id": "D", "text": "Nothing can be concluded" }
+      ],
+      "answerId": "A"
+    },
+    {
+      "id": "LOG-IF-10",
+      "section": "logic",
+      "skill": "if-then",
+      "difficulty": 5,
+      "stem": "If a number is divisible by 6, it is divisible by 3. 27 is divisible by 3. Is 27 divisible by 6?",
+      "options": [
+        { "id": "A", "text": "Yes" },
+        { "id": "B", "text": "No" },
+        { "id": "C", "text": "Cannot be determined from the information given" },
+        { "id": "D", "text": "Only if it is even" }
+      ],
+      "answerId": "C"
+    }
+  ]
+}

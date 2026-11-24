@@ -201,6 +201,13 @@ The plan was written against an empty local database. With this seed loaded, run
 
 ---
 
+### Since SPEC-2026-11 (pre-paid applications, 2026-11-25)
+
+- The October history above is kept as it happened, under the **old** rules: registration-only invoices on approval, tuition from the monthly run, Tshepo's admin-set first month. `uat_seed.activate` records it directly; today's accept/pay/activate flow is not used for it. Every approved learner also gets a finished aptitude test and a report card row, which the new rules require.
+- Each seeded report card is a row with **no file behind it** in UAT storage, so "Open report card" on the admin review page fails for seeded learners. Upload a real one (as the parent, from the portal, while an application is under review) to test previews.
+- Sibusiso's decline now carries the reason "No class available for this grade/subject".
+- New flows to test from scratch: apply as a parent (wizard + report card) → aptitude test → admin Accept (Applications) → parent pays with PayShap and uploads proof → admin verifies (Payments). Enter the centre's ShapID first under **Billing → PayShap details**.
+
 ## 6. Findings from rehearsing the seed — log these as defects or confirm as intended
 
 | # | Finding | Where | Effect |

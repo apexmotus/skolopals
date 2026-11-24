@@ -5,10 +5,15 @@ import {
   IsArray,
   IsBoolean,
   IsDateString,
+  IsIn,
+  IsInt,
   IsOptional,
   IsString,
   IsUUID,
+  Matches,
+  Max,
   MaxLength,
+  Min,
   ValidateNested,
 } from 'class-validator';
 
@@ -60,6 +65,40 @@ export class SubmitConsentDto {
   @ApiProperty() @IsBoolean() granted!: boolean;
 }
 
+/**
+ * A report card already uploaded and confirmed through `POST /uploads/sign`
+ * and `/uploads/confirm` (purpose `report_card`). Its path is still in the
+ * uploader's staging folder; the enrolment endpoint files it under the learner.
+ */
+export class ReportCardUploadDto {
+  @ApiProperty({ description: 'The path returned by POST /uploads/confirm.' })
+  @IsString()
+  @MaxLength(300)
+  @Matches(/^staging\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.(pdf|jpg|jpeg|png)$/)
+  path!: string;
+
+  @ApiProperty({ enum: ['application/pdf', 'image/jpeg', 'image/png'] })
+  @IsIn(['application/pdf', 'image/jpeg', 'image/png'])
+  mimeType!: string;
+
+  @ApiProperty() @IsInt() @Min(1) @Max(10 * 1024 * 1024) sizeBytes!: number;
+  @ApiProperty() @IsString() @MaxLength(200) originalName!: string;
+
+  @ApiPropertyOptional({ description: 'School year the report covers.' })
+  @IsOptional()
+  @IsInt()
+  @Min(2015)
+  @Max(2100)
+  year?: number;
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 4 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(4)
+  term?: number;
+}
+
 export class SubmitEnrolmentDto {
   @ApiProperty({ type: SubmitLearnerDto })
   @ValidateNested()
@@ -102,4 +141,9 @@ export class SubmitEnrolmentDto {
   @ApiProperty() @IsString() policyVersion!: string;
 
   @ApiPropertyOptional() @IsOptional() @IsUUID() preferredTutorId?: string;
+
+  @ApiProperty({ type: ReportCardUploadDto, description: 'Required, no exceptions (D3).' })
+  @ValidateNested()
+  @Type(() => ReportCardUploadDto)
+  reportCard!: ReportCardUploadDto;
 }

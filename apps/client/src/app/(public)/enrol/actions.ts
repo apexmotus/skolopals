@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@skolopals/shared/supabase/server";
+import { api, ApiError } from "@skolopals/shared/api";
 import { getSession } from "@skolopals/shared/auth";
 import { POLICY_VERSION } from "@/lib/consent";
 
@@ -39,6 +39,12 @@ export async function submitEnrolment(_prev: EnrolState, formData: FormData): Pr
     col_id4: text(formData, "col_id_number_last4"),
     self_phone: text(formData, "self_phone"),
     preferred_tutor: text(formData, "preferred_tutor"),
+    report_path: text(formData, "report_path"),
+    report_mime: text(formData, "report_mime"),
+    report_size: text(formData, "report_size"),
+    report_name: text(formData, "report_name"),
+    report_year: text(formData, "report_year"),
+    report_term: text(formData, "report_term"),
   };
 
   const ecSelf = values.ec_self === "on";
@@ -54,6 +60,8 @@ export async function submitEnrolment(_prev: EnrolState, formData: FormData): Pr
   }
   if (!values.date_of_birth) return { error: "Enter your child’s date of birth.", values };
   if (!values.grade_code) return { error: "Choose your child’s grade.", values };
+  // D3: a report card is required, no exceptions. The upload was checked by the API on confirm.
+  if (!values.report_path) return { error: "Upload your child’s most recent school report.", values };
   if ((ecSelf || colSelf) && !selfPhone) {
     return { error: "Add your phone number so we can reach you.", values };
   }
@@ -121,27 +129,54 @@ export async function submitEnrolment(_prev: EnrolState, formData: FormData): Pr
     })),
   ];
 
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("submit_enrolment", {
-    p_learner: {
-      full_name: joinName(values.first_name, values.last_name),
-      date_of_birth: values.date_of_birth,
-      grade_code: values.grade_code,
-      school_name: values.school_name,
-      home_language_code: values.home_language_code,
-      relationship: values.relationship || "guardian",
-    },
-    p_package_code: values.package_code,
-    p_subjects: subjects,
-    p_emergency: emergency,
-    p_collectors: collectors,
-    p_consents: consents,
-    p_policy_version: POLICY_VERSION,
-    p_preferred_tutor: values.preferred_tutor || null,
-  });
-
-  if (error) {
-    return { error: error.message.replace(/^.*?:\s*/, "") || "We could not submit the enrolment.", values };
+  // POST /enrolments files the report card under the new learner in the same transaction.
+  let enrolmentId: string;
+  try {
+    const enrolment = await api.post<{ id: string }>("/enrolments", {
+      learner: {
+        fullName: joinName(values.first_name, values.last_name),
+        dateOfBirth: values.date_of_birth,
+        gradeCode: values.grade_code,
+        schoolName: values.school_name || undefined,
+        homeLanguageCode: values.home_language_code || undefined,
+        relationship: values.relationship || "guardian",
+      },
+      packageCode: values.package_code,
+      subjects: subjects.map((s) => ({
+        subjectCode: s.subject_code,
+        preferredLanguageCode: s.preferred_language_code || undefined,
+      })),
+      emergencyContacts: emergency.map((c) => ({
+        fullName: c.full_name,
+        relationship: c.relationship,
+        phone: c.phone,
+        priority: c.priority,
+      })),
+      collectors: collectors.map((c) => ({
+        fullName: c.full_name,
+        relationship: c.relationship,
+        phone: c.phone,
+        idNumberLast4: c.id_number_last4 || undefined,
+      })),
+      consents: consents.map((c) => ({ consentTypeCode: c.consent_type_code, granted: c.granted })),
+      policyVersion: POLICY_VERSION,
+      preferredTutorId: values.preferred_tutor || undefined,
+      reportCard: {
+        path: values.report_path,
+        mimeType: values.report_mime,
+        sizeBytes: Number(values.report_size),
+        originalName: values.report_name || "report-card",
+        year: values.report_year ? Number(values.report_year) : undefined,
+        term: values.report_term ? Number(values.report_term) : undefined,
+      },
+    });
+    enrolmentId = enrolment.id;
+  } catch (err) {
+    return {
+      error: err instanceof ApiError && err.status < 500 ? err.message : "We could not send the application. Please try again.",
+      values,
+    };
   }
-  redirect("/enrol/submitted");
+  // The application is only sent for review once the aptitude test is done (SPEC §4.1 step 7).
+  redirect(`/enrol/${enrolmentId}/assessment`);
 }

@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import {
@@ -24,8 +25,16 @@ import {
   ActivateEnrolmentDto,
   ActivateEnrolmentResultDto,
 } from './dto/activate-enrolment.dto.js';
+import {
+  AcceptEnrolmentResultDto,
+  DeclineEnrolmentDto,
+  EnrolmentProgressDto,
+  QuoteDto,
+  QuoteQueryDto,
+  ReportCardFiledDto,
+} from './dto/application.dto.js';
 import { EnrolmentDto, ListEnrolmentsQueryDto } from './dto/enrolment.dto.js';
-import { SubmitEnrolmentDto } from './dto/submit-enrolment.dto.js';
+import { ReportCardUploadDto, SubmitEnrolmentDto } from './dto/submit-enrolment.dto.js';
 import {
   EnrolmentSubjectDto,
   UpdateEnrolmentSubjectsDto,
@@ -53,6 +62,37 @@ export class EnrolmentController {
     return this.manager.submit(actor, dto);
   }
 
+  @Get('quote')
+  @Roles('parent', 'admin')
+  @ApiOperation({
+    summary:
+      'What acceptance on a date would cost: registration (if not yet paid) + pro-rata tuition (SPEC §5)',
+  })
+  @ApiOkResponse({ type: QuoteDto })
+  quote(@Query() query: QuoteQueryDto): Promise<QuoteDto> {
+    return this.manager.quote(query);
+  }
+
+  @Get(':id/progress')
+  @ApiOperation({ summary: 'Where the application is (derived, SPEC §4.5)' })
+  @ApiOkResponse({ type: EnrolmentProgressDto })
+  progress(@Param('id', ParseUUIDPipe) id: string): Promise<EnrolmentProgressDto> {
+    return this.manager.progress(id);
+  }
+
+  @Put(':id/report-card')
+  @Roles('parent', 'admin')
+  @ApiOperation({
+    summary: 'Replace the report card (guardian while waiting for review; admin any time)',
+  })
+  @ApiOkResponse({ type: ReportCardFiledDto })
+  replaceReportCard(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ReportCardUploadDto,
+  ): Promise<ReportCardFiledDto> {
+    return this.manager.replaceReportCard(id, dto);
+  }
+
   @Get(':id')
   @ApiOperation({
     summary:
@@ -71,11 +111,24 @@ export class EnrolmentController {
     return this.manager.list(query);
   }
 
-  @Post(':id/activate')
+  @Post(':id/accept')
   @Roles('admin')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
-      'Approve a pending enrolment, assign a tutor, and (once per learner) raise the registration invoice',
+      'Accept: raises the pre-paid offer invoice (registration + pro-rata tuition) and notifies the parent. Refused without a finished aptitude test and a report card',
+  })
+  @ApiOkResponse({ type: AcceptEnrolmentResultDto })
+  accept(@Param('id', ParseUUIDPipe) id: string): Promise<AcceptEnrolmentResultDto> {
+    return this.manager.accept(id);
+  }
+
+  @Post(':id/activate')
+  @Roles('admin')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Admin retry of activation: only an accepted application whose offer invoice is paid. Normally done by payment verification',
   })
   @ApiOkResponse({ type: ActivateEnrolmentResultDto })
   activate(
@@ -87,10 +140,14 @@ export class EnrolmentController {
 
   @Post(':id/decline')
   @Roles('admin')
-  @ApiOperation({ summary: 'Decline a pending enrolment' })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Decline an application waiting for review; a reason is required and the parent is told' })
   @ApiOkResponse({ type: EnrolmentDto })
-  decline(@Param('id', ParseUUIDPipe) id: string): Promise<EnrolmentDto> {
-    return this.manager.decline(id);
+  decline(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: DeclineEnrolmentDto,
+  ): Promise<EnrolmentDto> {
+    return this.manager.decline(id, dto);
   }
 
   @Patch(':id/subjects')

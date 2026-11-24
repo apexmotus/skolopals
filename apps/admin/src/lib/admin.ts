@@ -26,7 +26,8 @@ export async function getDashboard() {
 
   const [learners, pending, tutors, surplus, outstanding, enquiries] = await Promise.all([
     supabase.from("learners").select("id", { count: "exact", head: true }).eq("status", "active"),
-    supabase.from("enrolments").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    // Ready to decide: report card in and aptitude test done (SPEC §4.5).
+    supabase.from("v_enrolment_progress").select("enrolment_id", { count: "exact", head: true }).eq("stage", "review"),
     supabase.from("tutors").select("id", { count: "exact", head: true }).eq("status", "active"),
     supabase.from("v_operating_surplus").select("*").eq("month", month).maybeSingle(),
     supabase.from("v_outstanding_fees").select("outstanding_cents"),
@@ -67,15 +68,155 @@ export async function getKpis() {
   };
 }
 
-/** Pending enrolments, oldest first: just enough to scan the queue. Details live on getEnrolment. */
-export async function getEnrolmentQueue() {
+/** Applications tabs (SPEC §4.4), each a set of derived stages from `v_enrolment_progress`. */
+export const APPLICATION_TABS = {
+  review: { label: "To review", stages: ["review"] },
+  unfinished: { label: "Not finished", stages: ["details", "assessment"] },
+  payment: { label: "Awaiting payment", stages: ["payment", "proof", "verification", "activation"] },
+  placement: { label: "Needs placement", stages: ["needs_placement"] },
+  declined: { label: "Declined", stages: ["declined"] },
+} as const;
+export type ApplicationTab = keyof typeof APPLICATION_TABS;
+
+/** Every application not yet settled into class, oldest first, with names and subjects for scanning. */
+export async function getApplications() {
+  const supabase = await createClient();
+  const { data: rows } = await supabase
+    .from("v_enrolment_progress")
+    .select("*")
+    .not("stage", "in", "(active,paused,ended)")
+    .order("created_at");
+  const ids = (rows ?? []).map((r) => r.enrolment_id as string);
+  if (ids.length === 0) return [];
+
+  const { data: details } = await supabase
+    .from("enrolments")
+    .select("id, learners(full_name), enrolment_subjects(subject_code, subjects(name))")
+    .in("id", ids);
+  const byId = new Map((details ?? []).map((d) => [d.id, d]));
+  return (rows ?? []).map((r) => {
+    const d = byId.get(r.enrolment_id as string);
+    return {
+      ...r,
+      learnerName: d?.learners?.full_name ?? "Learner",
+      subjects: (d?.enrolment_subjects ?? []).map((s) => s.subjects?.name ?? s.subject_code),
+    };
+  });
+}
+
+/**
+ * Classes that could take this learner (SPEC §4.4 capacity hint): current or
+ * next term, same subject, grade and medium, with seats free. The same rules
+ * automatic placement uses, minus the clash check.
+ */
+export async function getCapacityHint(
+  gradeCode: string,
+  subjects: { subject_code: string; preferred_language_code: string | null; subjects: { name: string } | null }[],
+) {
+  const supabase = await createClient();
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: classes } = await supabase
+    .from("class_groups")
+    .select(
+      "id, name, subject_code, language_code, capacity, tutors(profiles(full_name)), terms!inner(ends_on), class_group_grades!inner(grade_code), class_enrolments(left_on)",
+    )
+    .eq("is_active", true)
+    .eq("class_group_grades.grade_code", gradeCode)
+    .gte("terms.ends_on", today);
+
+  return subjects.map((s) => {
+    const options = (classes ?? [])
+      .filter(
+        (c) =>
+          c.subject_code === s.subject_code && (!s.preferred_language_code || c.language_code === s.preferred_language_code),
+      )
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        tutor: c.tutors?.profiles?.full_name ?? null,
+        free: c.capacity - (c.class_enrolments ?? []).filter((e) => e.left_on === null).length,
+      }))
+      .filter((c) => c.free > 0);
+    return { subject: s.subjects?.name ?? s.subject_code, options };
+  });
+}
+
+/** Proofs waiting to be checked, oldest first (SPEC §3.2). */
+export async function getPaymentQueue() {
   const supabase = await createClient();
   const { data } = await supabase
-    .from("enrolments")
-    .select("id, created_at, learners(full_name), enrolment_subjects(subject_code, subjects(name))")
-    .eq("status", "pending")
-    .order("created_at");
-  return data ?? [];
+    .from("payment_submissions")
+    .select(
+      "id, claimed_amount_cents, proof_uploaded_at, invoice_id, invoices(invoice_number, invoice_lines!invoice_lines_invoice_id_fkey(learner_id, voided_at, learners(full_name))), billing_accounts(guardians(profiles(full_name)))",
+    )
+    .eq("status", "submitted")
+    .order("proof_uploaded_at");
+  const invoiceIds = (data ?? []).map((s) => s.invoice_id);
+  const { data: totals } = invoiceIds.length
+    ? await supabase.from("v_invoice_status").select("id, total_cents, balance_cents").in("id", invoiceIds)
+    : { data: [] };
+  const byInvoice = new Map((totals ?? []).map((t) => [t.id, t]));
+  return (data ?? []).map((s) => {
+    const learners = [
+      ...new Set(
+        (s.invoices?.invoice_lines ?? []).filter((l) => !l.voided_at).map((l) => l.learners?.full_name).filter(Boolean),
+      ),
+    ] as string[];
+    const invoice = byInvoice.get(s.invoice_id);
+    return {
+      id: s.id,
+      family: s.billing_accounts?.guardians?.profiles?.full_name ?? "Family",
+      learners,
+      invoiceNumber: s.invoices?.invoice_number ?? "",
+      balanceCents: Number(invoice?.balance_cents ?? 0),
+      totalCents: Number(invoice?.total_cents ?? 0),
+      claimedCents: s.claimed_amount_cents,
+      submittedAt: s.proof_uploaded_at,
+    };
+  });
+}
+
+/** How many proofs are waiting, for the nav badge. */
+export async function countProofsToCheck() {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("payment_submissions")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "submitted");
+  return count ?? 0;
+}
+
+/** One submission with what verifying it needs: the invoice, the account and earlier attempts. */
+export async function getPaymentSubmission(id: string) {
+  const supabase = await createClient();
+  const { data: submission } = await supabase
+    .from("payment_submissions")
+    .select(
+      "*, invoices(invoice_number, issued_on, due_on), billing_accounts(id, guardians(profiles(full_name, phone))), submitted:profiles!payment_submissions_submitted_by_fkey(full_name), reviewer:profiles!payment_submissions_reviewed_by_fkey(full_name)",
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (!submission) return null;
+
+  const [{ data: lines }, { data: invoice }, { data: account }, { data: history }] = await Promise.all([
+    supabase.from("invoice_lines").select("id, description, line_total_cents, learners(full_name)").eq("invoice_id", submission.invoice_id),
+    supabase.from("v_invoice_status").select("total_cents, balance_cents").eq("id", submission.invoice_id).maybeSingle(),
+    supabase.from("v_invoice_status").select("balance_cents").eq("billing_account_id", submission.billing_account_id).eq("status", "issued"),
+    supabase
+      .from("payment_submissions")
+      .select("id, status, claimed_amount_cents, proof_uploaded_at, rejection_reason, reviewed_at")
+      .eq("invoice_id", submission.invoice_id)
+      .neq("id", id)
+      .order("created_at", { ascending: false }),
+  ]);
+  return {
+    submission,
+    lines: lines ?? [],
+    totalCents: Number(invoice?.total_cents ?? 0),
+    balanceCents: Number(invoice?.balance_cents ?? 0),
+    accountBalanceCents: (account ?? []).reduce((sum, r) => sum + Number(r.balance_cents ?? 0), 0),
+    history: history ?? [],
+  };
 }
 
 /** One enrolment with everything the accept/decline decision needs. */
@@ -85,11 +226,13 @@ export async function getEnrolment(id: string) {
     .from("enrolments")
     .select(
       // Two FKs point at tutors (preferred and assigned), so the embed is hinted.
-      "*, learners(full_name, grade_code, date_of_birth, school_name, grades(name), languages(name), learner_guardians(relationship, is_primary, guardians(profiles(full_name, phone)))), packages(name), enrolment_subjects(subject_code, preferred_language_code, subjects(name), languages(name)), tutors!enrolments_preferred_tutor_id_fkey(slug, profiles(full_name))",
+      "*, learners(full_name, grade_code, date_of_birth, school_name, grades(name), languages(name), learner_guardians(guardian_id, relationship, is_primary, guardians(profiles(full_name, phone))), learner_documents(id, doc_type, academic_year, term, original_name, mime, uploaded_at, superseded_at)), packages(name), enrolment_subjects(subject_code, preferred_language_code, subjects(name), languages(name)), tutors!enrolments_preferred_tutor_id_fkey(slug, profiles(full_name)), aptitude_attempts(id, status, started_at, completed_at, aptitude_responses(answered_at))",
     )
     .eq("id", id)
     .maybeSingle();
-  return data;
+  if (!data) return null;
+  const { data: progress } = await supabase.from("v_enrolment_progress").select("*").eq("enrolment_id", id).maybeSingle();
+  return { ...data, progress };
 }
 
 export async function getTutors() {

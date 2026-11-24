@@ -1,0 +1,12 @@
+{
+  "name": "@skolopals/db",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "aptitude:seed": "node seed/aptitude/load.mjs",
+    "aptitude:check": "node seed/aptitude/load.mjs --check"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0"
+  }
+}

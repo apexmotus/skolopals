@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import {
   Banknote,
   Bell,
+  Wallet,
   BookOpen,
   Calendar,
   ChartColumn,
@@ -72,7 +73,8 @@ const NAV: Record<AppRole, { workspace: string; items: NavItem[] }> = {
     items: [
       { href: "/admin", label: "Dashboard", icon: { lucide: LayoutDashboard }, exact: true },
       { href: "/admin/users", label: "Users", icon: { lucide: UserPlus } },
-      { href: "/admin/enrolments", label: "Enrolment queue", icon: { lucide: UserRoundCheck } },
+      { href: "/admin/enrolments", label: "Applications", icon: { lucide: UserRoundCheck } },
+      { href: "/admin/payments", label: "Payments", icon: { lucide: Wallet } },
       { href: "/admin/learners", label: "Learners", icon: { lucide: GraduationCap } },
       { href: "/admin/tutors", label: "Tutors", icon: { lucide: Users } },
       { href: "/admin/timetable", label: "Timetable", icon: { lucide: Calendar } },
@@ -88,7 +90,8 @@ const NAV: Record<AppRole, { workspace: string; items: NavItem[] }> = {
     items: [
       { href: "/admin", label: "Dashboard", icon: { lucide: LayoutDashboard }, exact: true },
       { href: "/admin/users", label: "Users", icon: { lucide: UserPlus } },
-      { href: "/admin/enrolments", label: "Enrolment queue", icon: { lucide: UserRoundCheck } },
+      { href: "/admin/enrolments", label: "Applications", icon: { lucide: UserRoundCheck } },
+      { href: "/admin/payments", label: "Payments", icon: { lucide: Wallet } },
       { href: "/admin/learners", label: "Learners", icon: { lucide: GraduationCap } },
       { href: "/admin/tutors", label: "Tutors", icon: { lucide: Users } },
       { href: "/admin/timetable", label: "Timetable", icon: { lucide: Calendar } },
@@ -113,6 +116,7 @@ export function AppShell({
   subtitle,
   signOutAction,
   helpHref,
+  badges,
   children,
 }: {
   profile: Row<"profiles">;
@@ -120,6 +124,8 @@ export function AppShell({
   subtitle?: string;
   signOutAction: () => Promise<void>;
   helpHref?: string | null;
+  /** A count beside a nav item, by href (e.g. proofs of payment to check). Zero shows nothing. */
+  badges?: Record<string, number>;
   children: ReactNode;
 }) {
   const nav = NAV[role];
@@ -145,8 +151,23 @@ export function AppShell({
               activeClassName="bg-white/[0.09] font-semibold shadow-[inset_3px_0_0_var(--color-sun)] hover:bg-white/[0.09]"
               title={rail ? item.label : undefined}
             >
-              <Icon icon={item.icon} />
+              <span className="relative shrink-0">
+                <Icon icon={item.icon} />
+                {badges?.[item.href] ? (
+                  <span className={`absolute -right-2 -top-2 hidden min-w-4 rounded-full bg-sun px-1 text-center text-[10px] font-bold leading-4 text-plum-950 ${rail ? "md:max-lg:block" : ""}`}>
+                    {badges[item.href]}
+                  </span>
+                ) : null}
+              </span>
               <span className={hideOnRail}>{item.label}</span>
+              {badges?.[item.href] ? (
+                <span
+                  className={`ml-auto rounded-full bg-sun px-2 text-[12px] font-bold leading-5 text-plum-950 ${rail ? "md:max-lg:hidden" : ""}`}
+                  aria-label={`${badges[item.href]} waiting`}
+                >
+                  {badges[item.href]}
+                </span>
+              ) : null}
             </NavLink>
           ))}
         </nav>

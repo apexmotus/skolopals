@@ -45,6 +45,14 @@ describe('EnrolmentMapper.toSubmitPayload', () => {
     ],
     policyVersion: '1.0',
     preferredTutorId: 'tutor-1',
+    reportCard: {
+      path: 'staging/aaaaaaaa-0000-0000-0000-000000000001/0b6d7c1e-1f2a-4c3b-9d8e-7a6b5c4d3e2f.pdf',
+      mimeType: 'application/pdf',
+      sizeBytes: 182000,
+      originalName: 'term-3.pdf',
+      year: 2026,
+      term: 3,
+    },
   };
 
   it('maps every learner field to its snake_case jsonb key', () => {
@@ -125,6 +133,14 @@ describe('EnrolmentMapper.toSubmitPayload', () => {
       ],
       consents: [{ consentTypeCode: 'popia_processing', granted: true }],
       policyVersion: '1.0',
+    reportCard: {
+        path: 'staging/aaaaaaaa-0000-0000-0000-000000000001/0b6d7c1e-1f2a-4c3b-9d8e-7a6b5c4d3e2f.pdf',
+        mimeType: 'application/pdf',
+        sizeBytes: 182000,
+        originalName: 'term-3.pdf',
+        year: 2026,
+        term: 3,
+      },
     };
 
     const payload = EnrolmentMapper.toSubmitPayload(minimalDto);
@@ -147,10 +163,40 @@ describe('EnrolmentMapper.toSubmitPayload', () => {
       ],
       consents: [{ consentTypeCode: 'popia_processing', granted: true }],
       policyVersion: '1.0',
+    reportCard: {
+        path: 'staging/aaaaaaaa-0000-0000-0000-000000000001/0b6d7c1e-1f2a-4c3b-9d8e-7a6b5c4d3e2f.pdf',
+        mimeType: 'application/pdf',
+        sizeBytes: 182000,
+        originalName: 'term-3.pdf',
+        year: 2026,
+        term: 3,
+      },
     };
 
     const payload = EnrolmentMapper.toSubmitPayload(minimalDto);
 
     expect(payload.emergencyContacts).toHaveLength(1);
+  });
+});
+
+describe('EnrolmentMapper.toReportCardPayload', () => {
+  it('maps the confirmed upload to the keys private.record_report_card reads', () => {
+    expect(
+      EnrolmentMapper.toReportCardPayload({
+        path: 'staging/u/f.pdf',
+        mimeType: 'application/pdf',
+        sizeBytes: 10,
+        originalName: 'r.pdf',
+        year: 2026,
+        term: 2,
+      }),
+    ).toEqual({
+      stagingPath: 'staging/u/f.pdf',
+      mime: 'application/pdf',
+      sizeBytes: 10,
+      originalName: 'r.pdf',
+      year: 2026,
+      term: 2,
+    });
   });
 });

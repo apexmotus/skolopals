@@ -17,7 +17,7 @@ export DATABASE_URL
 
 PSQL := psql "$(DATABASE_URL)" -v ON_ERROR_STOP=1
 
-.PHONY: help db-create db-drop bootstrap migrate seed reset verify test test-rls test-rules test-billing test-enrolment test-assessment test-month-close deploy-check psql types supabase-start check-pg
+.PHONY: help db-create db-drop bootstrap migrate seed reset verify test test-rls test-rules test-billing test-enrolment test-assessment test-month-close test-aptitude test-applications deploy-check psql types supabase-start check-pg
 
 help:
 	@echo "Skolopals database — $(DATABASE_URL)"
@@ -80,13 +80,19 @@ test-billing: check-pg
 test-enrolment: check-pg
 	@./scripts/test-enrolment.sh
 
+test-aptitude: check-pg
+	@./scripts/test-aptitude.sh
+
+test-applications: check-pg
+	@./scripts/test-applications.sh
+
 test-assessment: check-pg
 	@./scripts/test-assessment.sh
 
 test-month-close: check-pg
 	@./scripts/test-month-close.sh
 
-test: verify test-rls test-rules test-billing test-enrolment test-assessment test-month-close
+test: verify test-rls test-rules test-billing test-enrolment test-assessment test-month-close test-aptitude test-applications
 	@echo
 	@echo "All suites passed."
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# The enrolment journey end to end: a parent submits, an admin activates,
+# The enrolment journey end to end: a parent submits (with a report card),
+# the child finishes the aptitude test, an admin accepts (raising the
+# pre-paid offer invoice), the family pays, the enrolment activates,
 # a term's sessions are generated, a tutor marks the register. Rolls back.
 set -euo pipefail
 DB="${DATABASE_URL:?DATABASE_URL not set}"
@@ -33,7 +35,7 @@ insert into public.rooms (id, name, capacity) values ('77777777-0000-0000-0000-0
 set local role authenticated;
 select set_config('request.jwt.claims','{"sub":"aaaaaaaa-0000-0000-0000-000000000001","role":"authenticated"}',true);
 
-select public.submit_enrolment(
+select private.submit_enrolment(
   '{"full_name":"Thabo Mokoena","date_of_birth":"2013-04-02","grade_code":"grade_7","school_name":"Damonsville Primary","home_language_code":"setswana","relationship":"mother"}'::jsonb,
   'group_2',
   '[{"subject_code":"mathematics","preferred_language_code":"english"},
@@ -43,8 +45,9 @@ select public.submit_enrolment(
   (select jsonb_agg(jsonb_build_object('consent_type_code', code, 'granted', true))
      from public.consent_types where is_required),
   '1.0',
+  '{"stagingPath":"staging/aaaaaaaa-0000-0000-0000-000000000001/0b6d7c1e-1f2a-4c3b-9d8e-7a6b5c4d3e2f.pdf","year":2026,"term":3,"originalName":"term-3-report.pdf","mime":"application/pdf","sizeBytes":182000}'::jsonb,
   '44444444-0000-0000-0000-00000000000d'
-) as enrolment_id \gset
+) ->> 'enrolmentId' as enrolment_id \gset
 
 do $$ begin
   perform dev.assert((select count(*) from public.learners) = 1, 'learner created');
@@ -55,63 +58,138 @@ do $$ begin
   perform dev.assert((select status from public.enrolments) = 'pending', 'enrolment is pending, not active');
   perform dev.assert((select status from public.learners) = 'prospective', 'learner is prospective until approved');
   perform dev.assert((select preferred_tutor_id from public.enrolments) is not null, 'preferred tutor recorded');
+  perform dev.assert((select count(*) from public.learner_documents where doc_type = 'report_card') = 1,
+    'report card recorded against the new learner');
+  perform dev.assert((select storage_path from public.learner_documents) like 'learners/%/%.pdf',
+    'report card is filed under the learner, not left in staging');
+  perform dev.assert((select count(*) from public.invoices) = 0, 'submitting raises no invoice');
 end $$;
 
 \echo ''
 \echo '--- submission is refused without the required consents ---'
 do $$ begin
   begin
-    perform public.submit_enrolment(
+    perform private.submit_enrolment(
       '{"full_name":"No Consent","date_of_birth":"2014-01-01","grade_code":"grade_7"}'::jsonb,
       'group_1', '[]'::jsonb,
       '[{"full_name":"X","relationship":"aunt","phone":"0","priority":1}]'::jsonb,
-      '[]'::jsonb, '[]'::jsonb, '1.0', null);
+      '[]'::jsonb, '[]'::jsonb, '1.0', '{"stagingPath":"staging/aaaaaaaa-0000-0000-0000-000000000001/1b6d7c1e-1f2a-4c3b-9d8e-7a6b5c4d3e2f.pdf","mime":"application/pdf","sizeBytes":1000}'::jsonb, null);
     raise exception 'FAILED: enrolment without consent was accepted';
   exception when check_violation then
     raise notice '  PASS  rejected: submission with no POPIA consent';
   end;
   begin
-    perform public.submit_enrolment(
+    perform private.submit_enrolment(
       '{"full_name":"No Contact","date_of_birth":"2014-01-01","grade_code":"grade_7"}'::jsonb,
       'group_1', '[]'::jsonb, '[]'::jsonb, '[]'::jsonb,
       (select jsonb_agg(jsonb_build_object('consent_type_code', code, 'granted', true))
-         from public.consent_types where is_required), '1.0', null);
+         from public.consent_types where is_required), '1.0', '{"stagingPath":"staging/aaaaaaaa-0000-0000-0000-000000000001/1b6d7c1e-1f2a-4c3b-9d8e-7a6b5c4d3e2f.pdf","mime":"application/pdf","sizeBytes":1000}'::jsonb, null);
     raise exception 'FAILED: enrolment without an emergency contact was accepted';
   exception when check_violation then
     raise notice '  PASS  rejected: submission with no emergency contact';
+  end;
+  begin
+    perform private.submit_enrolment(
+      '{"full_name":"No Report","date_of_birth":"2014-01-01","grade_code":"grade_7"}'::jsonb,
+      'group_1', '[]'::jsonb,
+      '[{"full_name":"X","relationship":"aunt","phone":"0","priority":1}]'::jsonb, '[]'::jsonb,
+      (select jsonb_agg(jsonb_build_object('consent_type_code', code, 'granted', true))
+         from public.consent_types where is_required), '1.0', null, null);
+    raise exception 'FAILED: enrolment without a report card was accepted';
+  exception when check_violation then
+    raise notice '  PASS  rejected: submission with no report card (D3)';
+  end;
+  begin
+    perform private.submit_enrolment(
+      '{"full_name":"Wrong Upload","date_of_birth":"2014-01-01","grade_code":"grade_7"}'::jsonb,
+      'group_1', '[]'::jsonb,
+      '[{"full_name":"X","relationship":"aunt","phone":"0","priority":1}]'::jsonb, '[]'::jsonb,
+      (select jsonb_agg(jsonb_build_object('consent_type_code', code, 'granted', true))
+         from public.consent_types where is_required), '1.0',
+      '{"stagingPath":"staging/bbbbbbbb-0000-0000-0000-000000000002/2b6d7c1e-1f2a-4c3b-9d8e-7a6b5c4d3e2f.pdf","mime":"application/pdf","sizeBytes":1000}'::jsonb,
+      null);
+    raise exception 'FAILED: attached somebody else''s upload';
+  exception when raise_exception then
+    raise notice '  PASS  rejected: a report card from another user''s staging folder';
   end;
 end $$;
 
 reset role;
 \echo ''
-\echo '=== ADMIN activates it ==='
+\echo '--- acceptance is refused until the aptitude test is finished (D15) ---'
 set local role authenticated;
-select set_config('request.jwt.claims','{"sub":"dddddddd-0000-0000-0000-000000000004","role":"authenticated"}',true);
+select set_config('request.jwt.claims','{"sub":"dddddddd-0000-0000-0000-000000000004","role":"authenticated"}',true) \g /dev/null
+do $$ begin
+  begin
+    perform public.accept_enrolment((select id from public.enrolments));
+    raise exception 'FAILED: acceptance without an aptitude test went through';
+  exception when check_violation then
+    raise notice '  PASS  rejected: accepting before the aptitude test is finished';
+  end;
+  perform dev.assert((select count(*) from public.invoices) = 0, 'a refused acceptance raises no invoice');
+end $$;
+reset role;
 
-select public.activate_enrolment(
-  (select id from public.enrolments),
-  '44444444-0000-0000-0000-00000000000d',
-  '2026-10-18', 40000, 'Joined 18 October, part month'
-) as invoice_id \gset
+-- The test itself is covered by test-aptitude.sh; here a finished attempt is enough.
+insert into public.aptitude_attempts
+  (learner_id, enrolment_id, bank_version, status, current_difficulty, completed_at,
+   final_band, level_label, literacy_pct, logic_pct, low_confidence)
+select e.learner_id, e.id, b.version, 'completed', 3, now(), 3, 'Developing', 60, 60, false
+  from public.enrolments e, public.aptitude_banks b where b.is_current;
+
+\echo ''
+\echo '=== ADMIN accepts it: the pre-paid offer invoice ==='
+set local role authenticated;
+select set_config('request.jwt.claims','{"sub":"dddddddd-0000-0000-0000-000000000004","role":"authenticated"}',true) \g /dev/null
+
+do $$
+declare
+  v_quote  jsonb := public.enrolment_quote('group_2', current_date, (select learner_id from public.enrolments));
+  v_result jsonb := public.accept_enrolment((select id from public.enrolments));
+begin
+  perform dev.assert((select status from public.enrolments) = 'accepted', 'enrolment is accepted');
+  perform dev.assert((select status from public.learners) = 'prospective', 'learner stays prospective until paid');
+  perform dev.assert((select count(*) from public.billing_accounts) = 1, 'billing account opened');
+  perform dev.assert((select count(*) from public.invoices) = 1, 'one offer invoice raised on acceptance');
+  perform dev.assert((v_result ->> 'amountDueCents')::int = (v_quote ->> 'totalCents')::int,
+    'the invoice total is exactly the quote');
+  perform dev.assert((select count(*) from public.invoice_lines where line_type = 'registration') = 1,
+    'it carries the registration fee');
+  perform dev.assert((select period_month from public.invoice_lines where line_type = 'package')
+                     = date_trunc('month', current_date)::date, 'and this month''s pro-rata tuition');
+  perform dev.assert((select invoice_number from public.invoices) like 'SKP-%', 'invoice numbered SKP-YYYY-NNNN');
+  perform dev.assert((select count(*) from public.notification_recipients) = 1, 'the parent is told');
+end $$;
+
+\echo ''
+\echo '--- activation is refused until the offer invoice is paid ---'
+do $$ begin
+  begin
+    perform public.activate_enrolment((select id from public.enrolments), '44444444-0000-0000-0000-00000000000d');
+    raise exception 'FAILED: activated before payment';
+  exception when check_violation then
+    raise notice '  PASS  rejected: activating an unpaid offer';
+  end;
+end $$;
+
+\echo ''
+\echo '=== the family pays and the ADMIN activates ==='
+select public.record_payment((select id from public.billing_accounts),
+  (select total_cents from public.v_invoice_status)::integer, 'eft', 'THABO', current_date) \g /dev/null
+select public.activate_enrolment((select id from public.enrolments), '44444444-0000-0000-0000-00000000000d') \g /dev/null
 
 do $$ begin
   perform dev.assert((select status from public.enrolments) = 'active', 'enrolment is active');
   perform dev.assert((select status from public.learners) = 'active', 'learner is active');
-  perform dev.assert((select count(*) from public.billing_accounts) = 1, 'billing account opened');
-  perform dev.assert((select count(*) from public.invoices) = 1, 'registration invoice raised immediately');
-  perform dev.assert((select total_cents from public.v_invoice_status) = 15000,
-    'registration invoice is R150 only - tuition joins the 15th cycle (rule 6b)');
-  perform dev.assert((select invoice_number from public.invoices) like 'SKP-2026-%', 'invoice numbered SKP-2026-NNNN');
-  perform dev.assert((select first_month_amount_cents from public.enrolments) = 40000, 'first month set by admin');
-  perform dev.assert((select first_month_set_by from public.enrolments) is not null, 'discretion is attributable');
+  perform dev.assert((select start_date from public.enrolments) = current_date, 'the place starts on the acceptance date');
+  perform dev.assert((select count(*) from public.invoices) = 1, 'activation raises no further invoice');
 end $$;
 
 \echo ''
-\echo '--- activating twice does not double-charge registration ---'
+\echo '--- activating twice is refused ---'
 do $$ begin
   begin
-    perform public.activate_enrolment((select id from public.enrolments),
-      '44444444-0000-0000-0000-00000000000d', '2026-10-18', null, null);
+    perform public.activate_enrolment((select id from public.enrolments), '44444444-0000-0000-0000-00000000000d');
     raise exception 'FAILED: re-activation was accepted';
   exception when others then
     if sqlerrm like 'FAILED:%' then raise; end if;

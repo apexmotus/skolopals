@@ -1,5 +1,5 @@
 import { Badge, Card, CardTitle, DataTable, PageHeading, StatCard } from "@skolopals/ui/ui";
-import { InvoiceRunForm, LateFeeForm, PaymentForm } from "./billing-forms";
+import { InvoiceRunForm, LateFeeForm, PayshapSettingsForm, PaymentForm } from "./billing-forms";
 import { createClient } from "@skolopals/shared/supabase/server";
 import { INVOICE_STATE_LABEL, money, shortDate } from "@skolopals/shared/format";
 
@@ -20,7 +20,7 @@ export default async function BillingPage() {
   nextMonth.setMonth(nextMonth.getMonth() + 1);
   const defaultPeriod = nextMonth.toISOString().slice(0, 7);
 
-  const [{ data: invoices }, { data: accounts }, { data: outstanding }, { data: payments }] =
+  const [{ data: invoices }, { data: accounts }, { data: outstanding }, { data: payments }, { data: payshap }] =
     await Promise.all([
       supabase.from("v_invoice_status").select("*").order("issued_on", { ascending: false }).limit(100),
       supabase.from("billing_accounts").select("id, guardians(profiles(full_name))").order("created_at"),
@@ -30,6 +30,12 @@ export default async function BillingPage() {
         .select("*, billing_accounts(guardians(profiles(full_name)))")
         .order("paid_on", { ascending: false })
         .limit(25),
+      supabase
+        .from("payment_settings")
+        .select("payshap_id, account_name, bank_name, instructions")
+        .lte("effective_from", today)
+        .or(`effective_to.is.null,effective_to.gt.${today}`)
+        .maybeSingle(),
     ]);
 
   const rows = invoices ?? [];
@@ -60,6 +66,8 @@ export default async function BillingPage() {
           <LateFeeForm />
         </div>
       </div>
+
+      <PayshapSettingsForm current={payshap} />
 
       <PaymentForm
         accounts={(accounts ?? []).map((a) => ({

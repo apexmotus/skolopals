@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { Badge, Card, CardTitle, DataTable, DetailRow, PageHeading } from "@skolopals/ui/ui";
 import { createClient } from "@skolopals/shared/supabase/server";
 import { INVOICE_STATE_LABEL, money, shortDate } from "@skolopals/shared/format";
+import { getPaymentContext } from "@/lib/payments";
+import { PayButton } from "@/components/payments/payment-dialog";
 
 export const metadata = { title: "Invoice" };
 
@@ -24,6 +26,10 @@ export default async function InvoicePage({ params }: PageProps<"/parent/account
   ]);
 
   if (!status) notFound();
+
+  // The same PayShap dialog that pays an offer pays any unpaid invoice (SPEC §3.1).
+  const payable = status.status === "issued" && Number(status.balance_cents ?? 0) > 0;
+  const payment = payable && status.id ? await getPaymentContext(status.id) : null;
 
   return (
     <>
@@ -48,6 +54,13 @@ export default async function InvoicePage({ params }: PageProps<"/parent/account
             </Badge>
           }
         />
+        {payment ? (
+          <PayButton
+            ctx={payment}
+            label={payment.submission?.status === "submitted" ? "View payment" : "Pay with PayShap"}
+            className="w-fit"
+          />
+        ) : null}
       </Card>
 
       <Card>

@@ -114,7 +114,8 @@ export function age(dateOfBirth: string) {
 }
 
 export const ENROLMENT_STATUS_LABEL = {
-  pending: "Awaiting approval",
+  pending: "Awaiting review",
+  accepted: "Accepted, awaiting payment",
   active: "Active",
   paused: "Paused",
   ended: "Ended",

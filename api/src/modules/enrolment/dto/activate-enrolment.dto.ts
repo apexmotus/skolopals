@@ -1,45 +1,18 @@
-import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
-import {
-  IsDateString,
-  IsInt,
-  IsOptional,
-  IsString,
-  IsUUID,
-  Min,
-} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsUUID } from 'class-validator';
 
+/**
+ * An admin retry (SPEC §5.2): normally payment verification activates. Only
+ * an accepted application whose offer invoice is fully paid can be activated;
+ * it raises no invoice.
+ */
 export class ActivateEnrolmentDto {
-  @ApiProperty() @IsUUID() assignedTutorId!: string;
-
-  @ApiPropertyOptional({ description: 'Defaults to today.' })
+  @ApiPropertyOptional({ description: 'Leave out to keep the tutor chosen by automatic placement.' })
   @IsOptional()
-  @IsDateString()
-  startDate?: string;
-
-  @ApiPropertyOptional({
-    minimum: 0,
-    description:
-      'ZAR cents. Admin discretion for the first month; null = full package price.',
-  })
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  firstMonthCents?: number;
-
-  @ApiPropertyOptional({
-    description:
-      'Required when firstMonthCents is set — makes the discretion auditable.',
-  })
-  @IsOptional()
-  @IsString()
-  reason?: string;
+  @IsUUID()
+  assignedTutorId?: string;
 }
 
 export class ActivateEnrolmentResultDto {
   @ApiProperty() enrolmentId!: string;
-  @ApiPropertyOptional({
-    description:
-      'Unset if this learner was already charged a registration fee before.',
-  })
-  registrationInvoiceId?: string;
 }

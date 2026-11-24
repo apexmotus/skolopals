@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { Button, Card, CardTitle, Field, FormMessage, Input, Select } from "@skolopals/ui/ui";
-import { applyLateFees, recordPayment, runInvoices, type BillingState } from "./actions";
+import { applyLateFees, recordPayment, runInvoices, savePayshapSettings, type BillingState } from "./actions";
 
 function Result({ state }: { state: BillingState }) {
   if (state.error) return <FormMessage>{state.error}</FormMessage>;
@@ -83,6 +83,7 @@ export function PaymentForm({
           <Field label="Method" htmlFor="method">
             <Select id="method" name="method" defaultValue="eft">
               <option value="eft">EFT</option>
+              <option value="payshap">PayShap</option>
               <option value="cash">Cash</option>
               <option value="card_offline">Card (in person)</option>
               <option value="other">Other</option>
@@ -98,6 +99,42 @@ export function PaymentForm({
         <Result state={state} />
         <Button type="submit" className="w-fit" disabled={pending}>
           {pending ? "Recording…" : "Record payment"}
+        </Button>
+      </form>
+    </Card>
+  );
+}
+
+export function PayshapSettingsForm({
+  current,
+}: {
+  current: { payshap_id: string; account_name: string; bank_name: string; instructions: string } | null;
+}) {
+  const [state, action, pending] = useActionState<BillingState, FormData>(savePayshapSettings, {});
+  return (
+    <Card>
+      <CardTitle>PayShap details</CardTitle>
+      <p className="text-[12px] text-muted">
+        What parents see when they pay. {current ? "" : "Not set yet: parents cannot pay online until it is."}
+      </p>
+      <form action={action} className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <Field label="ShapID" htmlFor="payshap_id" className="flex-1">
+            <Input id="payshap_id" name="payshap_id" defaultValue={current?.payshap_id} required />
+          </Field>
+          <Field label="Account name" htmlFor="account_name" className="flex-1">
+            <Input id="account_name" name="account_name" defaultValue={current?.account_name ?? "Skolopals Tutoring Centre"} required />
+          </Field>
+        </div>
+        <Field label="Bank (optional)" htmlFor="bank_name">
+          <Input id="bank_name" name="bank_name" defaultValue={current?.bank_name} />
+        </Field>
+        <Field label="Note for parents (optional)" htmlFor="instructions">
+          <Input id="instructions" name="instructions" defaultValue={current?.instructions} maxLength={300} />
+        </Field>
+        <Result state={state} />
+        <Button type="submit" className="w-fit" disabled={pending}>
+          {pending ? "Saving…" : "Save"}
         </Button>
       </form>
     </Card>

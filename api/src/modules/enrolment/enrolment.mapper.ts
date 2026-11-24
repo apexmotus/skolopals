@@ -1,6 +1,7 @@
-import type { SubmitEnrolmentPayload } from './enrolment.repository.js';
+import type { ProgressRow, SubmitEnrolmentPayload } from './enrolment.repository.js';
+import type { EnrolmentProgressDto } from './dto/application.dto.js';
 import type { EnrolmentSubjectDto } from './dto/update-enrolment-subjects.dto.js';
-import type { SubmitEnrolmentDto } from './dto/submit-enrolment.dto.js';
+import type { ReportCardUploadDto, SubmitEnrolmentDto } from './dto/submit-enrolment.dto.js';
 import type { EnrolmentDto } from './dto/enrolment.dto.js';
 import type { EnrolmentRow, EnrolmentSubjectRow } from './rows/enrolment.row.js';
 
@@ -44,6 +45,34 @@ export class EnrolmentMapper {
       })),
       policyVersion: dto.policyVersion,
       preferredTutorId: dto.preferredTutorId,
+      reportCard: EnrolmentMapper.toReportCardPayload(dto.reportCard),
+    };
+  }
+
+  /** The jsonb `private.record_report_card` reads. */
+  static toReportCardPayload(dto: ReportCardUploadDto): Record<string, unknown> {
+    return {
+      stagingPath: dto.path,
+      mime: dto.mimeType,
+      sizeBytes: dto.sizeBytes,
+      originalName: dto.originalName,
+      year: dto.year,
+      term: dto.term,
+    };
+  }
+
+  static progressToDto(row: ProgressRow): EnrolmentProgressDto {
+    return {
+      enrolmentId: row.enrolment_id,
+      learnerId: row.learner_id,
+      status: row.status,
+      stage: row.stage,
+      offerExpiresOn: row.offer_expires_on ?? undefined,
+      offerInvoiceId: row.offer_invoice_id ?? undefined,
+      offerBalanceCents: row.offer_balance_cents ?? undefined,
+      openSubmissionId: row.open_submission_id ?? undefined,
+      submissionStatus: row.submission_status ?? undefined,
+      declineReason: row.decline_reason ?? undefined,
     };
   }
 

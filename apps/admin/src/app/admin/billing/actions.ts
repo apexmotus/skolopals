@@ -66,3 +66,25 @@ export async function recordPayment(_prev: BillingState, formData: FormData): Pr
   revalidatePath("/admin/billing");
   return { ok: "Payment recorded and allocated to the oldest unpaid invoice first." };
 }
+
+/**
+ * The ShapID parents pay to (SPEC §3.3). A change closes today's row and
+ * opens a new one, so what a parent was shown on a given day stays on record.
+ */
+export async function savePayshapSettings(_prev: BillingState, formData: FormData): Promise<BillingState> {
+  await requireRole("admin");
+  const payshapId = text(formData, "payshap_id");
+  const accountName = text(formData, "account_name");
+  if (!payshapId || !accountName) return { error: "Enter the ShapID and the account name." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_payment_settings", {
+    p_payshap_id: payshapId,
+    p_account_name: accountName,
+    p_bank_name: text(formData, "bank_name"),
+    p_instructions: text(formData, "instructions"),
+  });
+  if (error) return { error: clean(error.message) };
+  revalidatePath("/admin/billing");
+  return { ok: "Saved. Parents see the new details from now on." };
+}

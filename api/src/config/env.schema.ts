@@ -61,6 +61,11 @@ export const envSchema = z.object({
 
   SWAGGER_ENABLED: booleanString('false'),
 
+  // Vercel Cron sends `Authorization: Bearer <CRON_SECRET>` to the
+  // /internal/jobs endpoints (api/vercel.json). Unset: those endpoints refuse
+  // every call, so a forgotten secret fails closed.
+  CRON_SECRET: z.string().min(16).optional(),
+
   // Caching is enabled per 01-app-definition.md §1.2; required.
   REDIS_URL: z.string().min(1),
 });

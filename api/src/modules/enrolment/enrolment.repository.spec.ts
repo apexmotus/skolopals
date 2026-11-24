@@ -14,27 +14,26 @@ function makeSp(
 }
 
 describe('EnrolmentRepository.submit', () => {
-  it('calls public.submit_enrolment with every jsonb param named correctly', async () => {
-    const queryOne = vi
-      .fn()
-      .mockResolvedValue({ submit_enrolment: 'enrolment-1' });
+  it('calls private.submit_enrolment with every jsonb param named correctly', async () => {
+    const result = { enrolmentId: 'e1', learnerId: 'l1', reportCard: { documentId: 'd1', stagingPath: 's', storagePath: 't' } };
+    const queryOne = vi.fn().mockResolvedValue({ submit_enrolment: result });
     const repo = new EnrolmentRepository(makeSp({ queryOne }));
 
-    const id = await repo.submit({
-      learner: { full_name: 'Alex' },
-      packageCode: 'group_1',
-      subjects: [],
-      emergencyContacts: [{ full_name: 'Guardian' }],
-      collectors: [],
-      consents: [{ consent_type_code: 'popia_processing', granted: true }],
-      policyVersion: '1.0',
-    });
+    await expect(
+      repo.submit({
+        learner: { full_name: 'Alex' },
+        packageCode: 'group_1',
+        subjects: [],
+        emergencyContacts: [{ full_name: 'Guardian' }],
+        collectors: [],
+        consents: [{ consent_type_code: 'popia_processing', granted: true }],
+        policyVersion: '1.0',
+        reportCard: { stagingPath: 's' },
+      }),
+    ).resolves.toEqual(result);
 
-    expect(id).toBe('enrolment-1');
-    const params = queryOne.mock.calls[0]?.[1] as {
-      name: string;
-      value: unknown;
-    }[];
+    expect(queryOne.mock.calls[0]?.[0]).toBe('private.submit_enrolment');
+    const params = queryOne.mock.calls[0]?.[1] as { name: string; value: unknown }[];
     expect(params.map((param) => param.name)).toEqual([
       'p_learner',
       'p_package_code',
@@ -43,75 +42,52 @@ describe('EnrolmentRepository.submit', () => {
       'p_collectors',
       'p_consents',
       'p_policy_version',
+      'p_report_card',
       'p_preferred_tutor',
     ]);
     // jsonb params must be JSON-encoded strings, never raw JS objects.
     expect(params[0]?.value).toBe(JSON.stringify({ full_name: 'Alex' }));
-    expect(params[6]?.value).toBe('1.0');
-    expect(params[7]?.value).toBeNull();
+    expect(params[7]?.value).toBe(JSON.stringify({ stagingPath: 's' }));
+    expect(params[8]?.value).toBeNull();
   });
 });
 
-describe('EnrolmentRepository.activate', () => {
-  it('omits optional params entirely when not given, so the SQL defaults apply', async () => {
-    const queryOne = vi.fn().mockResolvedValue({ activate_enrolment: null });
-    const repo = new EnrolmentRepository(makeSp({ queryOne }));
-
-    await repo.activate({ enrolmentId: 'e1', assignedTutorId: 't1' });
-
-    const params = queryOne.mock.calls[0]?.[1] as { name: string }[];
-    expect(params.map((param) => param.name)).toEqual([
-      'p_enrolment_id',
-      'p_assigned_tutor_id',
-    ]);
-  });
-
-  it('includes every optional param when given', async () => {
-    const queryOne = vi
-      .fn()
-      .mockResolvedValue({ activate_enrolment: 'invoice-1' });
-    const repo = new EnrolmentRepository(makeSp({ queryOne }));
-
-    const invoiceId = await repo.activate({
-      enrolmentId: 'e1',
-      assignedTutorId: 't1',
-      startDate: '2026-01-12',
-      firstMonthCents: 20000,
-      reason: 'late sign-up',
+describe('EnrolmentRepository decisions', () => {
+  it('accept calls public.accept_enrolment and unwraps its jsonb', async () => {
+    const queryOne = vi.fn().mockResolvedValue({
+      accept_enrolment: { invoiceId: 'i1', amountDueCents: 30000, offerExpiresOn: '2026-12-01' },
     });
+    const repo = new EnrolmentRepository(makeSp({ queryOne }));
+    await expect(repo.accept('e1')).resolves.toEqual({ invoiceId: 'i1', amountDueCents: 30000, offerExpiresOn: '2026-12-01' });
+    expect(queryOne).toHaveBeenCalledWith('public.accept_enrolment', [{ name: 'p_enrolment_id', value: 'e1' }]);
+  });
 
-    expect(invoiceId).toBe('invoice-1');
-    const params = queryOne.mock.calls[0]?.[1] as { name: string }[];
-    expect(params.map((param) => param.name)).toEqual([
-      'p_enrolment_id',
-      'p_assigned_tutor_id',
-      'p_start_date',
-      'p_first_month_cents',
-      'p_reason',
+  it('decline sends the reason and a null message when none is given', async () => {
+    const queryOne = vi.fn().mockResolvedValue({});
+    const repo = new EnrolmentRepository(makeSp({ queryOne }));
+    await repo.decline('e1', 'No class available');
+    expect(queryOne).toHaveBeenCalledWith('public.decline_enrolment', [
+      { name: 'p_enrolment_id', value: 'e1' },
+      { name: 'p_reason', value: 'No class available' },
+      { name: 'p_message', value: null },
     ]);
   });
 
-  it('returns null, not a fabricated id, when the function returns no invoice (already registered)', async () => {
-    const queryOne = vi.fn().mockResolvedValue({ activate_enrolment: null });
+  it('activate passes a null tutor so automatic placement keeps its choice', async () => {
+    const queryOne = vi.fn().mockResolvedValue({});
     const repo = new EnrolmentRepository(makeSp({ queryOne }));
-
-    await expect(
-      repo.activate({ enrolmentId: 'e1', assignedTutorId: 't1' }),
-    ).resolves.toBeNull();
+    await repo.activate('e1');
+    expect(queryOne).toHaveBeenCalledWith('public.activate_enrolment', [
+      { name: 'p_enrolment_id', value: 'e1' },
+      { name: 'p_assigned_tutor_id', value: null },
+    ]);
   });
-});
 
-describe('EnrolmentRepository.decline', () => {
-  it('only updates a pending enrolment', async () => {
-    const executeRaw = vi.fn().mockResolvedValue({ rows: [], rowCount: 0 });
-    const repo = new EnrolmentRepository(makeSp({ executeRaw }));
-
-    await repo.decline('e1');
-
-    expect(executeRaw).toHaveBeenCalledWith(
-      expect.stringContaining("status = 'pending'"),
-      ['e1'],
-    );
+  it('quote omits the optional date and learner so the SQL defaults apply', async () => {
+    const queryOne = vi.fn().mockResolvedValue({ enrolment_quote: { totalCents: 30000 } });
+    const repo = new EnrolmentRepository(makeSp({ queryOne }));
+    await repo.quote('group_1');
+    expect(queryOne).toHaveBeenCalledWith('public.enrolment_quote', [{ name: 'p_package_code', value: 'group_1' }]);
   });
 });
 

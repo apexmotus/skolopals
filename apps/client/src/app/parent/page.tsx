@@ -1,19 +1,31 @@
 import Link from "next/link";
-import { Card, CardTitle, EmptyState, PageHeading, StatCard } from "@skolopals/ui/ui";
+import { Button, Card, CardTitle, EmptyState, PageHeading, StatCard } from "@skolopals/ui/ui";
 import { getSession } from "@skolopals/shared/auth";
-import { getAccount, getEnrolments, getLearners, getUpcomingSessions } from "@/lib/parent";
+import {
+  getAccount,
+  getApplications,
+  getEnrolments,
+  getLearners,
+  getUnreadUpdates,
+  getUpcomingSessions,
+} from "@/lib/parent";
 import { dateTime, firstName, greeting, money } from "@skolopals/shared/format";
+import { ApplicationCard } from "@/components/applications/application-card";
+import { markUpdatesRead } from "@/components/applications/actions";
 
 export default async function ParentOverview() {
-  const [session, learners, enrolments, upcoming, account] = await Promise.all([
+  const [session, learners, enrolments, upcoming, account, applications, updates] = await Promise.all([
     getSession(),
     getLearners(),
     getEnrolments(),
     getUpcomingSessions(5),
     getAccount(),
+    getApplications(),
+    getUnreadUpdates(),
   ]);
 
   const active = enrolments.filter((e) => e.status === "active");
+  const currentYear = Number(new Date().toLocaleDateString("en-ZA", { year: "numeric", timeZone: "Africa/Johannesburg" }));
 
   return (
     <>
@@ -21,6 +33,32 @@ export default async function ParentOverview() {
         title={`${greeting()}, ${firstName(session?.profile.full_name ?? "")}`}
         description="Your learners, their timetable and your account with the centre."
       />
+
+      {applications.map((app) => (
+        <ApplicationCard key={app.enrolment_id} app={app} currentYear={currentYear} />
+      ))}
+
+      {updates.length > 0 ? (
+        <Card>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle>Updates from the centre</CardTitle>
+            <form action={markUpdatesRead}>
+              <Button type="submit" variant="secondary">
+                Mark as read
+              </Button>
+            </form>
+          </div>
+          <ul className="flex flex-col gap-3">
+            {updates.map((u) => (
+              <li key={u.notification_id} className="flex flex-col gap-1 border-t border-line pt-3 first:border-t-0 first:pt-0">
+                <span className="text-[13px] font-semibold text-ink">{u.notifications?.title}</span>
+                <span className="whitespace-pre-line text-[13px] leading-[1.6] text-muted">{u.notifications?.body}</span>
+                <span className="text-[12px] text-muted">{u.notifications ? dateTime(u.notifications.created_at) : ""}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
 
       <div className="flex flex-col gap-4 md:flex-row">
         <StatCard label="Learners" value={String(learners.length)} />
@@ -55,8 +93,8 @@ export default async function ParentOverview() {
         <Card>
           <CardTitle>Register your first learner</CardTitle>
           <p className="text-[13px] text-ink">
-            Choose a package and register your child to get started. The centre will arrange an initial
-            assessment and place them in a class.
+            Choose a package and send an application with your child’s latest school report. Your child then does a
+            short aptitude test, and the centre reviews the application. You only pay once it is accepted.
           </p>
           <Link href="/enrol" className="text-[12px] text-accent hover:underline">
             Start enrolment

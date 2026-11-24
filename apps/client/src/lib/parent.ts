@@ -95,3 +95,40 @@ export async function getInvoiceLines(invoiceId: string) {
     .eq("invoice_id", invoiceId);
   return data ?? [];
 }
+
+/**
+ * Applications still on their way (and recent decisions), with the stage
+ * derived by `v_enrolment_progress` (SPEC §4.5). RLS limits both reads to the
+ * family's own learners.
+ */
+export async function getApplications() {
+  const supabase = await createClient();
+  const since = new Date(Date.now() - 60 * 86_400_000).toISOString();
+  const { data: rows } = await supabase
+    .from("v_enrolment_progress")
+    .select("*")
+    .not("stage", "in", "(active,paused,ended)")
+    .order("created_at", { ascending: false });
+  const live = (rows ?? []).filter((r) => r.stage !== "declined" || (r.created_at ?? "") > since);
+  if (live.length === 0) return [];
+
+  const { data: learners } = await supabase
+    .from("learners")
+    .select("id, full_name")
+    .in("id", live.map((r) => r.learner_id as string));
+  const names = new Map((learners ?? []).map((l) => [l.id, l.full_name]));
+  return live.map((r) => ({ ...r, learnerName: names.get(r.learner_id as string) ?? "your child" }));
+}
+
+/** Unread messages from the centre: decisions, reminders, payment outcomes. */
+export async function getUnreadUpdates() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("notification_recipients")
+    .select("notification_id, notifications(title, body, created_at)")
+    .is("read_at", null)
+    .limit(10);
+  return (data ?? [])
+    .filter((r) => r.notifications)
+    .sort((a, b) => (b.notifications?.created_at ?? "").localeCompare(a.notifications?.created_at ?? ""));
+}

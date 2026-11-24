@@ -32,7 +32,8 @@ insert into public.data_retention_policies (record_class, description, retention
   ('financial_records', 'Invoices, payments and accounting records',                                                       60, 'Tax Administration Act record-keeping'),
   ('tutor_records',     'Tutor employment records, qualifications and vetting',                                            60, 'Employment and tax record-keeping'),
   ('enquiries',         'Website enquiries that did not become enrolments',                                                12, 'POPIA s14 minimality'),
-  ('messages',          'Portal messages',                                                                                 60, 'Aligned to learner records')
+  ('messages',          'Portal messages',                                                                                 60, 'Aligned to learner records'),
+  ('aptitude_results',  'Aptitude test attempts, answers and results',                                                     60, 'Aligned to learner records; POPIA s35 (child)')
 on conflict (record_class) do update set
   description = excluded.description, retention_months = excluded.retention_months,
   basis = excluded.basis;

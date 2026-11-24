@@ -801,17 +801,50 @@ Legend: `[x]` done and verified · `[~]` in progress · `[ ]` not started. Updat
 - Large iPhone photos (12 MP) take longer to convert than the test image. Watch the confirm endpoint's duration once real uploads arrive.
 - The local dev database `skolopals_dev` is out of step with its migration ledger (`20261110000001` is not recorded, but its policy exists). Not caused by this work. `make reset` rebuilds it, but that wipes local data.
 
-### Phase B — Pre-paid billing
-- [ ] Not started
+### Phase B — Pre-paid billing (done 2026-11-25)
+- [x] B1 `private.prorata_cents` (nearest rand) and `public.enrolment_quote`; `GET /enrolments/quote`. Tested on 1st, 15th, 20th (R315), 21st (R300), 30 Nov, 31 Jan, 28 Feb 2027, 29 Feb 2028
+- [x] B2 `accepted` status; `accept_enrolment` raises the offer invoice (registration if not yet charged + pro-rata tuition, `period_month` set, due at once); `activate_enrolment` raises nothing and refuses an unpaid offer; `first_month_*` retired
+- [x] B3 Cancelled invoices void their lines (`invoice_lines.voided_at`), so a lapsed or re-quoted month can be billed again; the 15th run is unchanged and skips the pro-rated month
+- [x] B4 After the 15th (D9): `bill_after_activation` raises next month (and any gap) on verification, due on the 1st
 
-### Phase C — Enrolment wizard + report card
-- [ ] Not started
+### Phase C — Enrolment wizard + report card (done 2026-11-25)
+- [x] C1 Wizard (`Stepper`, 6 steps, each validated before Next) with report-card upload (sign → browser upload → confirm, HEIC → JPEG) and the first-payment estimate on the last step
+- [x] C2 `learner_documents`, `document_access_log`, `private.can_read_learner_document` (admin, guardians, assigned and class tutors); `submit_enrolment` moved to `private` and refuses an application without a report card or with someone else's upload
+- [x] C3 `POST /enrolments` files the report card in the same unit of work; `PUT /enrolments/:id/report-card` (guardian while pending); `GET /learners/:id/documents/:docId/download` (60 s, logged)
+- [x] C4 `v_enrolment_progress`; parent portal "Continue" card per application with the journey header; "Updates" card for notifications
+- [x] C5 Staging cleanup job (`GET /internal/jobs/staging-cleanup`, daily, files older than 24 h)
 
 ### Phase D — Aptitude test + application review
-- [ ] Not started
+- [x] D1 Bank tables, attempts, responses (`20261124000002_aptitude.sql`). `answer_id` is granted to no signed-in role, admin included; correctness is worked out inside the database
+- [x] D2 Seed generator `db/seed/aptitude/load.mjs` (Ajv draft 2020-12 + answer/id/passage/blueprint checks) → `db/seed/06_aptitude.sql`; `--check` runs in `test-aptitude.sh`. `db/` is now a pnpm workspace package for Ajv
+- [x] D3 Engine `api/src/modules/aptitude/aptitude.engine.ts`, pure and unit-tested with simulated always-right / always-wrong / alternating learners; `AptitudeManager`, `GET/POST /aptitude/attempts…` per §8
+- [x] D4 `test-aptitude.sh` (59 checks) and `api/scripts/aptitude-smoke.ts` (`pnpm verify:aptitude`): full sittings through the real manager, engine and SQL
+- [x] D5 Test UI `/enrol/[enrolmentId]/assessment`; enrol submit goes straight to it (replaces `/enrol/submitted`); "Finish the application" card on the parent portal
+- [x] D6 D15 enforced by trigger `enrolments_require_aptitude` (pending → active needs a completed attempt). UAT seed and `test-enrolment.sh` give approved learners a finished attempt
+- [x] D7 Admin: queue shows test status; review page shows level, band, sub-scores, low-confidence flag, tutor note, question-by-question breakdown, and "Let them take the test again"; Approve hidden until the test is done
+- [x] D8 Applications queue with tabs (To review, Not finished, Awaiting payment, Needs placement, Declined) and waiting age; dashboard counts applications ready to review
+- [x] D9 Review page: report card inline (image or PDF, access-logged), capacity hint, Accept (confirm shows the exact amount), Decline (reason pick-list + Other + message), Request more information (message thread), Re-accept a lapsed offer, activation retry
+- [x] D10 Offer job `process_enrolment_offers` (daily cron, `GET /internal/jobs/enrolment-offers`): one day-3 reminder, lapse at day 7 or 2 days after a rejected proof, a proof waiting stops the clock; invoice cancelled, parent and admins told. Re-quote of an offer from an earlier month when the parent pays
+- [x] D11 `test-applications.sh` (78 checks) and `api/scripts/applications-smoke.ts` (`pnpm verify:applications`)
 
-### Phase E — PayShap payments + activation
-- [ ] Not started
+**D-notes (deliberate departures from §4.3)**
+- **Where the functions live.** The API runs as the caller's own role, so an SP in `public` that the API can call (e.g. "serve item X") a parent could also call through PostgREST with the anon key. All aptitude SPs are therefore `private.aptitude_*` (not an exposed schema), and each also refuses to run when `request.method` is set, i.e. inside a PostgREST request. **Never add `private` to Supabase's exposed schemas.**
+- **"Difficulty served" is the engine's estimate when it served the item, not the item's label.** With 5 passages for 4 blocks, by the last block a strong learner is handed an easy leftover passage (and a weak one a hard one). Scoring item labels capped always-right at Secure and floored always-wrong at band 2; scoring the level being tested gives 5 and 1 as intended.
+- **Answer, then Next.** Choosing an answer and confirming are two taps, so a young child's mis-tap is not final (no back button). The answer is still saved per question.
+
+### Phase E — PayShap payments + activation (done 2026-11-25, without the Student ID of Phase F)
+- [x] E1 `payment_settings` (temporal, `set_payment_settings`), `payment_submissions`, `payshap` method; Billing → PayShap details
+- [x] E2 Parent `PayButton`/dialog, "Step n of 4" (Review, Pay with copy buttons, Upload proof, Being checked), step derived from the latest submission; also on Account → invoice for any unpaid invoice
+- [x] E3 Admin Payments queue (nav badge, mismatch flagged) and review page (proof inline, invoice, account balance, earlier attempts); Verify with confirm, Reject with reason; verifying twice says who and when
+- [x] E4 `verify_payment_submission` settles the given invoice first, activates, auto-places (§4.7: medium, grade, seats, no clashes, preferred tutor first) and bills what is due; unplaced subjects show as `needs_placement` and admins are told
+
+**B–E notes**
+- **Notifications are in-app only** (decided 2026-11-25): `private.notify` writes `notifications`; parents see them on the portal's "Updates" card. Email can be added behind the same function later.
+- **Student ID (Phase F) is not issued on verification yet**; `verify_payment_submission` is where it goes.
+- **Change class / Change tutor** (§4.7 admin changes) belongs to the learner detail page (Phase G). Until then, place by hand on the Timetable page.
+- **Every function a parent's request reaches that takes a storage path is in `private`** and checks the path is the caller's own staging upload (same reasoning as D-notes).
+- **Vercel Cron needs `CRON_SECRET`** set on the API project; without it the job endpoints refuse every call (fail closed).
+- **UAT**: the October history is kept under the old rules (see `docs/UAT-TEST-DATA.md`).
 
 ### Phase F — Student ID + login
 - [ ] Not started

@@ -1,4 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "regions": ["lhr1"]
+  "regions": ["lhr1"],
+  "crons": [
+    { "path": "/api/v1/internal/jobs/enrolment-offers", "schedule": "0 6 * * *" },
+    { "path": "/api/v1/internal/jobs/staging-cleanup", "schedule": "30 1 * * *" }
+  ]
 }

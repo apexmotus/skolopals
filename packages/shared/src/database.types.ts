@@ -34,6 +34,271 @@ export type Database = {
         };
         Relationships: [];
       };
+      aptitude_attempts: {
+        Row: {
+          id: string;
+          learner_id: string;
+          enrolment_id: string;
+          bank_version: string;
+          status: string;
+          current_difficulty: number;
+          started_at: string;
+          completed_at: string | null;
+          abandoned_at: string | null;
+          abandoned_by: string | null;
+          final_band: number | null;
+          level_label: string | null;
+          literacy_pct: number | null;
+          logic_pct: number | null;
+          low_confidence: boolean | null;
+        };
+        Insert: {
+          id?: string;
+          learner_id: string;
+          enrolment_id: string;
+          bank_version: string;
+          status?: string;
+          current_difficulty: number;
+          started_at?: string;
+          completed_at?: string | null;
+          abandoned_at?: string | null;
+          abandoned_by?: string | null;
+          final_band?: number | null;
+          level_label?: string | null;
+          literacy_pct?: number | null;
+          logic_pct?: number | null;
+          low_confidence?: boolean | null;
+        };
+        Update: {
+          id?: string;
+          learner_id?: string;
+          enrolment_id?: string;
+          bank_version?: string;
+          status?: string;
+          current_difficulty?: number;
+          started_at?: string;
+          completed_at?: string | null;
+          abandoned_at?: string | null;
+          abandoned_by?: string | null;
+          final_band?: number | null;
+          level_label?: string | null;
+          literacy_pct?: number | null;
+          logic_pct?: number | null;
+          low_confidence?: boolean | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "aptitude_attempts_learner_id_fkey";
+            columns: ["learner_id"];
+            isOneToOne: false;
+            referencedRelation: "learners";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "aptitude_attempts_enrolment_id_fkey";
+            columns: ["enrolment_id"];
+            isOneToOne: false;
+            referencedRelation: "enrolments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "aptitude_attempts_bank_version_fkey";
+            columns: ["bank_version"];
+            isOneToOne: false;
+            referencedRelation: "aptitude_banks";
+            referencedColumns: ["version"];
+          },
+          {
+            foreignKeyName: "aptitude_attempts_abandoned_by_fkey";
+            columns: ["abandoned_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      aptitude_banks: {
+        Row: {
+          version: string;
+          test_id: string;
+          title: string;
+          instructions: string;
+          audience_notes: string;
+          blueprint: Json;
+          adaptive: Json;
+          scoring: Json;
+          difficulty_bands: Json;
+          is_current: boolean;
+          created_at: string;
+        };
+        Insert: {
+          version: string;
+          test_id: string;
+          title: string;
+          instructions: string;
+          audience_notes?: string;
+          blueprint: Json;
+          adaptive: Json;
+          scoring: Json;
+          difficulty_bands: Json;
+          is_current?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          version?: string;
+          test_id?: string;
+          title?: string;
+          instructions?: string;
+          audience_notes?: string;
+          blueprint?: Json;
+          adaptive?: Json;
+          scoring?: Json;
+          difficulty_bands?: Json;
+          is_current?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      aptitude_items: {
+        Row: {
+          bank_version: string;
+          id: string;
+          section: string;
+          skill: string;
+          subskill: string | null;
+          difficulty: number;
+          passage_id: string | null;
+          stem: string;
+          options: Json;
+          answer_id: string;
+        };
+        Insert: {
+          bank_version: string;
+          id: string;
+          section: string;
+          skill: string;
+          subskill?: string | null;
+          difficulty: number;
+          passage_id?: string | null;
+          stem: string;
+          options: Json;
+          answer_id: string;
+        };
+        Update: {
+          bank_version?: string;
+          id?: string;
+          section?: string;
+          skill?: string;
+          subskill?: string | null;
+          difficulty?: number;
+          passage_id?: string | null;
+          stem?: string;
+          options?: Json;
+          answer_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "aptitude_items_bank_version_fkey";
+            columns: ["bank_version"];
+            isOneToOne: false;
+            referencedRelation: "aptitude_banks";
+            referencedColumns: ["version"];
+          },
+          {
+            foreignKeyName: "aptitude_items_bank_version_passage_id_fkey";
+            columns: ["bank_version", "passage_id"];
+            isOneToOne: false;
+            referencedRelation: "aptitude_passages";
+            referencedColumns: ["bank_version", "id"];
+          },
+        ];
+      };
+      aptitude_passages: {
+        Row: {
+          bank_version: string;
+          id: string;
+          title: string;
+          text: string;
+        };
+        Insert: {
+          bank_version: string;
+          id: string;
+          title: string;
+          text: string;
+        };
+        Update: {
+          bank_version?: string;
+          id?: string;
+          title?: string;
+          text?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "aptitude_passages_bank_version_fkey";
+            columns: ["bank_version"];
+            isOneToOne: false;
+            referencedRelation: "aptitude_banks";
+            referencedColumns: ["version"];
+          },
+        ];
+      };
+      aptitude_responses: {
+        Row: {
+          attempt_id: string;
+          seq: number;
+          bank_version: string;
+          item_id: string;
+          section: string;
+          difficulty_served: number;
+          served_at: string;
+          chosen_option: string | null;
+          is_correct: boolean | null;
+          answered_at: string | null;
+          ms_taken: number | null;
+        };
+        Insert: {
+          attempt_id: string;
+          seq: number;
+          bank_version: string;
+          item_id: string;
+          section: string;
+          difficulty_served: number;
+          served_at?: string;
+          chosen_option?: string | null;
+          is_correct?: boolean | null;
+          answered_at?: string | null;
+          ms_taken?: number | null;
+        };
+        Update: {
+          attempt_id?: string;
+          seq?: number;
+          bank_version?: string;
+          item_id?: string;
+          section?: string;
+          difficulty_served?: number;
+          served_at?: string;
+          chosen_option?: string | null;
+          is_correct?: boolean | null;
+          answered_at?: string | null;
+          ms_taken?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "aptitude_responses_attempt_id_fkey";
+            columns: ["attempt_id"];
+            isOneToOne: false;
+            referencedRelation: "aptitude_attempts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "aptitude_responses_bank_version_item_id_fkey";
+            columns: ["bank_version", "item_id"];
+            isOneToOne: false;
+            referencedRelation: "aptitude_items";
+            referencedColumns: ["bank_version", "id"];
+          },
+        ];
+      };
       assessment_domains: {
         Row: {
           code: string;
@@ -405,6 +670,8 @@ export type Database = {
           enrolment_id: string;
           joined_on: string;
           left_on: string | null;
+          placement_method: string;
+          placed_by: string | null;
         };
         Insert: {
           id?: string;
@@ -413,6 +680,8 @@ export type Database = {
           enrolment_id: string;
           joined_on?: string;
           left_on?: string | null;
+          placement_method?: string;
+          placed_by?: string | null;
         };
         Update: {
           id?: string;
@@ -421,6 +690,8 @@ export type Database = {
           enrolment_id?: string;
           joined_on?: string;
           left_on?: string | null;
+          placement_method?: string;
+          placed_by?: string | null;
         };
         Relationships: [
           {
@@ -442,6 +713,13 @@ export type Database = {
             columns: ["enrolment_id"];
             isOneToOne: false;
             referencedRelation: "enrolments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "class_enrolments_placed_by_fkey";
+            columns: ["placed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -936,6 +1214,84 @@ export type Database = {
         };
         Relationships: [];
       };
+      document_access_log: {
+        Row: {
+          id: string;
+          document_id: string;
+          learner_id: string;
+          accessed_by: string;
+          accessed_at: string;
+        };
+        Insert: {
+          id?: string;
+          document_id: string;
+          learner_id: string;
+          accessed_by: string;
+          accessed_at?: string;
+        };
+        Update: {
+          id?: string;
+          document_id?: string;
+          learner_id?: string;
+          accessed_by?: string;
+          accessed_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "document_access_log_document_id_fkey";
+            columns: ["document_id"];
+            isOneToOne: false;
+            referencedRelation: "learner_documents";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "document_access_log_learner_id_fkey";
+            columns: ["learner_id"];
+            isOneToOne: false;
+            referencedRelation: "learners";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "document_access_log_accessed_by_fkey";
+            columns: ["accessed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      enrolment_offer_events: {
+        Row: {
+          id: string;
+          enrolment_id: string;
+          kind: string;
+          offer_accepted_at: string;
+          sent_at: string;
+        };
+        Insert: {
+          id?: string;
+          enrolment_id: string;
+          kind: string;
+          offer_accepted_at: string;
+          sent_at?: string;
+        };
+        Update: {
+          id?: string;
+          enrolment_id?: string;
+          kind?: string;
+          offer_accepted_at?: string;
+          sent_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "enrolment_offer_events_enrolment_id_fkey";
+            columns: ["enrolment_id"];
+            isOneToOne: false;
+            referencedRelation: "enrolments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       enrolment_subjects: {
         Row: {
           enrolment_id: string;
@@ -992,6 +1348,11 @@ export type Database = {
           source: string;
           created_at: string;
           activated_at: string | null;
+          accepted_at: string | null;
+          accepted_by: string | null;
+          declined_at: string | null;
+          decline_reason: string | null;
+          offer_invoice_id: string | null;
         };
         Insert: {
           id?: string;
@@ -1008,6 +1369,11 @@ export type Database = {
           source?: string;
           created_at?: string;
           activated_at?: string | null;
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          declined_at?: string | null;
+          decline_reason?: string | null;
+          offer_invoice_id?: string | null;
         };
         Update: {
           id?: string;
@@ -1024,6 +1390,11 @@ export type Database = {
           source?: string;
           created_at?: string;
           activated_at?: string | null;
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          declined_at?: string | null;
+          decline_reason?: string | null;
+          offer_invoice_id?: string | null;
         };
         Relationships: [
           {
@@ -1059,6 +1430,20 @@ export type Database = {
             columns: ["first_month_set_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "enrolments_accepted_by_fkey";
+            columns: ["accepted_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "enrolments_offer_invoice_id_fkey";
+            columns: ["offer_invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoices";
             referencedColumns: ["id"];
           },
         ];
@@ -1205,6 +1590,7 @@ export type Database = {
           line_total_cents: number | null;
           period_month: string | null;
           late_fee_for_invoice_id: string | null;
+          voided_at: string | null;
         };
         Insert: {
           id?: string;
@@ -1219,6 +1605,7 @@ export type Database = {
           unit_amount_cents: number;
           period_month?: string | null;
           late_fee_for_invoice_id?: string | null;
+          voided_at?: string | null;
         };
         Update: {
           id?: string;
@@ -1233,6 +1620,7 @@ export type Database = {
           unit_amount_cents?: number;
           period_month?: string | null;
           late_fee_for_invoice_id?: string | null;
+          voided_at?: string | null;
         };
         Relationships: [
           {
@@ -1344,23 +1732,83 @@ export type Database = {
       languages: {
         Row: {
           code: string;
-          is_instruction_medium: boolean;
           name: string;
           sort_order: number;
+          is_instruction_medium: boolean;
         };
         Insert: {
           code: string;
-          is_instruction_medium?: boolean;
           name: string;
           sort_order: number;
+          is_instruction_medium?: boolean;
         };
         Update: {
           code?: string;
-          is_instruction_medium?: boolean;
           name?: string;
           sort_order?: number;
+          is_instruction_medium?: boolean;
         };
         Relationships: [];
+      };
+      learner_documents: {
+        Row: {
+          id: string;
+          learner_id: string;
+          doc_type: string;
+          academic_year: number | null;
+          term: number | null;
+          storage_path: string;
+          original_name: string;
+          mime: string;
+          size_bytes: number;
+          uploaded_by: string;
+          uploaded_at: string;
+          superseded_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          learner_id: string;
+          doc_type: string;
+          academic_year?: number | null;
+          term?: number | null;
+          storage_path: string;
+          original_name: string;
+          mime: string;
+          size_bytes: number;
+          uploaded_by: string;
+          uploaded_at?: string;
+          superseded_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          learner_id?: string;
+          doc_type?: string;
+          academic_year?: number | null;
+          term?: number | null;
+          storage_path?: string;
+          original_name?: string;
+          mime?: string;
+          size_bytes?: number;
+          uploaded_by?: string;
+          uploaded_at?: string;
+          superseded_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "learner_documents_learner_id_fkey";
+            columns: ["learner_id"];
+            isOneToOne: false;
+            referencedRelation: "learners";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "learner_documents_uploaded_by_fkey";
+            columns: ["uploaded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       learner_emergency_contacts: {
         Row: {
@@ -1938,6 +2386,135 @@ export type Database = {
             columns: ["invoice_id"];
             isOneToOne: false;
             referencedRelation: "invoices";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      payment_settings: {
+        Row: {
+          id: string;
+          payshap_id: string;
+          account_name: string;
+          bank_name: string;
+          instructions: string;
+          effective_from: string;
+          effective_to: string | null;
+        };
+        Insert: {
+          id?: string;
+          payshap_id: string;
+          account_name: string;
+          bank_name?: string;
+          instructions?: string;
+          effective_from: string;
+          effective_to?: string | null;
+        };
+        Update: {
+          id?: string;
+          payshap_id?: string;
+          account_name?: string;
+          bank_name?: string;
+          instructions?: string;
+          effective_from?: string;
+          effective_to?: string | null;
+        };
+        Relationships: [];
+      };
+      payment_submissions: {
+        Row: {
+          id: string;
+          invoice_id: string;
+          billing_account_id: string;
+          submitted_by: string;
+          marked_paid_at: string;
+          proof_storage_path: string | null;
+          proof_mime: string | null;
+          proof_uploaded_at: string | null;
+          claimed_amount_cents: number | null;
+          claimed_paid_on: string | null;
+          payer_reference: string;
+          status: string;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          rejection_reason: string | null;
+          withdrawn_note: string | null;
+          payment_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          invoice_id: string;
+          billing_account_id: string;
+          submitted_by: string;
+          marked_paid_at?: string;
+          proof_storage_path?: string | null;
+          proof_mime?: string | null;
+          proof_uploaded_at?: string | null;
+          claimed_amount_cents?: number | null;
+          claimed_paid_on?: string | null;
+          payer_reference?: string;
+          status?: string;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          rejection_reason?: string | null;
+          withdrawn_note?: string | null;
+          payment_id?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          invoice_id?: string;
+          billing_account_id?: string;
+          submitted_by?: string;
+          marked_paid_at?: string;
+          proof_storage_path?: string | null;
+          proof_mime?: string | null;
+          proof_uploaded_at?: string | null;
+          claimed_amount_cents?: number | null;
+          claimed_paid_on?: string | null;
+          payer_reference?: string;
+          status?: string;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          rejection_reason?: string | null;
+          withdrawn_note?: string | null;
+          payment_id?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payment_submissions_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoices";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payment_submissions_billing_account_id_fkey";
+            columns: ["billing_account_id"];
+            isOneToOne: false;
+            referencedRelation: "billing_accounts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payment_submissions_submitted_by_fkey";
+            columns: ["submitted_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payment_submissions_reviewed_by_fkey";
+            columns: ["reviewed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payment_submissions_payment_id_fkey";
+            columns: ["payment_id"];
+            isOneToOne: true;
+            referencedRelation: "payments";
             referencedColumns: ["id"];
           },
         ];
@@ -3208,6 +3785,23 @@ export type Database = {
         };
         Relationships: [];
       };
+      v_enrolment_progress: {
+        Row: {
+          enrolment_id: string | null;
+          learner_id: string | null;
+          status: string | null;
+          stage: string | null;
+          accepted_at: string | null;
+          offer_expires_on: string | null;
+          offer_invoice_id: string | null;
+          offer_balance_cents: number | null;
+          open_submission_id: string | null;
+          submission_status: string | null;
+          decline_reason: string | null;
+          created_at: string | null;
+        };
+        Relationships: [];
+      };
       v_invoice_status: {
         Row: {
           id: string | null;
@@ -3339,11 +3933,14 @@ export type Database = {
       };
     };
     Functions: {
+      accept_enrolment: { Args: Record<string, unknown>; Returns: unknown };
       activate_enrolment: { Args: Record<string, unknown>; Returns: unknown };
       apply_late_fees: { Args: Record<string, unknown>; Returns: unknown };
       configure_invited_user: { Args: Record<string, unknown>; Returns: unknown };
       create_learning_plan: { Args: Record<string, unknown>; Returns: unknown };
       create_tutor: { Args: Record<string, unknown>; Returns: unknown };
+      decline_enrolment: { Args: Record<string, unknown>; Returns: unknown };
+      enrolment_quote: { Args: Record<string, unknown>; Returns: unknown };
       generate_class_sessions: { Args: Record<string, unknown>; Returns: unknown };
       get_user_for_admin: { Args: Record<string, unknown>; Returns: unknown };
       has_required_consents: { Args: Record<string, unknown>; Returns: unknown };
@@ -3355,10 +3952,11 @@ export type Database = {
       record_payment: { Args: Record<string, unknown>; Returns: unknown };
       run_monthly_invoices: { Args: Record<string, unknown>; Returns: unknown };
       save_progress_report: { Args: Record<string, unknown>; Returns: unknown };
+      set_payment_settings: { Args: Record<string, unknown>; Returns: unknown };
       set_tutor_competency: { Args: Record<string, unknown>; Returns: unknown };
       set_tutor_pay_rate: { Args: Record<string, unknown>; Returns: unknown };
       start_thread: { Args: Record<string, unknown>; Returns: unknown };
-      submit_enrolment: { Args: Record<string, unknown>; Returns: unknown };
+      update_user_for_admin: { Args: Record<string, unknown>; Returns: unknown };
     };
     Enums: {
       app_role: "parent" | "learner" | "tutor" | "admin" | "superadmin";
@@ -3383,6 +3981,11 @@ export type ViewRow<T extends keyof Database["public"]["Views"]> =
 export type AppRole = "parent" | "learner" | "tutor" | "admin" | "superadmin";
 
 export type AchievementLevels = Database["public"]["Tables"]["achievement_levels"]["Row"];
+export type AptitudeAttempts = Database["public"]["Tables"]["aptitude_attempts"]["Row"];
+export type AptitudeBanks = Database["public"]["Tables"]["aptitude_banks"]["Row"];
+export type AptitudeItems = Database["public"]["Tables"]["aptitude_items"]["Row"];
+export type AptitudePassages = Database["public"]["Tables"]["aptitude_passages"]["Row"];
+export type AptitudeResponses = Database["public"]["Tables"]["aptitude_responses"]["Row"];
 export type AssessmentDomains = Database["public"]["Tables"]["assessment_domains"]["Row"];
 export type AssessmentScores = Database["public"]["Tables"]["assessment_scores"]["Row"];
 export type AssessmentTypes = Database["public"]["Tables"]["assessment_types"]["Row"];
@@ -3404,6 +4007,8 @@ export type CreditNoteAllocations = Database["public"]["Tables"]["credit_note_al
 export type CreditNotes = Database["public"]["Tables"]["credit_notes"]["Row"];
 export type DataRetentionLog = Database["public"]["Tables"]["data_retention_log"]["Row"];
 export type DataRetentionPolicies = Database["public"]["Tables"]["data_retention_policies"]["Row"];
+export type DocumentAccessLog = Database["public"]["Tables"]["document_access_log"]["Row"];
+export type EnrolmentOfferEvents = Database["public"]["Tables"]["enrolment_offer_events"]["Row"];
 export type EnrolmentSubjects = Database["public"]["Tables"]["enrolment_subjects"]["Row"];
 export type Enrolments = Database["public"]["Tables"]["enrolments"]["Row"];
 export type ExpenseCategories = Database["public"]["Tables"]["expense_categories"]["Row"];
@@ -3414,6 +4019,7 @@ export type InvoiceLines = Database["public"]["Tables"]["invoice_lines"]["Row"];
 export type InvoiceSequences = Database["public"]["Tables"]["invoice_sequences"]["Row"];
 export type Invoices = Database["public"]["Tables"]["invoices"]["Row"];
 export type Languages = Database["public"]["Tables"]["languages"]["Row"];
+export type LearnerDocuments = Database["public"]["Tables"]["learner_documents"]["Row"];
 export type LearnerEmergencyContacts = Database["public"]["Tables"]["learner_emergency_contacts"]["Row"];
 export type LearnerGuardians = Database["public"]["Tables"]["learner_guardians"]["Row"];
 export type LearnerMedicalNotes = Database["public"]["Tables"]["learner_medical_notes"]["Row"];
@@ -3428,6 +4034,8 @@ export type Notifications = Database["public"]["Tables"]["notifications"]["Row"]
 export type PackagePrices = Database["public"]["Tables"]["package_prices"]["Row"];
 export type Packages = Database["public"]["Tables"]["packages"]["Row"];
 export type PaymentAllocations = Database["public"]["Tables"]["payment_allocations"]["Row"];
+export type PaymentSettings = Database["public"]["Tables"]["payment_settings"]["Row"];
+export type PaymentSubmissions = Database["public"]["Tables"]["payment_submissions"]["Row"];
 export type Payments = Database["public"]["Tables"]["payments"]["Row"];
 export type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
 export type ProgrammeAttendanceRecords = Database["public"]["Tables"]["programme_attendance_records"]["Row"];
@@ -3463,6 +4071,7 @@ export type VAttendance = Database["public"]["Views"]["v_attendance"]["Row"];
 export type VAttendanceRate = Database["public"]["Views"]["v_attendance_rate"]["Row"];
 export type VBreakEven = Database["public"]["Views"]["v_break_even"]["Row"];
 export type VEnquiryFunnel = Database["public"]["Views"]["v_enquiry_funnel"]["Row"];
+export type VEnrolmentProgress = Database["public"]["Views"]["v_enrolment_progress"]["Row"];
 export type VInvoiceStatus = Database["public"]["Views"]["v_invoice_status"]["Row"];
 export type VLearnerCounts = Database["public"]["Views"]["v_learner_counts"]["Row"];
 export type VLearnerRetention = Database["public"]["Views"]["v_learner_retention"]["Row"];

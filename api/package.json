@@ -27,7 +27,9 @@
     "verify:people-rls": "tsx scripts/people-rls-spike.ts",
     "verify:billing": "tsx scripts/billing-smoke.ts",
     "verify:phase3e": "tsx scripts/phase3e-smoke.ts",
-    "verify:finance": "tsx scripts/finance-smoke.ts"
+    "verify:finance": "tsx scripts/finance-smoke.ts",
+    "verify:aptitude": "tsx scripts/aptitude-smoke.ts",
+    "verify:applications": "tsx scripts/applications-smoke.ts"
   },
   "dependencies": {
     "@fastify/compress": "^9.3.0",

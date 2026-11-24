@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Literacy and Logic Aptitude Test",
+  "description": "Schema for the aptitude test item bank. The backend selects 25 items adaptively (12 literacy, 13 logic). The answerId of each item must match one of its option ids; JSON Schema cannot check this, so the backend or a test script should.",
+  "type": "object",
+  "required": ["schemaVersion", "test", "difficultyBands", "scoring", "passages", "items"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "test": {
+      "type": "object",
+      "required": ["id", "title", "language", "audience", "instructions", "blueprint", "adaptive"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "language": { "type": "string", "const": "en-ZA" },
+        "audience": {
+          "type": "object",
+          "required": ["gradeRange", "curriculum"],
+          "properties": {
+            "gradeRange": { "type": "string" },
+            "curriculum": { "type": "string" },
+            "notes": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "instructions": { "type": "string" },
+        "blueprint": {
+          "type": "object",
+          "required": ["bankSize", "testLength", "literacyItems", "logicItems", "estimatedMinutes"],
+          "properties": {
+            "bankSize": { "type": "integer", "minimum": 1 },
+            "testLength": { "type": "integer", "minimum": 1 },
+            "literacyItems": { "type": "integer", "minimum": 0 },
+            "logicItems": { "type": "integer", "minimum": 0 },
+            "estimatedMinutes": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        },
+        "adaptive": {
+          "type": "object",
+          "required": ["startDifficulty", "minDifficulty", "maxDifficulty", "stepSize", "selection", "shuffleOptions"],
+          "properties": {
+            "startDifficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
+            "minDifficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
+            "maxDifficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
+            "stepSize": { "type": "integer", "minimum": 1 },
+            "selection": { "type": "string" },
+            "shuffleOptions": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "difficultyBands": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["level", "gradeBand"],
+        "properties": {
+          "level": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "gradeBand": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "scoring": {
+      "type": "object",
+      "required": ["method", "subscores", "levels"],
+      "properties": {
+        "method": { "type": "string" },
+        "subscores": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["literacy", "logic"] },
+          "uniqueItems": true
+        },
+        "levels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["label", "bands", "tutorNote"],
+            "properties": {
+              "label": { "type": "string" },
+              "bands": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "integer", "minimum": 1, "maximum": 5 },
+                "uniqueItems": true
+              },
+              "tutorNote": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "passages": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/passage" }
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/item" }
+    }
+  },
+  "$defs": {
+    "passage": {
+      "type": "object",
+      "required": ["id", "title", "text"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^P\\d+$" },
+        "title": { "type": "string" },
+        "text": { "type": "string", "minLength": 20 }
+      },
+      "additionalProperties": false
+    },
+    "option": {
+      "type": "object",
+      "required": ["id", "text"],
+      "properties": {
+        "id": { "type": "string", "enum": ["A", "B", "C", "D"] },
+        "text": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "item": {
+      "type": "object",
+      "required": ["id", "section", "skill", "difficulty", "stem", "options", "answerId"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^(LIT|LOG-[A-Z]+)-\\d{2}$" },
+        "section": { "type": "string", "enum": ["literacy", "logic"] },
+        "skill": { "type": "string", "enum": ["comprehension", "pattern", "analogy", "odd-one-out", "if-then"] },
+        "subskill": { "type": "string", "enum": ["literal", "inference", "main-idea", "vocabulary"] },
+        "difficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "passageId": { "type": "string", "pattern": "^P\\d+$" },
+        "stem": { "type": "string", "minLength": 5 },
+        "options": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/option" }
+        },
+        "answerId": { "type": "string", "enum": ["A", "B", "C", "D"] }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "section": { "const": "literacy" } } },
+          "then": {
+            "required": ["passageId", "subskill"],
+            "properties": { "skill": { "const": "comprehension" } }
+          },
+          "else": {
+            "not": { "required": ["passageId"] },
+            "properties": { "skill": { "not": { "const": "comprehension" } } }
+          }
+        }
+      ]
+    }
+  }
+}

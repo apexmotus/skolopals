@@ -127,8 +127,9 @@ begin
   return uat_seed.put(p_key, v_id);
 end $fn$;
 
--- Parent submits the /enrol form (submit_enrolment), then the history is
--- backdated to the submission time.
+-- Parent submits the /enrol form (submit_enrolment, with the required report
+-- card), then the history is backdated to the submission time. The report
+-- card row has no file behind it in UAT storage, so its download link 404s.
 create function uat_seed.enrol(
   p_guardian   text,
   p_key        text,
@@ -147,7 +148,7 @@ declare
   v_learner   uuid;
 begin
   perform uat_seed.act_as(p_guardian);
-  v_enrolment := public.submit_enrolment(
+  v_enrolment := (private.submit_enrolment(
     p_learner, p_package, p_subjects, p_emergency, p_collectors,
     jsonb_build_array(
       jsonb_build_object('consent_type_code', 'enrolment_s35',     'granted', true),
@@ -156,9 +157,13 @@ begin
       jsonb_build_object('consent_type_code', 'marketing_photos',  'granted', p_marketing),
       jsonb_build_object('consent_type_code', 'marketing_updates', 'granted', p_marketing)),
     '1.0',
-    case when p_pref_tutor is null then null else uat_seed.id(p_pref_tutor) end);
+    jsonb_build_object('stagingPath', format('staging/%s/%s.pdf', uat_seed.id(p_guardian), gen_random_uuid()),
+                       'year', 2026, 'term', 3, 'originalName', 'Term 3 report.pdf',
+                       'mime', 'application/pdf', 'sizeBytes', 245000),
+    case when p_pref_tutor is null then null else uat_seed.id(p_pref_tutor) end) ->> 'enrolmentId')::uuid;
 
   select learner_id into v_learner from public.enrolments where id = v_enrolment;
+  update public.learner_documents set uploaded_at = p_at where learner_id = v_learner;
   update public.enrolments set created_at = p_at where id = v_enrolment;
   update public.learners   set created_at = p_at, joined_on = p_at::date where id = v_learner;
   update public.consents   set granted_at = p_at where learner_id = v_learner;
@@ -168,20 +173,63 @@ begin
   return uat_seed.put('e.' || p_key, v_enrolment);
 end $fn$;
 
--- Admin approves on /admin/enrolments (activate_enrolment).
+-- Admin approves on /admin/enrolments. This history is from October 2026,
+-- before the pre-paid rules of SPEC-2026-11 §5: approval raised a registration
+-- invoice only, tuition came from the monthly run, and the admin could set the
+-- first month by hand. The function below records it that way, directly,
+-- because today's accept/activate functions follow the new rules. Each
+-- learner still gets a finished aptitude test (D15): a plain "Developing"
+-- result, the day before the start date.
 create function uat_seed.activate(
   p_key text, p_tutor text, p_start date,
   p_first_cents integer default null, p_reason text default null
 ) returns uuid
 language plpgsql as $fn$
-declare v_invoice uuid;
+declare
+  v_enrolment uuid := uat_seed.id('e.' || p_key);
+  v_learner   uuid;
+  v_guardian  uuid;
+  v_account   uuid;
+  v_invoice   uuid;
+  v_admin     uuid := uat_seed.id('u.lindiwe');
+  v_at        timestamptz := ((p_start - 1) + time '10:30') at time zone 'Africa/Johannesburg';
 begin
+  select learner_id into v_learner from public.enrolments where id = v_enrolment;
+
+  insert into public.aptitude_attempts
+    (learner_id, enrolment_id, bank_version, status, current_difficulty, started_at, completed_at,
+     final_band, level_label, literacy_pct, logic_pct, low_confidence)
+  select v_learner, v_enrolment, b.version, 'completed', 3,
+         ((p_start - 1) + time '09:00') at time zone 'Africa/Johannesburg',
+         ((p_start - 1) + time '09:20') at time zone 'Africa/Johannesburg',
+         3, 'Developing', 58, 62, false
+    from public.aptitude_banks b where b.is_current;
+
   perform uat_seed.act_as('u.lindiwe');
-  v_invoice := public.activate_enrolment(uat_seed.id('e.' || p_key), uat_seed.id(p_tutor),
-                                         p_start, p_first_cents, p_reason);
+
+  select guardian_id into v_guardian from public.learner_guardians where learner_id = v_learner and is_billing_contact;
+  select id into v_account from public.billing_accounts where guardian_id = v_guardian;
+  if v_account is null then
+    insert into public.billing_accounts (guardian_id) values (v_guardian) returning id into v_account;
+  end if;
+
+  insert into public.invoices (billing_account_id, invoice_number, issued_on, due_on, status, notes)
+  values (v_account, private.next_invoice_number(p_start), p_start, p_start, 'issued', 'Registration fee')
+  returning id into v_invoice;
+  insert into public.invoice_lines (invoice_id, line_type, description, package_code, learner_id, unit_amount_cents)
+  values (v_invoice, 'registration', 'Registration fee', 'registration', v_learner,
+          coalesce(public.package_price_on('registration', p_start), 0));
+
   update public.enrolments
-     set activated_at = ((p_start - 1) + time '10:30') at time zone 'Africa/Johannesburg'
-   where id = uat_seed.id('e.' || p_key);
+     set status = 'accepted', accepted_at = v_at, accepted_by = v_admin, offer_invoice_id = v_invoice
+   where id = v_enrolment;
+  update public.enrolments
+     set status = 'active', assigned_tutor_id = uat_seed.id(p_tutor), start_date = p_start, activated_at = v_at,
+         first_month_amount_cents = p_first_cents,
+         first_month_set_by = case when p_first_cents is not null then v_admin end,
+         first_month_reason = p_reason
+   where id = v_enrolment;
+  update public.learners set status = 'active', joined_on = p_start where id = v_learner and status = 'prospective';
   return v_invoice;
 end $fn$;
 
@@ -531,7 +579,10 @@ select uat_seed.enrol('u.mandla', 'sibusiso',
   'group_1', '[{"subject_code":"english","preferred_language_code":"english"}]',
   '[{"full_name":"Mandla Shabalala","relationship":"Father","phone":"0835550129","priority":1}]',
   '[]', false, null, '2026-10-09 08:30+02');
-update public.enrolments set status = 'declined' where id = uat_seed.id('e.sibusiso');
+update public.enrolments
+   set status = 'declined', decline_reason = 'No class available for this grade/subject',
+       declined_at = '2026-10-12 11:00+02'
+ where id = uat_seed.id('e.sibusiso');
 
 -- Pieter Botha: second guardian on Ruan, neither primary nor billing contact.
 insert into public.learner_guardians (learner_id, guardian_id, relationship, is_primary, is_billing_contact)
@@ -606,7 +657,7 @@ select key, public.generate_class_sessions(uat_seed.id(key)) as sessions
 from uat_seed.class_def order by key;
 
 -- 7. October: approvals, registration invoices, placements -------------------
--- activate_enrolment raises each registration invoice in order, so numbers
+-- Each approval raises its registration invoice in order, so numbers
 -- SKP-2026-0001.. follow the real sequence of events.
 select uat_seed.activate('ayanda', 't.precious', '2026-10-13');
 select uat_seed.activate('lwazi',  't.kagiso',   '2026-10-13');

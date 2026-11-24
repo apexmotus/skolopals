@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ButtonLink, Card, CardTitle, PageHeading } from "@skolopals/ui/ui";
-import { EnrolForm } from "./enrol-form";
+import { EnrolForm, type Quote } from "./enrol-form";
 import { getSession } from "@skolopals/shared/auth";
 import { api } from "@skolopals/shared/api";
 import { getGrades, getLanguages, getPackages, getSubjects, searchTutors } from "@/lib/queries";
@@ -79,11 +79,24 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
   // Only tutors the centre could actually assign are offered as a preference.
   const preferred = tutorSlug ? tutors.find((t) => t.slug === tutorSlug)?.id : undefined;
 
+  // The review step's estimate: what acceptance today would cost, from the same SQL as the invoice.
+  const quotes = Object.fromEntries(
+    await Promise.all(
+      monthly.map(async (p) => {
+        const quote = await api
+          .get<Quote>(`/enrolments/quote?packageCode=${encodeURIComponent(p.code)}`)
+          .catch(() => null);
+        return [p.code, quote] as const;
+      }),
+    ).then((entries) => entries.filter((e): e is readonly [string, Quote] => e[1] !== null)),
+  );
+  const currentYear = Number(new Date().toLocaleDateString("en-ZA", { year: "numeric", timeZone: "Africa/Johannesburg" }));
+
   return (
     <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-4 py-6 md:px-[24px]">
       <PageHeading
         title="Enrol a learner"
-        description={`Signed in as ${session.profile.full_name}. A once-off registration fee of ${money(registration)} applies when the place is confirmed.`}
+        description={`Signed in as ${session.profile.full_name}. Nothing is paid now: once the centre accepts the application you pay a once-off registration fee of ${money(registration)} and the rest of that month’s tuition.`}
       />
       <div className="max-w-[760px]">
         <EnrolForm
@@ -101,6 +114,8 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
           consentTypes={consentTypes}
           defaultTutor={preferred}
           me={{ fullName: session.profile.full_name, phone: session.profile.phone ?? "" }}
+          quotes={quotes}
+          currentYear={currentYear}
         />
       </div>
     </div>
