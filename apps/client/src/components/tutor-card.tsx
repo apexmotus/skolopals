@@ -8,7 +8,7 @@ export function TutorCard({ tutor }: { tutor: DirectoryTutor }) {
   return (
     <Card className="min-w-0 flex-1">
       <div className="flex items-center gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#DCE7F3] text-[13px] font-bold text-ink">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-subtle text-[13px] font-bold text-ink">
           {initials(tutor.fullName || "?")}
         </span>
         <div className="flex min-w-0 flex-col">

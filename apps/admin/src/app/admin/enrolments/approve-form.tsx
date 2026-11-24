@@ -51,7 +51,6 @@ export function ApproveForm({
           <Input id={`reason-${enrolmentId}`} name="reason" placeholder="e.g. joined 18 October, part month" />
         </Field>
         {state.error ? <FormMessage>{state.error}</FormMessage> : null}
-        {state.ok ? <FormMessage tone="success">{state.ok}</FormMessage> : null}
         <Button type="submit" className="w-fit" disabled={pending}>
           {pending ? "Activating…" : "Approve and activate"}
         </Button>

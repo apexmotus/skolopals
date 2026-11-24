@@ -7,7 +7,8 @@ export const referenceCacheKeys = {
   subjects: 'skolopals:reference:subjects',
   subjectOfferings: (gradeCode: string | null) =>
     `skolopals:reference:subjectOfferings:${gradeCode ?? 'all'}`,
-  languages: 'skolopals:reference:languages',
+  // v2: rows gained isInstructionMedium; the old key may still hold rows without it.
+  languages: 'skolopals:reference:languages:v2',
   achievementLevels: 'skolopals:reference:achievementLevels',
   assessmentTypes: 'skolopals:reference:assessmentTypes',
   assessmentDomains: 'skolopals:reference:assessmentDomains',

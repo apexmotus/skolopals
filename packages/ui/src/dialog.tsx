@@ -72,7 +72,7 @@ export function Dialog({
         if (dismissible && event.target === event.currentTarget) onClose();
       }}
       className={cx(
-        "m-auto flex-col overflow-hidden bg-white p-0 text-left text-muted backdrop:bg-plum-950/70 open:flex",
+        "m-auto flex-col overflow-hidden border border-line bg-surface p-0 text-left text-muted backdrop:bg-black/60 open:flex",
         "max-sm:h-dvh max-sm:max-h-none max-sm:w-screen max-sm:max-w-none",
         "sm:max-h-[min(90dvh,820px)] sm:w-[min(92vw,560px)] sm:rounded-[14px] sm:shadow-card",
         className,
@@ -95,7 +95,7 @@ export function Dialog({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="-mr-2 -mt-1 flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-subtle hover:text-ink"
+              className="-mr-2 -mt-1 flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-white/[0.08] hover:text-ink"
             >
               <X aria-hidden size={20} />
             </button>

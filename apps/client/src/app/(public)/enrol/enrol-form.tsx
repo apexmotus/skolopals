@@ -18,6 +18,7 @@ export function EnrolForm({
   grades,
   subjects,
   languages,
+  media,
   tutors,
   consentTypes,
   defaultTutor,
@@ -27,6 +28,8 @@ export function EnrolForm({
   grades: Option[];
   subjects: Option[];
   languages: Option[];
+  /** Languages the centre teaches in. `languages` is every official language, for home language. */
+  media: Option[];
   tutors: { id: string; fullName: string }[];
   consentTypes: ConsentType[];
   defaultTutor?: string;
@@ -173,7 +176,7 @@ export function EnrolForm({
                 </label>
                 {picked ? (
                   <Select name={`medium_${s.code}`} defaultValue="english" className="max-w-[200px]">
-                    {languages.map((l) => (
+                    {media.map((l) => (
                       <option key={l.code} value={l.code}>
                         Taught in {l.name}
                       </option>

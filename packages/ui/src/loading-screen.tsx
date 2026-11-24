@@ -11,7 +11,7 @@ export function LoadingScreen({ label = "Loading" }: { label?: string }) {
       role="status"
       aria-live="polite"
       aria-busy="true"
-      className="fixed inset-0 z-[1000] flex items-center justify-center bg-white/95"
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-plum-950/95"
     >
       <div className="relative flex size-[200px] items-center justify-center">
         <span aria-hidden className="skolo-spinner-ring absolute inset-0" />

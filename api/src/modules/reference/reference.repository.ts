@@ -57,7 +57,7 @@ export class ReferenceRepository {
 
   listLanguages(): Promise<LanguageRow[]> {
     return this.sp.selectMany<LanguageRow>(
-      'select code, name, sort_order from public.languages order by sort_order',
+      'select code, name, sort_order, is_instruction_medium from public.languages order by sort_order',
     );
   }
 

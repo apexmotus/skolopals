@@ -91,7 +91,7 @@ export default async function AdminTutorPage({ params }: PageProps<"/admin/tutor
           tutorId={tutor.id}
           subjects={subjects.map((s) => ({ code: s.code, name: s.name }))}
           grades={grades.map((g) => ({ code: g.code, name: g.name }))}
-          languages={languages.map((l) => ({ code: l.code, name: l.name }))}
+          languages={languages.filter((l) => l.isInstructionMedium).map((l) => ({ code: l.code, name: l.name }))}
         />
       </Card>
 

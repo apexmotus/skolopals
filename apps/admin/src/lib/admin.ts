@@ -67,17 +67,29 @@ export async function getKpis() {
   };
 }
 
+/** Pending enrolments, oldest first: just enough to scan the queue. Details live on getEnrolment. */
 export async function getEnrolmentQueue() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("enrolments")
+    .select("id, created_at, learners(full_name), enrolment_subjects(subject_code, subjects(name))")
+    .eq("status", "pending")
+    .order("created_at");
+  return data ?? [];
+}
+
+/** One enrolment with everything the accept/decline decision needs. */
+export async function getEnrolment(id: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("enrolments")
     .select(
       // Two FKs point at tutors (preferred and assigned), so the embed is hinted.
-      "*, learners(full_name, grade_code, date_of_birth), packages(name), enrolment_subjects(subject_code, preferred_language_code, subjects(name)), tutors!enrolments_preferred_tutor_id_fkey(slug, profiles(full_name))",
+      "*, learners(full_name, grade_code, date_of_birth, school_name, grades(name), languages(name), learner_guardians(relationship, is_primary, guardians(profiles(full_name, phone)))), packages(name), enrolment_subjects(subject_code, preferred_language_code, subjects(name), languages(name)), tutors!enrolments_preferred_tutor_id_fkey(slug, profiles(full_name))",
     )
-    .eq("status", "pending")
-    .order("created_at");
-  return data ?? [];
+    .eq("id", id)
+    .maybeSingle();
+  return data;
 }
 
 export async function getTutors() {

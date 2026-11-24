@@ -30,16 +30,24 @@ insert into public.grades (code, name, phase_code, sort_order) values
 on conflict (code) do update set name = excluded.name, phase_code = excluded.phase_code;
 
 -- Languages ----------------------------------------------------------------
--- Setswana first after the official languages of instruction: the centre is in
+-- All twelve official languages. English, Afrikaans and Setswana are taught in
+-- (is_instruction_medium). Setswana first after the other two: the centre is in
 -- Damonsville, North West, where Setswana is the dominant home language.
-insert into public.languages (code, name, sort_order) values
-  ('english',  'English',  1),
-  ('afrikaans','Afrikaans',2),
-  ('setswana', 'Setswana', 3),
-  ('sesotho',  'Sesotho',  4),
-  ('isizulu',  'isiZulu',  5),
-  ('isixhosa', 'isiXhosa', 6)
-on conflict (code) do update set name = excluded.name, sort_order = excluded.sort_order;
+insert into public.languages (code, name, sort_order, is_instruction_medium) values
+  ('english',    'English',                     1, true),
+  ('afrikaans',  'Afrikaans',                   2, true),
+  ('setswana',   'Setswana',                    3, true),
+  ('sesotho',    'Sesotho',                     4, false),
+  ('isizulu',    'isiZulu',                     5, false),
+  ('isixhosa',   'isiXhosa',                    6, false),
+  ('sepedi',     'Sepedi',                      7, false),
+  ('isindebele', 'isiNdebele',                  8, false),
+  ('siswati',    'siSwati',                     9, false),
+  ('tshivenda',  'Tshivenda',                  10, false),
+  ('xitsonga',   'Xitsonga',                   11, false),
+  ('sasl',       'South African Sign Language',12, false)
+on conflict (code) do update set
+  name = excluded.name, sort_order = excluded.sort_order, is_instruction_medium = excluded.is_instruction_medium;
 
 -- Achievement levels -------------------------------------------------------
 insert into public.achievement_levels (code, label, description, min_percent, max_percent) values

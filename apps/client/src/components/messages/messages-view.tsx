@@ -28,7 +28,7 @@ export async function MessagesView({ openThreadId }: { openThreadId?: string }) 
             key={t.id}
             href={`?thread=${t.id}`}
             className={`flex flex-col gap-1 rounded-[8px] border p-3 ${
-              t.id === current ? "border-brand bg-canvas" : "border-line bg-white"
+              t.id === current ? "border-brand bg-canvas" : "border-line bg-surface"
             }`}
           >
             <span className="flex items-center justify-between gap-2">
@@ -57,7 +57,7 @@ export async function MessagesView({ openThreadId }: { openThreadId?: string }) 
           <div className="flex flex-col gap-3">
             {messages.map((m) => (
               <div key={m.id} className="flex gap-3">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-canvas text-[11px] font-bold text-brand">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-canvas text-[11px] font-bold text-brand-light">
                   {initials(m.profiles?.full_name ?? "?")}
                 </span>
                 <div className="flex min-w-0 flex-col gap-[2px]">

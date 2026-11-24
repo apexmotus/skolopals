@@ -626,10 +626,13 @@ Use colours **already in the logo** (`skolo-spinner-ring`: magenta `#d81b7a`, pu
 | `--color-on-dark` | `#f6f1fa` | Body text on plum |
 | `--color-on-dark-muted` | `#c9b8d9` | Secondary text on plum |
 
-**Layout rule:** the canvas and chrome go plum. **Content cards, forms and tables stay light**
-(`white` / `canvas #faf8f5`) on top of it. Long forms, the aptitude test and data tables must stay
-easy to read, and the light card on dark plum gives the strong branded look without dark-mode-style
-forms everywhere. Yellow is an **accent**, never a large fill except CTAs and small badges.
+**Layout rule (revised 2026-11-21, owner):** everything is dark. White cards on plum looked out of
+place, so cards, tables and dialogs are a raised plum (`surface` #2a1040), inputs and inset panels are
+a sunken plum (`canvas` #1a0a28), table headers and chips are `subtle` #3a1658. Text is `ink`
+#f6f1fa / `muted` #c9b8d9, links and accents are yellow, status colours use light tints
+(`success` #6ee7b7, `danger` #fca5a5, `warning` #fcd34d) on 14–22 % fills. Magenta stays the primary
+button fill (white text); as text on plum it is `brand-light` #ff8cc6. Yellow is an **accent**, never
+a large fill except CTAs and small badges. All pairs measured ≥ 5.5:1 (AA).
 
 ### 7.3 Contrast (must pass WCAG AA; verify with a script in CI)
 - `#f6f1fa` on `#1e0b2e` ≈ 16:1 ✓ · `#c9b8d9` on `#1e0b2e` ≈ 10:1 ✓
@@ -820,7 +823,7 @@ Legend: `[x]` done and verified · `[~]` in progress · `[ ]` not started. Updat
 - [ ] Not started
 
 ### Phase I — Responsive sweep + theme rollout (pulled forward at owner's request, 2026-11-21)
-- [x] I1 Theme switched on: plum canvas, light surfaces. Text tokens (`ink`, `muted`, `nav`, `line`, `link`, new `accent`) flip to light on the canvas and back on any `bg-white` / `bg-canvas` / `bg-subtle` / `.surface-light` element, in the base layer so utilities still win
+- [x] I1 Theme switched on as **one dark palette** (revised after owner feedback that white cards stuck out): the semantic tokens themselves are the dark values, new `surface` / `brand-light` / `accent` tokens, legacy light variables removed. Cards, tables, dialogs, inputs, selects (lucide chevron), badges, form messages, buttons, stepper, loader and the home page sections all moved to plum; `color-scheme: dark` and a yellow `accent-color` for native controls
 - [x] I2 Hard-coded colours replaced with tokens across both apps (`text-black`, navy/slate/blue hex → `ink` / `muted` / `nav` / `link`); link-style `text-brand` → `text-accent` (magenta on surfaces, yellow on plum, since magenta text on plum is only 3.8:1)
 - [x] I3 Yellow accents: active nav item bar (portal sidebar and drawer), public nav active underline, `sun` button (dark text) for CTAs on plum, home banner, footer phone link, stepper current step. `ghostOnDark` button for secondary actions on plum. `--color-night` → plum-900; `success-soft` made opaque so success badges work on plum
 - [x] I4 Public site responsive: phone/tablet top bar + drawer below `lg` (shared `MobileNav`, now with a `breakpoint` prop), full nav from `lg`. Checked: drawer opens, Esc closes it, following a link closes it

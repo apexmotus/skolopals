@@ -45,7 +45,7 @@ export function Stepper({
           aria-valuetext={`Step ${at + 1} of ${steps.length}: ${steps[at]?.label}`}
           className="h-[6px] w-full overflow-hidden rounded-full bg-subtle"
         >
-          <div className="h-full rounded-full bg-purple transition-[width]" style={{ width: `${Math.max(percent, 4)}%` }} />
+          <div className="h-full rounded-full bg-sun transition-[width]" style={{ width: `${Math.max(percent, 4)}%` }} />
         </div>
       </div>
 
@@ -56,9 +56,9 @@ export function Stepper({
             <span
               className={cx(
                 "relative z-[1] flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-bold",
-                state === "done" && "bg-purple text-white",
-                state === "current" && "bg-sun text-plum-950 ring-4 ring-sun-soft",
-                state === "upcoming" && "border border-line bg-white text-muted",
+                state === "done" && "bg-plum-700 text-white",
+                state === "current" && "bg-sun text-plum-950 ring-4 ring-sun/25",
+                state === "upcoming" && "border border-white/25 bg-surface text-muted",
               )}
             >
               {state === "done" ? <Check aria-hidden size={16} strokeWidth={2.5} /> : i + 1}
@@ -93,7 +93,7 @@ export function Stepper({
                   aria-hidden
                   className={cx(
                     "absolute right-1/2 top-[15px] h-[2px] w-full",
-                    i <= at ? "bg-purple" : "bg-line",
+                    i <= at ? "bg-plum-700" : "bg-line",
                   )}
                 />
               ) : null}

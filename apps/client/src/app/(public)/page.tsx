@@ -11,22 +11,22 @@ const CHAIN = [
   {
     title: "1. Assessment",
     body: "Every learner starts with an assessment of reading, writing and mathematics.",
-    accentClass: "border-t-[#D81B7A] bg-[linear-gradient(180deg,#FDF2F8_0%,#FCE7F3_100%)]",
+    accentClass: "border-t-[#D81B7A]",
   },
   {
     title: "2. Learning plan",
     body: "We set goals per subject from what the assessment shows.",
-    accentClass: "border-t-[#0288D1] bg-[linear-gradient(180deg,#F0F8FF_0%,#E0F2FE_100%)]",
+    accentClass: "border-t-[#0288D1]",
   },
   {
     title: "3. Tutoring & homework",
     body: "Small groups at the centre, Monday to Thursday and Saturday mornings.",
-    accentClass: "border-t-[#FBC02D] bg-[linear-gradient(180deg,#FFFDF2_0%,#FEF9C3_100%)]",
+    accentClass: "border-t-[#FBC02D]",
   },
   {
     title: "4. Reports & feedback",
     body: "Monthly monitoring, a termly report, and a conversation with you.",
-    accentClass: "border-t-[#7B1FA2] bg-[linear-gradient(180deg,#F8F4FC_0%,#F3E8FF_100%)]",
+    accentClass: "border-t-[#7B1FA2]",
   },
 ] as const;
 
@@ -43,16 +43,16 @@ export default async function HomePage() {
   return (
     <div className="mx-auto flex w-full max-w-[1280px] flex-col px-4 md:px-[24px]">
       {/* 4.2 Hero Banner Section */}
-      <section className="surface-light relative mt-[24px] overflow-hidden rounded-[20px] bg-[#EDF4FB] bg-[linear-gradient(135deg,#EEF4FA_0%,#E6EFF8_100%)] px-6 py-9 md:px-[56px] md:py-[48px]">
+      <section className="relative mt-[24px] overflow-hidden rounded-[20px] border border-line bg-[linear-gradient(135deg,#3a1658_0%,#2a1040_60%,#24103a_100%)] px-6 py-9 md:px-[56px] md:py-[48px]">
         <div className="relative z-10 grid grid-cols-1 items-center gap-[40px] md:grid-cols-[1.25fr_0.75fr]">
           {/* Left Column (Copy & CTAs) */}
           <div className="flex min-w-0 flex-col items-start">
-            <span className="mb-[20px] inline-flex items-center rounded-[9999px] bg-[#DCE7F3] px-[14px] py-[6px] text-[12px] font-semibold leading-none tracking-[0.01em] text-muted">
+            <span className="mb-[20px] inline-flex items-center rounded-[9999px] bg-white/10 px-[14px] py-[6px] text-[12px] font-semibold leading-none tracking-[0.01em] text-ink">
               Damonsville · Brits · North West
             </span>
             <h1 className="mb-[16px] text-[42px] font-extrabold leading-[1.15] tracking-[-0.02em]">
-              <span style={{ color: "#1B2559" }}>Learning Today. </span>
-              <span style={{ color: "#D81B7A" }}>Succeeding Tomorrow.</span>
+              <span className="text-white">Learning Today. </span>
+              <span className="text-brand-light">Succeeding Tomorrow.</span>
             </h1>
             <p className="mb-[28px] max-w-[580px] text-[16px] font-medium leading-[1.5] tracking-[0] text-muted">
               Affordable after-school tutoring, homework support and reading intervention for Grade R to Grade 12,
@@ -67,7 +67,7 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/pricing"
-                className="inline-flex items-center justify-center rounded-[8px] border-[1.5px] border-[#1B2559] bg-[rgba(255,255,255,0.7)] px-[24px] py-[12px] text-[14px] font-bold leading-none text-ink transition-colors hover:bg-white"
+                className="inline-flex items-center justify-center rounded-[8px] border-[1.5px] border-white/40 bg-transparent px-[24px] py-[12px] text-[14px] font-bold leading-none text-ink transition-colors hover:bg-white/[0.06]"
               >
                 See our fees
               </Link>
@@ -129,13 +129,13 @@ export default async function HomePage() {
         >
           <path
             d="M0,18 C240,42 520,-4 820,26 C1020,44 1160,22 1280,14 L1280,45 L0,45 Z"
-            fill="#F8D7E8"
-            fillOpacity="0.85"
+            fill="#d81b7a"
+            fillOpacity="0.16"
           />
           <path
             d="M360,45 C580,14 860,6 1080,24 C1180,32 1240,20 1280,12 L1280,45 Z"
-            fill="#FCF3CF"
-            fillOpacity="0.9"
+            fill="#f5c211"
+            fillOpacity="0.14"
           />
         </svg>
       </section>
@@ -149,7 +149,7 @@ export default async function HomePage() {
           {CHAIN.map((s) => (
             <div
               key={s.title}
-              className={`surface-light relative flex flex-col gap-2 overflow-hidden rounded-[12px] border border-black/[0.04] border-t-[4px] px-[22px] pt-[20px] pb-[24px] ${s.accentClass}`}
+              className={`relative flex flex-col gap-2 overflow-hidden rounded-[12px] border border-line border-t-[4px] bg-surface px-[22px] pt-[20px] pb-[24px] ${s.accentClass}`}
             >
               <h3 className="text-[16px] font-bold leading-[1.35] text-ink">{s.title}</h3>
               <p className="text-[14px] font-normal leading-[1.5] text-muted">{s.body}</p>
@@ -159,9 +159,9 @@ export default async function HomePage() {
       </section>
 
       {/* 4.4 Full-Width Pricing Callout Banner */}
-      <section className="surface-light mt-[24px] w-full rounded-[12px] border border-[#F5E6B8] bg-[#FDF4D7] px-[28px] py-[22px]">
+      <section className="mt-[24px] w-full rounded-[12px] border border-line border-l-[4px] border-l-sun bg-plum-800 px-[28px] py-[22px]">
         <h2 className="mb-[6px] text-[22px] font-extrabold leading-[1.3] tracking-[-0.01em] text-ink">
-          Small groups, from <span className="text-[#D81B7A]">{fromPriceText}</span> a month
+          Small groups, from <span className="text-sun">{fromPriceText}</span> a month
         </h2>
         <p className="text-[14px] font-normal leading-[1.5] text-muted">
           One subject, two subjects, three, or all-subject support. Homework assistance and one-on-one tutoring are

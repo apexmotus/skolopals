@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 
 import { buttonClass, cx, type ButtonVariant } from "./button-styles";
@@ -24,7 +25,7 @@ export function Card({ className, children, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cx(
-        "flex flex-col gap-[14px] rounded-[12px] border border-line bg-white p-5 shadow-card",
+        "flex flex-col gap-[14px] rounded-[12px] border border-line bg-surface p-5 shadow-card",
         className,
       )}
       {...props}
@@ -78,9 +79,9 @@ export function StatCard({
 type BadgeTone = "neutral" | "location" | "brand" | "success" | "danger" | "warning" | "onDark";
 
 const badgeTones: Record<BadgeTone, string> = {
-  neutral: "bg-[#DCE7F3] text-muted font-semibold",
-  location: "bg-[#DCE7F3] text-muted font-semibold tracking-[0.01em] px-[14px] py-[6px] text-[12px] leading-none",
-  brand: "bg-brand-soft text-brand font-semibold",
+  neutral: "bg-subtle text-ink font-semibold",
+  location: "bg-subtle text-ink font-semibold tracking-[0.01em] px-[14px] py-[6px] text-[12px] leading-none",
+  brand: "bg-brand-soft text-brand-light font-semibold",
   success: "bg-success-soft text-success",
   danger: "bg-danger-soft text-danger font-semibold",
   warning: "bg-warning-soft text-warning font-semibold",
@@ -113,7 +114,7 @@ export function Badge({
 
 // 16px below md: iOS Safari zooms the page on focus for anything smaller.
 const inputClass =
-  "h-[44px] w-full rounded-[6px] border border-line bg-white px-3 text-[16px] text-ink placeholder:text-muted md:h-[42px] md:text-[13px]";
+  "h-[44px] w-full rounded-[6px] border border-white/20 bg-canvas px-3 text-[16px] text-ink placeholder:text-muted/70 hover:border-white/35 md:h-[42px] md:text-[13px]";
 
 export function Field({
   label,
@@ -161,12 +162,10 @@ export function Select({ className, children, ...props }: ComponentProps<"select
       >
         {children}
       </select>
-      <img
-        src="/icons/chevron-down.svg"
-        alt=""
-        width={16}
-        height={16}
-        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+      <ChevronDown
+        aria-hidden
+        size={16}
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted"
       />
     </div>
   );
@@ -178,7 +177,7 @@ export function FormMessage({ tone = "danger", children }: { tone?: "danger" | "
       role={tone === "danger" ? "alert" : "status"}
       className={cx(
         "rounded-[8px] p-3 text-[12px]",
-        tone === "danger" ? "bg-danger-soft text-danger" : "bg-canvas text-brand",
+        tone === "danger" ? "bg-danger-soft text-danger" : "bg-success-soft text-success",
       )}
     >
       {children}
@@ -233,7 +232,7 @@ export function DataTable<T>({
   empty?: ReactNode;
 }) {
   return (
-    <div className="surface-light w-full md:overflow-x-auto md:rounded-[10px] md:border md:border-line md:bg-white">
+    <div className="w-full md:overflow-x-auto md:rounded-[10px] md:border md:border-line md:bg-surface">
       <table className="w-full text-left max-md:block md:min-w-[560px] md:table-fixed">
         <thead className="bg-subtle max-md:hidden">
           <tr>
@@ -246,7 +245,7 @@ export function DataTable<T>({
         </thead>
         <tbody className="max-md:flex max-md:flex-col max-md:gap-3">
           {rows.length === 0 ? (
-            <tr className="border-line max-md:block max-md:rounded-[10px] max-md:border max-md:bg-white md:border-t">
+            <tr className="border-line max-md:block max-md:rounded-[10px] max-md:border max-md:bg-surface md:border-t">
               <td colSpan={columns.length} className="p-3 text-[13px] text-muted max-md:block max-md:p-4">
                 {empty ?? "Nothing to show yet."}
               </td>
@@ -257,7 +256,7 @@ export function DataTable<T>({
               return (
                 <tr
                   key={rowKey(row)}
-                  className="relative border-line max-md:flex max-md:flex-col max-md:gap-2 max-md:rounded-[10px] max-md:border max-md:bg-white max-md:p-4 max-md:shadow-card md:border-t"
+                  className="relative border-line max-md:flex max-md:flex-col max-md:gap-2 max-md:rounded-[10px] max-md:border max-md:bg-surface max-md:p-4 max-md:shadow-card md:border-t md:hover:bg-white/[0.03]"
                 >
                   {columns.map((c, i) => (
                     <td

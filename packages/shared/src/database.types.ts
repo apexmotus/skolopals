@@ -1344,16 +1344,19 @@ export type Database = {
       languages: {
         Row: {
           code: string;
+          is_instruction_medium: boolean;
           name: string;
           sort_order: number;
         };
         Insert: {
           code: string;
+          is_instruction_medium?: boolean;
           name: string;
           sort_order: number;
         };
         Update: {
           code?: string;
+          is_instruction_medium?: boolean;
           name?: string;
           sort_order?: number;
         };

@@ -4,7 +4,7 @@ import { api } from "./api/client";
 export type Phase = { code: string; name: string; sortOrder: number };
 export type Grade = { code: string; name: string; phaseCode: string; sortOrder: number };
 export type Subject = { code: string; name: string; description: string; isLanguage: boolean; sortOrder: number };
-export type Language = { code: string; name: string; sortOrder: number };
+export type Language = { code: string; name: string; sortOrder: number; isInstructionMedium: boolean };
 export type SubjectOffering = { subjectCode: string; gradeCode: string };
 export type Room = { id: string; name: string; capacity: number; isActive: boolean };
 

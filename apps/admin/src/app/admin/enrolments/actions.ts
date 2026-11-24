@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@skolopals/shared/supabase/server";
 import { requireRole } from "@skolopals/shared/auth";
 
@@ -41,7 +42,7 @@ export async function approveEnrolment(_prev: ApproveState, formData: FormData):
   if (error) return { error: error.message.replace(/^.*?:\s*/, "") };
 
   revalidatePath("/admin/enrolments");
-  return { ok: "Enrolment activated and the registration invoice raised." };
+  redirect("/admin/enrolments?done=approved");
 }
 
 export async function declineEnrolment(_prev: ApproveState, formData: FormData): Promise<ApproveState> {
@@ -51,5 +52,5 @@ export async function declineEnrolment(_prev: ApproveState, formData: FormData):
   const { error } = await supabase.from("enrolments").update({ status: "declined" }).eq("id", id);
   if (error) return { error: "Could not decline the enrolment." };
   revalidatePath("/admin/enrolments");
-  return { ok: "Enrolment declined." };
+  redirect("/admin/enrolments?done=declined");
 }

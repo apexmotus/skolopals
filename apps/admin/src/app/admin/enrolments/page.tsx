@@ -1,88 +1,57 @@
-import { Badge, Card, CardTitle, DetailRow, EmptyState, PageHeading } from "@skolopals/ui/ui";
-import { ApproveForm } from "./approve-form";
-import { getEnrolmentQueue, getTutors } from "@/lib/admin";
-import { age, money, shortDate } from "@skolopals/shared/format";
-import { createClient } from "@skolopals/shared/supabase/server";
+import Link from "next/link";
+import { DataTable, EmptyState, FormMessage, PageHeading } from "@skolopals/ui/ui";
+import { getEnrolmentQueue } from "@/lib/admin";
+import { relativeDay } from "@skolopals/shared/format";
 
 export const metadata = { title: "Enrolment queue" };
 
-export default async function EnrolmentQueuePage() {
-  const supabase = await createClient();
-  const [queue, tutors, { data: prices }] = await Promise.all([
-    getEnrolmentQueue(),
-    getTutors(),
-    supabase.from("package_prices").select("package_code, amount_cents, effective_from, effective_to"),
-  ]);
-  const today = new Date().toISOString().slice(0, 10);
-  const priceOf = (code: string) =>
-    (prices ?? []).find(
-      (p) => p.package_code === code && p.effective_from <= today && (!p.effective_to || p.effective_to > today),
-    )?.amount_cents ?? null;
+type Row = Awaited<ReturnType<typeof getEnrolmentQueue>>[number];
 
-  const active = tutors
-    .filter((t) => t.status === "active")
-    .map((t) => ({ id: t.id, full_name: t.profiles?.full_name ?? t.slug }));
+const DONE_MESSAGE: Record<string, string> = {
+  approved: "Enrolment activated and the registration invoice raised.",
+  declined: "Enrolment declined.",
+};
+
+/**
+ * A summary only. Approving or declining happens on the review page, so the
+ * admin always sees the learner's full details and aptitude result first.
+ */
+export default async function EnrolmentQueuePage({ searchParams }: PageProps<"/admin/enrolments">) {
+  const [queue, { done }] = await Promise.all([getEnrolmentQueue(), searchParams]);
+  const doneMessage = typeof done === "string" ? DONE_MESSAGE[done] : undefined;
 
   return (
     <>
       <PageHeading
         title="Enrolment queue"
-        description="Approving activates the enrolment, opens a billing account and raises the registration invoice."
+        description="Oldest first. Open an application to review the learner and approve or decline it."
       />
+      {doneMessage ? <FormMessage tone="success">{doneMessage}</FormMessage> : null}
       {queue.length === 0 ? (
         <EmptyState title="Nothing waiting" description="New enrolment requests from parents appear here." />
       ) : (
-        <div className="flex flex-col gap-4">
-          {queue.map((e) => (
-            <Card key={e.id}>
-              <CardTitle>{e.learners?.full_name ?? "Learner"}</CardTitle>
-              <DetailRow
-                label="Grade"
-                value={e.learners?.grade_code?.replace("grade_", "Grade ").replace("Grade r", "Grade R") ?? "—"}
-              />
-              <DetailRow
-                label="Age"
-                value={e.learners?.date_of_birth ? `${age(e.learners.date_of_birth)} years` : "—"}
-              />
-              <DetailRow
-                label="Package"
-                value={
-                  <>
-                    {e.packages?.name}
-                    {priceOf(e.package_code) != null ? ` · ${money(priceOf(e.package_code)!)}/month` : ""}
-                  </>
-                }
-              />
-              <DetailRow
-                label="Subjects"
-                value={
-                  (e.enrolment_subjects ?? [])
-                    .map((s) => `${s.subjects?.name ?? s.subject_code}${s.preferred_language_code ? ` (${s.preferred_language_code})` : ""}`)
-                    .join(", ") || "None chosen"
-                }
-              />
-              <DetailRow
-                label="Preferred tutor"
-                value={
-                  e.tutors?.profiles?.full_name ? (
-                    <Badge tone="brand">{e.tutors.profiles.full_name}</Badge>
-                  ) : (
-                    "No preference"
-                  )
-                }
-              />
-              <DetailRow label="Requested" value={shortDate(e.created_at)} />
-              <div className="border-t border-line pt-4">
-                <ApproveForm
-                  enrolmentId={e.id}
-                  tutors={active}
-                  preferredTutorId={e.preferred_tutor_id}
-                  today={today}
-                />
-              </div>
-            </Card>
-          ))}
-        </div>
+        <DataTable<Row>
+          rows={queue}
+          rowKey={(e) => e.id}
+          rowHref={(e) => `/admin/enrolments/${e.id}`}
+          columns={[
+            {
+              header: "Learner",
+              primary: true,
+              cell: (e) => (
+                <Link href={`/admin/enrolments/${e.id}`} className="font-semibold text-ink hover:text-accent hover:underline">
+                  {e.learners?.full_name ?? "Learner"}
+                </Link>
+              ),
+            },
+            {
+              header: "Subjects",
+              cell: (e) =>
+                (e.enrolment_subjects ?? []).map((s) => s.subjects?.name ?? s.subject_code).join(", ") || "None chosen",
+            },
+            { header: "Requested", cell: (e) => relativeDay(e.created_at) },
+          ]}
+        />
       )}
     </>
   );

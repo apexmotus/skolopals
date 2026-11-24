@@ -54,7 +54,12 @@ export class ReferenceMapper {
   }
 
   static languageToDto(row: LanguageRow): LanguageDto {
-    return { code: row.code, name: row.name, sortOrder: row.sort_order };
+    return {
+      code: row.code,
+      name: row.name,
+      sortOrder: row.sort_order,
+      isInstructionMedium: row.is_instruction_medium,
+    };
   }
 
   static achievementLevelToDto(row: AchievementLevelRow): AchievementLevelDto {

@@ -77,7 +77,7 @@ export default async function TimetableBuilderPage() {
       {ready ? (
         <ClassForm
           subjects={subjects.map((s) => ({ code: s.code, name: s.name }))}
-          languages={languages.map((l) => ({ code: l.code, name: l.name }))}
+          languages={languages.filter((l) => l.isInstructionMedium).map((l) => ({ code: l.code, name: l.name }))}
           grades={grades.map((g) => ({ code: g.code, name: g.name }))}
           tutors={activeTutors}
           terms={termOptions}

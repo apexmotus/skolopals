@@ -96,6 +96,7 @@ export default async function EnrolPage({ searchParams }: PageProps<"/enrol">) {
           grades={grades.map((g) => ({ code: g.code, name: g.name }))}
           subjects={subjects.map((s) => ({ code: s.code, name: s.name }))}
           languages={languages.map((l) => ({ code: l.code, name: l.name }))}
+          media={languages.filter((l) => l.isInstructionMedium).map((l) => ({ code: l.code, name: l.name }))}
           tutors={tutors.map((t) => ({ id: t.id, fullName: t.fullName }))}
           consentTypes={consentTypes}
           defaultTutor={preferred}

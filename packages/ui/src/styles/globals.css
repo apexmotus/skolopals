@@ -1,112 +1,63 @@
 @import "tailwindcss";
 @source "../";
 
-:root {
-  /* Surface & Background Palette */
-  --bg-canvas: #faf8f5;
-  --bg-navbar: #ffffff;
-  --bg-hero: linear-gradient(135deg, #eef4fa 0%, #e6eff8 100%);
-  --bg-badge-location: #dce7f3;
-  --bg-banner-promo: #fdf4d7;
-  --border-banner-promo: #f5e6b8;
-
-  /* Process Card Surfaces */
-  --accent-card-1: #d81b7a;
-  --bg-card-1: linear-gradient(180deg, #fdf2f8 0%, #fce7f3 100%);
-  --accent-card-2: #0288d1;
-  --bg-card-2: linear-gradient(180deg, #f0f8ff 0%, #e0f2fe 100%);
-  --accent-card-3: #fbc02d;
-  --bg-card-3: linear-gradient(180deg, #fffdf2 0%, #fef9c3 100%);
-  --accent-card-4: #7b1fa2;
-  --bg-card-4: linear-gradient(180deg, #f8f4fc 0%, #f3e8ff 100%);
-
-  /* Brand, Text & Interactive Colors */
-  --color-navy-primary: #1b2559;
-  --color-magenta-primary: #d81b7a;
-  --color-purple-auth: #6a1b9a;
-  --color-link: #0277bd;
-  --text-body: #334155;
-  --text-nav: #1e293b;
-}
-
 /* Skolopals design tokens */
 @theme {
   --font-sans: var(--font-plus-jakarta), var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --color-brand: #d81b7a;
-  --color-brand-soft: #fce7f3;
-  --color-brand-tint: #eef4fa;
+  /*
+   * One dark theme (SPEC-2026-11 §7, revised 2026-11-21): plum canvas, plum
+   * surfaces, light text, yellow accents. The semantic names are kept, so a
+   * component asks for `bg-surface text-ink` and never for a colour.
+   */
+  --color-brand: #d81b7a; /* magenta fills (primary buttons), always with white text */
+  --color-brand-light: #ff8cc6; /* magenta as text on plum */
+  --color-brand-soft: rgb(216 27 122 / 0.22);
+  --color-brand-tint: #3a1658;
   --color-navy: #1b2559;
   --color-magenta: #d81b7a;
   --color-purple-auth: #6a1b9a;
-  --color-link: #0277bd;
-  /* Accent text: magenta on light surfaces, yellow on the plum canvas (see below). */
-  --color-accent: #d81b7a;
-  --color-ink: #1b2559;
-  --color-muted: #334155;
-  --color-nav: #1e293b;
-  --color-line: #eae6df;
-  --color-canvas: #faf8f5;
-  --color-subtle: #f4f1ea;
-  --color-night: #2a1040;
-  --color-star: #d97706;
-  --color-success: #2f7259;
-  --color-success-soft: #edf3f0;
-  --color-danger: #b91c1c;
-  --color-danger-soft: #fee2e2;
-  --color-warning: #9a6a18;
-  --color-warning-soft: #fdf3dc;
+  --color-link: #f5c211;
+  --color-accent: #f5c211;
+  --color-ink: #f6f1fa;
+  --color-muted: #c9b8d9;
+  --color-nav: #f6f1fa;
+  --color-line: rgb(255 255 255 / 0.12);
+  --color-surface: #2a1040; /* cards, tables, dialogs */
+  --color-canvas: #1a0a28; /* sunken: inputs, inset panels */
+  --color-subtle: #3a1658; /* raised: table headers, chips, hovers */
+  --color-night: #24103a; /* sidebar and top bars */
+  --color-star: #fbbf24;
+  --color-success: #6ee7b7;
+  --color-success-soft: rgb(110 231 183 / 0.14);
+  --color-danger: #fca5a5;
+  --color-danger-soft: rgb(248 113 113 / 0.16);
+  --color-warning: #fcd34d;
+  --color-warning-soft: rgb(252 211 77 / 0.14);
 
-  /* Dark purple + yellow theme (SPEC-2026-11 §7). Darker shades of the logo's
-     purple #6a1b9a, and the logo's yellow. Yellow is an accent: dark text on
-     a yellow fill, yellow text on plum, never yellow text on white. */
+  /* Plum scale and the logo's yellow. Yellow is an accent: yellow text on
+     plum, dark text on a yellow fill, never yellow on white. */
   --color-plum-950: #1e0b2e;
   --color-plum-900: #2a1040;
   --color-plum-800: #3a1658;
   --color-plum-700: #4e1d76;
   --color-purple: #6a1b9a;
   --color-sun: #f5c211;
-  --color-sun-soft: #fdf4d7;
+  --color-sun-soft: rgb(245 194 17 / 0.15);
   --color-on-dark: #f6f1fa;
   --color-on-dark-muted: #c9b8d9;
 
-  --shadow-card: 0 4px 16px 0 rgba(27, 37, 89, 0.05);
+  --shadow-card: 0 8px 24px 0 rgb(0 0 0 / 0.22);
 }
 
-/*
- * Dark plum canvas, light surfaces (SPEC-2026-11 §7.2).
- *
- * The canvas is plum, so text that sits straight on it must be light. Rather
- * than restyle every page, the text tokens flip: on the canvas `text-ink` is
- * near-white, `text-muted` is lilac, `text-link` / `text-accent` are yellow.
- * Every light surface (cards, tables, dialogs, inputs: anything bg-white,
- * plus `.surface-light`) sets them back, so content inside a surface keeps
- * the navy-on-white design. Utilities still win: these live in the base layer.
- */
-@layer base {
-  body {
-    background: var(--color-plum-950);
-    color: var(--color-on-dark-muted);
-    --color-ink: var(--color-on-dark);
-    --color-muted: var(--color-on-dark-muted);
-    --color-nav: var(--color-on-dark);
-    --color-line: rgb(255 255 255 / 0.14);
-    --color-link: var(--color-sun);
-    --color-accent: var(--color-sun);
-  }
+html {
+  color-scheme: dark; /* native date pickers, scrollbars and selects follow the theme */
+  accent-color: var(--color-sun); /* checkboxes and radios */
+}
 
-  .surface-light,
-  .bg-white,
-  .bg-canvas,
-  .bg-subtle {
-    color: #334155;
-    --color-ink: #1b2559;
-    --color-muted: #334155;
-    --color-nav: #1e293b;
-    --color-line: #eae6df;
-    --color-link: #0277bd;
-    --color-accent: #d81b7a;
-  }
+body {
+  background: var(--color-plum-950);
+  color: var(--color-muted);
 }
 
 :focus-visible {
