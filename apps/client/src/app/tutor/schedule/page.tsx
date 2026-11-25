@@ -1,5 +1,5 @@
 import { DataTable, EmptyState, PageHeading } from "@skolopals/ui/ui";
-import { getMyClasses, getTutorContext, getMySessions } from "@/lib/tutor";
+import { getTutorContext, getMySessions } from "@/lib/tutor";
 import { getRooms, getSubjects } from "@/lib/queries";
 import { dateTime, nowMs } from "@skolopals/shared/format";
 import { SessionWhere } from "@/components/session-where";
@@ -10,15 +10,13 @@ export default async function SchedulePage() {
   const { tutor } = await getTutorContext();
   const today = new Date().toISOString().slice(0, 10);
   const inAMonth = new Date(nowMs() + 31 * 86_400_000).toISOString().slice(0, 10);
-  const [sessions, classes, subjects, rooms] = await Promise.all([
-    getMySessions(today, inAMonth),
-    getMyClasses(tutor.id),
+  const [{ sessions, classById: classGroupById }, subjects, rooms] = await Promise.all([
+    getMySessions(tutor.id, today, inAMonth),
     getSubjects(),
     getRooms(),
   ]);
   const subjectName = new Map(subjects.map((s) => [s.code, s.name]));
   const roomName = new Map(rooms.map((r) => [r.id, r.name]));
-  const classGroupById = new Map(classes.map((c) => [c.id, c]));
 
   return (
     <>

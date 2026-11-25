@@ -7,14 +7,12 @@ export default async function TutorOverview() {
   const today = new Date().toISOString().slice(0, 10);
   const inAWeek = new Date(nowMs() + 7 * 86_400_000).toISOString().slice(0, 10);
 
-  const [classes, learners, sessions, load] = await Promise.all([
+  const [classes, learners, { sessions, classById }, load] = await Promise.all([
     getMyClasses(tutor.id),
     getMyLearners(),
-    getMySessions(today, inAWeek),
+    getMySessions(tutor.id, today, inAWeek),
     getSessionLoad(),
   ]);
-  const classGroupName = new Map(classes.map((c) => [c.id, c.name]));
-  const isOnline = new Set(classes.filter((c) => c.deliveryMode !== "in_centre").map((c) => c.id));
 
   const thisMonth = load[0];
 
@@ -42,9 +40,9 @@ export default async function TutorOverview() {
           <ul className="flex flex-col gap-2">
             {sessions.map((s) => (
               <li key={s.id} className="flex flex-wrap justify-between gap-2 text-[13px] text-ink">
-                <span>{classGroupName.get(s.classGroupId)}</span>
+                <span>{classById.get(s.classGroupId)?.name}</span>
                 <span className="flex gap-3">
-                  {isOnline.has(s.classGroupId) && s.meetingUrl ? (
+                  {classById.get(s.classGroupId)?.deliveryMode !== "in_centre" && s.meetingUrl ? (
                     <a
                       href={s.meetingUrl}
                       target="_blank"

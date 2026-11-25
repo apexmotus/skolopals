@@ -45,10 +45,11 @@ export type MyClassGroup = {
   gradeCodes: string[];
 };
 
-/** Classes this tutor teaches in the current term. */
-export async function getMyClasses(tutorId: string) {
+/** Classes this tutor teaches in the current term. Cached per request, since a page and
+ * getMySessions both need them. */
+export const getMyClasses = cache(async (tutorId: string) => {
   return api.get<MyClassGroup[]>(`/class-groups?tutorId=${tutorId}`);
-}
+});
 
 export type MyClassSession = {
   id: string;
@@ -57,16 +58,31 @@ export type MyClassSession = {
   startsAt: string;
   endsAt: string;
   status: string;
+  /** A substitute for this occurrence only. Absent means the class's own tutor teaches it. */
+  tutorId?: string;
   meetingUrl?: string;
   notes: string;
 };
 
-/** Sessions in a date window, for the schedule and the register. Self-scoped by the API
- * to sessions this signed-in tutor teaches — there is no tutorId to pass. */
-export async function getMySessions(fromISO: string, toISO: string) {
+/** Sessions this tutor teaches in a date window, with the class each one belongs to.
+ * The API returns every session the tutor may read, which includes other tutors' sessions
+ * for learners they share, so it is narrowed here to the teaching tutor: the session's
+ * substitute if one is set, otherwise the class's own tutor. */
+export async function getMySessions(tutorId: string, fromISO: string, toISO: string) {
   const params = new URLSearchParams({ fromDate: fromISO, toDate: toISO, pageSize: "100" });
-  const { items } = await api.getPaged<MyClassSession>(`/class-sessions?${params}`);
-  return items;
+  const [{ items }, classes] = await Promise.all([
+    api.getPaged<MyClassSession>(`/class-sessions?${params}`),
+    getMyClasses(tutorId),
+  ]);
+  const own = new Set(classes.map((c) => c.id));
+  const sessions = items.filter((s) => (s.tutorId ? s.tutorId === tutorId : own.has(s.classGroupId)));
+
+  // A session covered as a substitute belongs to another tutor's class, so look that class up too.
+  const covered = [...new Set(sessions.map((s) => s.classGroupId).filter((id) => !own.has(id)))];
+  const coveredClasses = await Promise.all(covered.map((id) => api.get<MyClassGroup>(`/class-groups/${id}`)));
+  const classById = new Map([...classes, ...coveredClasses].map((c) => [c.id, c]));
+
+  return { sessions, classById };
 }
 
 export type MyLearner = { id: string; fullName: string; gradeCode: string };

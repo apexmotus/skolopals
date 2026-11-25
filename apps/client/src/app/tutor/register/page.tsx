@@ -4,7 +4,7 @@ import { RegisterRow } from "./register-form";
 import { getTutorContext } from "@/lib/tutor";
 import { SessionWhere } from "@/components/session-where";
 import { createClient } from "@skolopals/shared/supabase/server";
-import { dateTime, shortDate } from "@skolopals/shared/format";
+import { dateTime, nowMs, shortDate, todayAtCentre } from "@skolopals/shared/format";
 
 export const metadata = { title: "Attendance register" };
 
@@ -15,16 +15,20 @@ export default async function RegisterPage({ searchParams }: PageProps<"/tutor/r
   const { tutor } = await getTutorContext();
   const supabase = await createClient();
 
-  // Sessions around today, so a tutor can mark a register they missed.
+  // Today's sessions and the recent past, so a tutor can mark a register they missed.
+  // Future sessions are left out: a register can't be marked before the day of the session.
   const { data: sessions } = await supabase
     .from("class_sessions")
     .select("id, session_date, starts_at, status, meeting_url, class_groups!inner(id, name, tutor_id, delivery_mode, rooms(name))")
     .eq("class_groups.tutor_id", tutor.id)
+    .lte("session_date", todayAtCentre())
     .order("starts_at", { ascending: false })
     .limit(30);
 
   const list = sessions ?? [];
-  const session = chosen ? list.find((s) => s.id === chosen) : list[0];
+  // Open the session that started most recently; if none of today's has started yet, the earliest of them.
+  const current = list.find((s) => new Date(s.starts_at).getTime() <= nowMs()) ?? list[list.length - 1];
+  const session = (chosen && list.find((s) => s.id === chosen)) || current;
 
   if (list.length === 0) {
     return (

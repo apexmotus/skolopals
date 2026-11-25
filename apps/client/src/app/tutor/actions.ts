@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@skolopals/shared/supabase/server";
 import { requireRole } from "@skolopals/shared/auth";
+import { todayAtCentre } from "@skolopals/shared/format";
 import { getTutorContext } from "@/lib/tutor";
 
 export type ActionState = { error?: string; ok?: boolean };
@@ -18,6 +19,17 @@ export async function markAttendance(_prev: ActionState, formData: FormData): Pr
   if (!(STATUSES as readonly string[]).includes(status)) return { error: "Unknown attendance status." };
 
   const supabase = await createClient();
+  // A register is marked on the day of the session or after it, never ahead of time.
+  const { data: session } = await supabase
+    .from("class_sessions")
+    .select("session_date")
+    .eq("id", sessionId)
+    .maybeSingle();
+  if (!session) return { error: "Could not find that session." };
+  if (session.session_date > todayAtCentre()) {
+    return { error: "This session hasn't happened yet. Mark the register on the day." };
+  }
+
   // RLS allows this only for a session this tutor actually teaches.
   const { error } = await supabase.from("attendance_records").upsert(
     { class_session_id: sessionId, learner_id: learnerId, status, marked_by: profile.id },

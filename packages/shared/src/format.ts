@@ -193,3 +193,8 @@ export function isWithinLastDays(iso: string, days: number) {
 export function nowMs() {
   return Date.now();
 }
+
+/** Today's date at the centre as YYYY-MM-DD, for comparing with date columns such as session_date. */
+export function todayAtCentre(now = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(now);
+}

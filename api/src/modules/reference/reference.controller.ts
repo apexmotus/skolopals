@@ -148,10 +148,10 @@ export class ReferenceController {
   }
 
   @Get('rooms')
-  @Roles('admin')
+  @Roles('admin', 'tutor')
   @ApiOperation({
     summary:
-      'List rooms (admin-only in this app, though the data is public-readable)',
+      'List rooms (admins to manage them, tutors to see where their sessions are; the data is public-readable)',
   })
   @ApiOkResponse({ type: RoomDto, isArray: true })
   listRooms(): Promise<RoomDto[]> {
