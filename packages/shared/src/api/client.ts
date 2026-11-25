@@ -52,7 +52,9 @@ async function send(path: string, init?: RequestInit): Promise<Envelope<unknown>
     headers: {
       ...init?.headers,
       Authorization: `Bearer ${session?.access_token ?? ""}`,
-      "Content-Type": "application/json",
+      // Only with a body: Fastify rejects an empty body declared as JSON, so a bare
+      // `api.post(path)` (accept, retake) would fail before reaching the controller.
+      ...(init?.body !== undefined ? { "Content-Type": "application/json" } : {}),
     },
     cache: "no-store",
   });
