@@ -3824,6 +3824,8 @@ export type Database = {
           active_learners: number | null;
           new_learners: number | null;
           departed_learners: number | null;
+          learners_at_start: number | null;
+          departed_from_start: number | null;
         };
         Relationships: [];
       };
@@ -3834,6 +3836,7 @@ export type Database = {
           new_learners: number | null;
           departed_learners: number | null;
           retention_pct: number | null;
+          learners_at_start: number | null;
         };
         Relationships: [];
       };

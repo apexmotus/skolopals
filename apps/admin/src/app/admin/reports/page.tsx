@@ -63,14 +63,16 @@ export default async function KpiPage() {
       <Card>
         <CardTitle>Retention</CardTitle>
         <DataTable
-          rows={k.retention}
+          // Months before the centre had any learners are all zeros; leave them out.
+          rows={k.retention.filter((r) => Number(r.learners_at_start) + Number(r.new_learners) > 0)}
           rowKey={(r) => String(r.month)}
           empty="No learner history yet."
           columns={[
             { header: "Month", cell: (r) => monthLabel(String(r.month)), primary: true },
-            { header: "Active", cell: (r) => String(r.active_learners ?? 0) },
+            { header: "At the start", cell: (r) => String(r.learners_at_start ?? 0) },
             { header: "New", cell: (r) => String(r.new_learners ?? 0) },
             { header: "Left", cell: (r) => String(r.departed_learners ?? 0) },
+            { header: "At the end", cell: (r) => String(r.active_learners ?? 0) },
             { header: "Retention", cell: (r) => (r.retention_pct == null ? "—" : `${r.retention_pct}%`) },
           ]}
         />
