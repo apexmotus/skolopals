@@ -30,7 +30,7 @@ on conflict (code) do update set
 
 -- Retention: 5 years, aligned to SARS record-keeping (decision 2026-10-20).
 insert into public.data_retention_policies (record_class, description, retention_months, basis) values
-  ('learner_records',   'Learner identity, academic records, reports, attendance, health notes and authorised collectors', 60, 'Aligned to SARS 5-year record-keeping; POPIA s14'),
+  ('learner_records',   'Learner identity, academic records, reports, attendance and authorised collectors',              60, 'Aligned to SARS 5-year record-keeping; POPIA s14'),
   ('financial_records', 'Invoices, payments and accounting records',                                                       60, 'Tax Administration Act record-keeping'),
   ('tutor_records',     'Tutor employment records, qualifications and vetting',                                            60, 'Employment and tax record-keeping'),
   ('enquiries',         'Website enquiries that did not become enrolments',                                                12, 'POPIA s14 minimality'),

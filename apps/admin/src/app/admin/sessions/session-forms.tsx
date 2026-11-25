@@ -62,7 +62,14 @@ export function SubstituteForm({
     <form action={action} className="flex flex-col gap-2">
       <input type="hidden" name="session_id" value={sessionId} />
       <div className="flex flex-wrap items-center gap-2">
-        <Select name="tutor_id" aria-label="Substitute tutor" defaultValue={current ?? ""} className="max-w-[260px]">
+        {/* Keyed on the saved substitute: the form resets after saving, and must reset to the new value. */}
+        <Select
+          key={current ?? ""}
+          name="tutor_id"
+          aria-label="Substitute tutor"
+          defaultValue={current ?? ""}
+          className="max-w-[260px]"
+        >
           <option value="">No substitute (class tutor)</option>
           {tutors.map((t) => (
             <option key={t.id} value={t.id}>

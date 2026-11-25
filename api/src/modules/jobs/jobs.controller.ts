@@ -9,8 +9,8 @@ import { type OfferRunResult, JobsRepository } from './jobs.repository.js';
 const STAGING_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 /**
- * Daily jobs, scheduled in api/vercel.json. GET because that is what Vercel
- * Cron sends. Both are idempotent, so a missed or repeated run is safe.
+ * Jobs scheduled in api/vercel.json. GET because that is what Vercel Cron
+ * sends. All are idempotent, so a missed or repeated run is safe.
  */
 @ApiExcludeController()
 @Public()
@@ -29,6 +29,18 @@ export class JobsController {
     const result = await this.repo.processEnrolmentOffers();
     this.logger.log(`enrolment offers ${result.on}: ${result.reminded} reminded, ${result.lapsed} lapsed`);
     return result;
+  }
+
+  /**
+   * Not on Vercel Cron: Hobby only runs daily jobs. Supabase Cron runs the same check every
+   * 10 minutes inside the database (db/migrations/20261125000011_late_pickup_schedule.sql), and
+   * the door screens run it too. Kept for a manual or external trigger.
+   */
+  @Get('late-pickups')
+  async latePickups(): Promise<{ alerted: number }> {
+    const alerted = await this.repo.alertLatePickups();
+    if (alerted > 0) this.logger.log(`late pickups: ${alerted} alerted`);
+    return { alerted };
   }
 
   /** Uploads never submitted (an abandoned enrol form or payment) are deleted after 24 hours (SPEC §4.1). */

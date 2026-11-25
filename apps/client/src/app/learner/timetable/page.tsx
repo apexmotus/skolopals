@@ -29,6 +29,7 @@ export default async function TimetablePage() {
                   mode={s.class_groups?.delivery_mode}
                   room={s.class_groups?.rooms?.name}
                   meetingUrl={s.meeting_url}
+                  joinHref={`/join/${s.id}`}
                 />
               ),
             },

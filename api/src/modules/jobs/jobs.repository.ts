@@ -24,4 +24,14 @@ export class JobsRepository {
     if (!row) throw new Error('process_enrolment_offers returned no row');
     return row.process_enrolment_offers;
   }
+
+  /**
+   * Learners still signed in 30 minutes after their class ended: one alert each to admins and
+   * guardians (docs/SPEC-2026-11-door-and-online-attendance.md §2.4). Runs as `anon` like the
+   * offers job; `private.alert_late_pickups` is idempotent, so overlapping runs are safe.
+   */
+  async alertLatePickups(): Promise<number> {
+    const row = await this.sp.queryOne<{ alert_late_pickups: number }>('private.alert_late_pickups', []);
+    return row?.alert_late_pickups ?? 0;
+  }
 }

@@ -1942,6 +1942,9 @@ export type Database = {
           joined_on: string;
           left_on: string | null;
           created_at: string;
+          may_leave_alone: boolean;
+          may_leave_alone_set_by: string | null;
+          may_leave_alone_set_at: string | null;
         };
         Insert: {
           id?: string;
@@ -1955,6 +1958,7 @@ export type Database = {
           joined_on?: string;
           left_on?: string | null;
           created_at?: string;
+          may_leave_alone?: boolean;
         };
         Update: {
           id?: string;
@@ -1968,6 +1972,7 @@ export type Database = {
           joined_on?: string;
           left_on?: string | null;
           created_at?: string;
+          may_leave_alone?: boolean;
         };
         Relationships: [
           {
@@ -3172,6 +3177,10 @@ export type Database = {
           collected_by: string | null;
           signed_out_by: string | null;
           note: string;
+          collected_by_guardian: string | null;
+          left_alone: boolean;
+          late_alert_sent_at: string | null;
+          collected_by_name: string | null;
         };
         Insert: {
           id?: string;
@@ -3183,6 +3192,8 @@ export type Database = {
           collected_by?: string | null;
           signed_out_by?: string | null;
           note?: string;
+          collected_by_guardian?: string | null;
+          left_alone?: boolean;
         };
         Update: {
           id?: string;
@@ -3194,6 +3205,10 @@ export type Database = {
           collected_by?: string | null;
           signed_out_by?: string | null;
           note?: string;
+          collected_by_guardian?: string | null;
+          left_alone?: boolean;
+          late_alert_sent_at?: string | null;
+          collected_by_name?: string | null;
         };
         Relationships: [
           {
@@ -3229,6 +3244,52 @@ export type Database = {
             columns: ["signed_out_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_check_ins_collected_by_guardian_fkey";
+            columns: ["collected_by_guardian"];
+            isOneToOne: false;
+            referencedRelation: "guardians";
+            referencedColumns: ["profile_id"];
+          },
+        ];
+      };
+      session_joins: {
+        Row: {
+          id: string;
+          class_session_id: string;
+          learner_id: string;
+          joined_by: string | null;
+          joined_at: string;
+        };
+        Insert: {
+          id?: string;
+          class_session_id: string;
+          learner_id: string;
+          joined_by?: string | null;
+          joined_at?: string;
+        };
+        Update: {
+          id?: string;
+          class_session_id?: string;
+          learner_id?: string;
+          joined_by?: string | null;
+          joined_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "session_joins_class_session_id_fkey";
+            columns: ["class_session_id"];
+            isOneToOne: false;
+            referencedRelation: "class_sessions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_joins_learner_id_fkey";
+            columns: ["learner_id"];
+            isOneToOne: false;
+            referencedRelation: "learners";
             referencedColumns: ["id"];
           },
         ];
@@ -3940,6 +4001,7 @@ export type Database = {
       activate_enrolment: { Args: Record<string, unknown>; Returns: unknown };
       apply_late_fees: { Args: Record<string, unknown>; Returns: unknown };
       configure_invited_user: { Args: Record<string, unknown>; Returns: unknown };
+      alert_late_pickups: { Args: Record<string, never>; Returns: number };
       centre_staff_ids: { Args: Record<string, never>; Returns: string[] };
       create_learning_plan: { Args: Record<string, unknown>; Returns: unknown };
       create_tutor: { Args: Record<string, unknown>; Returns: unknown };
@@ -3959,6 +4021,19 @@ export type Database = {
       set_payment_settings: { Args: Record<string, unknown>; Returns: unknown };
       set_tutor_competency: { Args: Record<string, unknown>; Returns: unknown };
       set_tutor_pay_rate: { Args: Record<string, unknown>; Returns: unknown };
+      door_contacts: {
+        Args: { p_session_id: string };
+        Returns: {
+          learner_id: string;
+          kind: "guardian" | "collector";
+          id: string;
+          full_name: string;
+          relationship: string;
+          phone: string;
+          id_last4: string | null;
+        }[];
+      };
+      join_session: { Args: { p_session_id: string; p_learner_id: string }; Returns: string };
       start_thread: { Args: Record<string, unknown>; Returns: unknown };
       thread_people: { Args: { p_thread_id: string }; Returns: { profile_id: string; full_name: string }[] };
       update_user_for_admin: { Args: Record<string, unknown>; Returns: unknown };

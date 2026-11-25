@@ -37,3 +37,7 @@ export async function addCollector(_prev: LearnerEditState, formData: FormData) 
 export async function removeCollector(_prev: LearnerEditState, formData: FormData) {
   return run(formData, edit.removeCollector);
 }
+
+export async function setLeaveAlone(_prev: LearnerEditState, formData: FormData) {
+  return run(formData, edit.setLeaveAlone);
+}

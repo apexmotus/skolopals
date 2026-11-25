@@ -11,7 +11,8 @@
     "./auth": "./src/auth.ts",
     "./format": "./src/format.ts",
     "./reference": "./src/reference.ts",
-    "./learner-edit": "./src/learner-edit.ts"
+    "./learner-edit": "./src/learner-edit.ts",
+    "./door": "./src/door.ts"
   },
   "scripts": {
     "lint": "eslint src/",

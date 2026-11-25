@@ -15,6 +15,8 @@ export type LearnerEditActions = {
   removeContact: Action;
   addCollector: Action;
   removeCollector: Action;
+  /** Parents only: the database refuses this permission from anyone but a guardian. */
+  setLeaveAlone?: Action;
 };
 
 type Learner = {
@@ -27,6 +29,7 @@ type Learner = {
   home_language_code: string | null;
   status: string;
   left_on: string | null;
+  may_leave_alone?: boolean;
 };
 
 type Contact = { id: string; full_name: string; relationship: string; phone: string; priority?: number };
@@ -301,6 +304,35 @@ export function LearnerEditor({
         withId
         empty="Nobody else is authorised to collect."
       />
+      <LeaveAloneCard learner={learner} action={actions.setLeaveAlone} />
     </div>
+  );
+}
+
+function LeaveAloneCard({ learner, action }: { learner: Learner; action?: Action }) {
+  const [state, formAction, pending] = useActionState(action ?? (async () => ({})), {});
+  const allowed = Boolean(learner.may_leave_alone);
+
+  return (
+    <Card>
+      <CardTitle>Leaving the centre on their own</CardTitle>
+      <p className="text-[13px] leading-[1.6] text-muted">
+        {allowed
+          ? `${learner.first} may leave without being collected, for example to walk home or take a taxi. Staff record the time.`
+          : `${learner.first} must be collected by a parent, guardian or someone on the list above.`}
+      </p>
+      {action ? (
+        <form action={formAction} className="flex flex-col gap-2">
+          <input type="hidden" name="learner_id" value={learner.id} />
+          <input type="hidden" name="may_leave_alone" value={allowed ? "false" : "true"} />
+          <Result state={state} />
+          <Button type="submit" variant="secondary" className="w-fit" disabled={pending}>
+            {pending ? "Saving…" : allowed ? "Stop allowing this" : `Allow ${learner.first} to leave on their own`}
+          </Button>
+        </form>
+      ) : (
+        <p className="text-[12px] text-muted">Only a parent or guardian can change this, from their portal.</p>
+      )}
+    </Card>
   );
 }

@@ -12,6 +12,7 @@
     "./loading-screen": "./src/loading-screen.tsx",
     "./page-skeleton": "./src/page-skeleton.tsx",
     "./learner-edit": "./src/learner-edit.tsx",
+    "./door": "./src/door.tsx",
     "./stepper": "./src/stepper.tsx",
     "./dialog": "./src/dialog.tsx",
     "./mobile-nav": "./src/mobile-nav.tsx"

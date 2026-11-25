@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Card, CardTitle, EmptyState, PageHeading, Select } from "@skolopals/ui/ui";
 import { RegisterRow } from "./register-form";
+import { OnlineRegister, type OnlineLearner } from "./online-register";
+import { doorSignIn, doorSignOut, doorUndo } from "../actions";
+import { DoorPanel } from "@skolopals/ui/door";
+import { checkLatePickups, getDoorSession } from "@skolopals/shared/door";
 import { getTutorContext } from "@/lib/tutor";
 import { SessionWhere } from "@/components/session-where";
 import { createClient } from "@skolopals/shared/supabase/server";
@@ -68,6 +72,30 @@ export default async function RegisterPage({ searchParams }: PageProps<"/tutor/r
     .map((p) => ({ id: p.learner_id, name: p.learners?.full_name ?? "Learner" }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
+  // At the centre, today: the door. Online or hybrid: the join list and a confirmed register.
+  const mode = session?.class_groups?.delivery_mode ?? "in_centre";
+  const atDoor = mode === "in_centre" && session?.session_date === todayAtCentre();
+  const door = atDoor && session ? await getDoorSession(session.id) : null;
+  if (atDoor) await checkLatePickups().catch(() => undefined);
+
+  let online: OnlineLearner[] = [];
+  if (mode !== "in_centre" && session) {
+    const { data: joins } = await supabase
+      .from("session_joins")
+      .select("learner_id, joined_at")
+      .eq("class_session_id", session.id)
+      .order("joined_at");
+    const firstJoin = new Map<string, string>();
+    for (const j of joins ?? []) if (!firstJoin.has(j.learner_id)) firstJoin.set(j.learner_id, j.joined_at);
+    const lateAfter = new Date(session.starts_at).getTime() + 10 * 60_000;
+    online = learners.map((l) => {
+      const joinedAt = firstJoin.get(l.id) ?? null;
+      const saved = status.get(l.id);
+      const suggested = !joinedAt ? "absent" : new Date(joinedAt).getTime() > lateAfter ? "late" : "present";
+      return { id: l.id, name: l.name, joinedAt, status: saved ?? suggested, saved: Boolean(saved) };
+    });
+  }
+
   return (
     <>
       <PageHeading
@@ -91,6 +119,20 @@ export default async function RegisterPage({ searchParams }: PageProps<"/tutor/r
         </form>
       </Card>
 
+      {door ? (
+        <Card>
+          <CardTitle>At the door</CardTitle>
+          <p className="text-[12px] text-muted">
+            Signing in marks the register. Only a guardian or someone on the learner&rsquo;s list may collect.
+          </p>
+          <DoorPanel
+            sessionId={door.session.id}
+            learners={door.learners}
+            actions={{ signIn: doorSignIn, signOut: doorSignOut, undo: doorUndo }}
+          />
+        </Card>
+      ) : null}
+
       <Card>
         <CardTitle>
           {session?.class_groups?.name} · {session ? shortDate(session.starts_at) : ""}
@@ -109,10 +151,13 @@ export default async function RegisterPage({ searchParams }: PageProps<"/tutor/r
               My learners
             </Link>
           </p>
+        ) : mode !== "in_centre" ? (
+          <OnlineRegister sessionId={session!.id} learners={online} />
         ) : (
           <>
             <p className="text-[11px] text-muted">
               {status.size} of {learners.length} marked.
+              {door ? " Use the buttons below for anyone absent or excused." : ""}
             </p>
             <div className="flex flex-col">
               {learners.map((l) => (

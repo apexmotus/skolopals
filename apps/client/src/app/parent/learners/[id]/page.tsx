@@ -10,6 +10,7 @@ import {
   addEmergencyContact,
   removeCollector,
   removeEmergencyContact,
+  setLeaveAlone,
   updateLearner,
 } from "../actions";
 
@@ -74,6 +75,7 @@ export default async function ParentLearnerPage({ params }: PageProps<"/parent/l
           removeContact: removeEmergencyContact,
           addCollector,
           removeCollector,
+          setLeaveAlone,
         }}
       />
     </>

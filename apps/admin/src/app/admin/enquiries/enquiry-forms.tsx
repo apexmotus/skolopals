@@ -68,7 +68,13 @@ export function EnquiryStatusForm({ enquiryId, status }: { enquiryId: string; st
     <form action={action} className="flex flex-wrap items-end gap-2">
       <input type="hidden" name="enquiry_id" value={enquiryId} />
       <Field label="Status" htmlFor={`status-${enquiryId}`}>
-        <Select id={`status-${enquiryId}`} name="status" defaultValue={status === "enrolled" ? "closed" : status}>
+        {/* Keyed on the saved status: the form resets after saving, and must reset to the new value. */}
+        <Select
+          key={status}
+          id={`status-${enquiryId}`}
+          name="status"
+          defaultValue={status === "enrolled" ? "closed" : status}
+        >
           <option value="new">New</option>
           <option value="contacted">Contacted</option>
           <option value="closed">Closed</option>

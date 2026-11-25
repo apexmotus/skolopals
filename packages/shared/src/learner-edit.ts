@@ -91,6 +91,21 @@ export async function updateLearnerDetails(formData: FormData, { allowStatus }: 
   return { ok: "Details saved." };
 }
 
+/** Parents only: the database refuses it from anyone but a guardian, and records who gave it and when. */
+export async function setLeaveAlone(formData: FormData): Promise<LearnerEditState> {
+  const id = text(formData, "learner_id");
+  const allow = text(formData, "may_leave_alone") === "true";
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("learners")
+    .update({ may_leave_alone: allow })
+    .eq("id", id)
+    .select("id");
+  if (error) return { error: clean(error.message) };
+  if (!data?.length) return { error: "You cannot change this for that learner." };
+  return { ok: allow ? "Saved. Staff can now sign them out on their own." : "Saved. They must be collected." };
+}
+
 export async function addEmergencyContact(formData: FormData): Promise<LearnerEditState> {
   const id = text(formData, "learner_id");
   const name = `${text(formData, "first_name")} ${text(formData, "last_name")}`.trim();

@@ -194,7 +194,8 @@ export default async function PrivacyPage() {
         <CardTitle>Complaining to the Regulator</CardTitle>
         <p className="text-[13px] leading-[1.7] text-ink">
           If you are not satisfied with our response you may complain to the Information Regulator (South
-          Africa), JD House, 27 Stiemens Street, Braamfontein, Johannesburg.
+          Africa), Woodmead North Office Park, 54 Maxwell Drive, Woodmead, Johannesburg, 2191. Complaints:
+          POPIAComplaints@inforegulator.org.za.
         </p>
         <p className="text-[12px] text-muted">
           See also our{" "}

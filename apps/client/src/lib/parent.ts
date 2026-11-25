@@ -43,6 +43,17 @@ export async function getUpcomingSessions(limit = 10) {
   return data ?? [];
 }
 
+/** Door sign-in/out times for these sessions, keyed "session|learner". RLS limits them to the parent's children. */
+export async function getCheckIns(sessionIds: string[]) {
+  if (sessionIds.length === 0) return new Map<string, { arrived_at: string; departed_at: string | null; collected_by_name: string | null; left_alone: boolean }>();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("session_check_ins")
+    .select("class_session_id, learner_id, arrived_at, departed_at, collected_by_name, left_alone")
+    .in("class_session_id", sessionIds);
+  return new Map((data ?? []).map((c) => [`${c.class_session_id}|${c.learner_id}`, c]));
+}
+
 export async function getAttendance(limit = 50) {
   const supabase = await createClient();
   const { data } = await supabase
