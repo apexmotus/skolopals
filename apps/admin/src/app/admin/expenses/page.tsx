@@ -30,7 +30,7 @@ export default async function ExpensesPage() {
     <>
       <PageHeading
         title="Expenses"
-        description="Recorded against the monthly budget from the business plan, section 17."
+        description="What the centre spends, against its monthly budget."
       />
 
       <div className="flex flex-col gap-4 md:flex-row">

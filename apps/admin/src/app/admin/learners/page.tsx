@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Badge, ButtonLink, Card, CardTitle, DetailRow, EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { getLearners } from "@/lib/admin";
-import { ENROLMENT_STATUS_LABEL, age, shortDate } from "@skolopals/shared/format";
+import { ENROLMENT_STATUS_LABEL, age, capitalise, shortDate } from "@skolopals/shared/format";
 
 export const metadata = { title: "Learners" };
 
@@ -45,7 +45,7 @@ export default async function LearnersPage() {
                       : guardians
                           .map(
                             (g) =>
-                              `${g.guardians?.profiles?.full_name ?? "Guardian"} (${g.relationship}${g.is_primary ? ", primary" : ""})`,
+                              `${g.guardians?.profiles?.full_name ?? "Guardian"} (${capitalise(g.relationship)}${g.is_primary ? ", primary" : ""})`,
                           )
                           .join(", ")
                   }

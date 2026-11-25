@@ -1,7 +1,7 @@
 import { DataTable, EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { getTutorContext, getMySessions } from "@/lib/tutor";
 import { getRooms, getSubjects } from "@/lib/queries";
-import { dateTime, nowMs } from "@skolopals/shared/format";
+import { SESSION_STATUS_LABEL, dateTime, labelFor, nowMs } from "@skolopals/shared/format";
 import { SessionWhere } from "@/components/session-where";
 
 export const metadata = { title: "My schedule" };
@@ -50,7 +50,7 @@ export default async function SchedulePage() {
                 );
               },
             },
-            { header: "Status", cell: (s) => s.status },
+            { header: "Status", cell: (s) => labelFor(SESSION_STATUS_LABEL, s.status) },
           ]}
         />
       )}

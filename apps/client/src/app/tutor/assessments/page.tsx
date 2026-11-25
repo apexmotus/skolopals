@@ -36,7 +36,7 @@ export default async function AssessmentsPage() {
     <>
       <PageHeading
         title="Assessments"
-        description="Every learner starts with an initial assessment, then monthly monitoring. BP section 12."
+        description="Every learner starts with an initial assessment, then monthly monitoring."
       />
 
       <AssessmentForm

@@ -36,7 +36,7 @@ export function TermForm() {
     <Card>
       <CardTitle>Add a term</CardTitle>
       <p className="text-[11px] text-muted">
-        Term dates are entered here, not seeded, so the system never disagrees with the schools your
+        Enter each term&rsquo;s dates from the school calendar, so the centre&rsquo;s terms match the schools your
         learners attend.
       </p>
       <form action={action} className="flex flex-col gap-3">

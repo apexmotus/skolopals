@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Badge, DataTable, EmptyState, PageHeading, StatCard } from "@skolopals/ui/ui";
 import { getAccount } from "@/lib/parent";
-import { INVOICE_STATE_LABEL, money, shortDate } from "@skolopals/shared/format";
+import { INVOICE_STATE_LABEL, capitalise, money, shortDate } from "@skolopals/shared/format";
 
 export const metadata = { title: "Fees & statement" };
 
@@ -66,7 +66,7 @@ export default async function AccountPage() {
             rowKey={(s) => `${s.entry_type}-${s.reference}-${s.entry_date}-${s.debit_cents}-${s.credit_cents}`}
             columns={[
               { header: "Date", cell: (s) => (s.entry_date ? shortDate(s.entry_date) : "") },
-              { header: "Type", cell: (s) => s.entry_type },
+              { header: "Type", cell: (s) => capitalise(s.entry_type ?? "") },
               { header: "Reference", cell: (s) => s.reference ?? "" },
               { header: "Debit", cell: (s) => (s.debit_cents ? money(s.debit_cents) : "") },
               { header: "Credit", cell: (s) => (s.credit_cents ? money(s.credit_cents) : "") },

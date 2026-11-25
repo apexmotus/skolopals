@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Badge, Card, CardTitle, DataTable, DetailRow, PageHeading } from "@skolopals/ui/ui";
 import { createClient } from "@skolopals/shared/supabase/server";
-import { INVOICE_STATE_LABEL, money, shortDate } from "@skolopals/shared/format";
+import { INVOICE_STATE_LABEL, PAYMENT_METHOD_LABEL, labelFor, money, shortDate } from "@skolopals/shared/format";
 import { getPaymentContext } from "@/lib/payments";
 import { PayButton } from "@/components/payments/payment-dialog";
 
@@ -84,7 +84,7 @@ export default async function InvoicePage({ params }: PageProps<"/parent/account
             rowKey={(a) => `${a.payments?.paid_on}-${a.amount_cents}`}
             columns={[
               { header: "Date", cell: (a) => (a.payments ? shortDate(a.payments.paid_on) : ""), primary: true },
-              { header: "Method", cell: (a) => a.payments?.method ?? "" },
+              { header: "Method", cell: (a) => labelFor(PAYMENT_METHOD_LABEL, a.payments?.method) },
               { header: "Reference", cell: (a) => a.payments?.reference || "—" },
               { header: "Amount", cell: (a) => money(a.amount_cents) },
             ]}

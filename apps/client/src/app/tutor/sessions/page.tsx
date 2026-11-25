@@ -1,6 +1,6 @@
 import { Card, DataTable, EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { getTutorContext, getSessionLoad, getMyPayRate } from "@/lib/tutor";
-import { money } from "@skolopals/shared/format";
+import { money, monthLabel } from "@skolopals/shared/format";
 
 export const metadata = { title: "Sessions taught" };
 
@@ -36,7 +36,7 @@ export default async function SessionsPage() {
           rows={load}
           rowKey={(r) => String(r.month)}
           columns={[
-            { header: "Month", cell: (r) => String(r.month).slice(0, 7), primary: true },
+            { header: "Month", cell: (r) => monthLabel(String(r.month)), primary: true },
             { header: "Sessions", cell: (r) => String(r.sessions) },
             { header: "Hours", cell: (r) => String(r.hours) },
           ]}

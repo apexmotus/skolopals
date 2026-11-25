@@ -10,7 +10,7 @@ export default async function AttendancePage() {
   if (records.length === 0) {
     return (
       <>
-        <PageHeading title="Attendance" description="Every session your learners have attended." />
+        <PageHeading title="Attendance" description="Each of your learners’ sessions, and whether they were present, late, absent or excused." />
         <EmptyState title="No attendance yet" description="Registers appear here after the first session." />
       </>
     );
@@ -18,7 +18,7 @@ export default async function AttendancePage() {
 
   return (
     <>
-      <PageHeading title="Attendance" description="Every session your learners have attended." />
+      <PageHeading title="Attendance" description="Each of your learners’ sessions, and whether they were present, late, absent or excused." />
       <DataTable
         rows={records}
         rowKey={(r) => r.id}

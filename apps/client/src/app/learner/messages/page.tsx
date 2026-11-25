@@ -10,7 +10,10 @@ export default async function LearnerMessagesPage({ searchParams }: PageProps<"/
   return (
     <>
       <PageHeading title="Messages" description="Conversations with your tutor." />
-      <MessagesView openThreadId={thread} />
+      <MessagesView
+        openThreadId={thread}
+        emptyDescription="When your tutor or the centre sends you a message, it will appear here."
+      />
     </>
   );
 }

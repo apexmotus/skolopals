@@ -1,6 +1,6 @@
 import { Badge, DataTable, EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { getEnquiries } from "@/lib/admin";
-import { shortDate } from "@skolopals/shared/format";
+import { ENQUIRY_SOURCE_LABEL, ENQUIRY_STATUS_LABEL, labelFor, shortDate } from "@skolopals/shared/format";
 
 export const metadata = { title: "Enquiries" };
 
@@ -19,13 +19,13 @@ export default async function EnquiriesPage() {
           columns={[
             { header: "From", cell: (e) => e.full_name, primary: true },
             { header: "Contact", cell: (e) => e.phone || e.email || "—" },
-            { header: "Source", cell: (e) => e.source },
+            { header: "Source", cell: (e) => labelFor(ENQUIRY_SOURCE_LABEL, e.source) },
             { header: "Received", cell: (e) => shortDate(e.created_at) },
             {
               header: "Status",
               cell: (e) => (
                 <Badge tone={e.status === "new" ? "warning" : e.status === "enrolled" ? "success" : "neutral"}>
-                  {e.status}
+                  {labelFor(ENQUIRY_STATUS_LABEL, e.status)}
                 </Badge>
               ),
             },

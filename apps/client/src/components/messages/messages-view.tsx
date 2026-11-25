@@ -6,22 +6,24 @@ import { getThread, getThreads } from "@/lib/messages";
 import { dateTime, initials, relativeDay } from "@skolopals/shared/format";
 
 /** The conversation list plus one open thread. Shared by all three portals. */
-export async function MessagesView({ openThreadId }: { openThreadId?: string }) {
+export async function MessagesView({
+  openThreadId,
+  emptyDescription = "Start one above, or wait for the centre to get in touch.",
+}: {
+  openThreadId?: string;
+  /** The learner portal has no compose form, so it can't point "above". */
+  emptyDescription?: string;
+}) {
   const threads = await getThreads();
   if (threads.length === 0) {
-    return (
-      <EmptyState
-        title="No conversations yet"
-        description="Start one above, or wait for the centre to get in touch."
-      />
-    );
+    return <EmptyState title="No conversations yet" description={emptyDescription} />;
   }
 
   const current = openThreadId ?? threads[0]?.id ?? undefined;
   // Opening a thread reads it, which clears its badge and the bell's count.
-  const [{ thread, messages }] = current
+  const [{ thread, messages, names }] = current
     ? await Promise.all([getThread(current), markRead(current)])
-    : [{ thread: null, messages: [] }];
+    : [{ thread: null, messages: [], names: new Map<string, string>() }];
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row">
@@ -58,20 +60,23 @@ export async function MessagesView({ openThreadId }: { openThreadId?: string }) 
             <p className="text-[11px] text-muted">About {thread.learners.full_name}</p>
           ) : null}
           <div className="flex flex-col gap-3">
-            {messages.map((m) => (
-              <div key={m.id} className="flex gap-3">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-canvas text-[11px] font-bold text-brand-light">
-                  {initials(m.profiles?.full_name ?? "?")}
-                </span>
-                <div className="flex min-w-0 flex-col gap-[2px]">
-                  <span className="text-[12px] font-semibold text-ink">
-                    {m.profiles?.full_name ?? "Someone"}
-                    <span className="pl-2 font-normal text-muted">{dateTime(m.created_at)}</span>
+            {messages.map((m) => {
+              const sender = m.profiles?.full_name || names.get(m.sender_id) || "Someone";
+              return (
+                <div key={m.id} className="flex gap-3">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-canvas text-[11px] font-bold text-brand-light">
+                    {initials(sender)}
                   </span>
-                  <p className="whitespace-pre-wrap text-[13px] leading-[1.5] text-ink">{m.body}</p>
+                  <div className="flex min-w-0 flex-col gap-[2px]">
+                    <span className="text-[12px] font-semibold text-ink">
+                      {sender}
+                      <span className="pl-2 font-normal text-muted">{dateTime(m.created_at)}</span>
+                    </span>
+                    <p className="whitespace-pre-wrap text-[13px] leading-[1.5] text-ink">{m.body}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           {current ? <ReplyForm threadId={current} /> : null}
         </Card>

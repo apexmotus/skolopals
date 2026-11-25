@@ -110,6 +110,51 @@ export async function completeRegistration(_prev: AuthState, formData: FormData)
   redirect(clientHomeFor(me.roles as AppRole[]));
 }
 
+export async function requestPasswordReset(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const email = String(formData.get("email") ?? "").trim();
+  if (!email) return { error: "Enter your email address.", email };
+
+  const supabase = await createClient();
+  // The emailed link comes back through /auth/confirm, which signs the person in just long
+  // enough to choose a new password on /reset-password.
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${await requestOrigin()}/auth/confirm?next=/reset-password`,
+  });
+  if (error?.status === 429) return { error: "Too many requests. Wait a minute, then try again.", email };
+
+  // The same answer whether or not the address has an account, so this page can't be used to
+  // find out who is registered.
+  return {
+    message: `If ${email} has a Skolopals account, we've emailed it a link to choose a new password. Check your spam or promotions folder too.`,
+    email,
+  };
+}
+
+export async function resetPassword(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+
+  if (password.length < 8) return { error: "Use at least 8 characters for your password." };
+  if (password !== confirm) return { error: "Passwords don’t match." };
+
+  const supabase = await createClient();
+  const { data: userRes } = await supabase.auth.getUser();
+  if (!userRes.user) {
+    return { error: "Your reset link has expired or has already been used. Ask for a new one." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: error.message };
+
+  const me = await api.get<{ roles: string[] }>("/people/me");
+  const roles = me.roles as AppRole[];
+  if (roles.includes("admin") && !roles.some((r) => CLIENT_ROLES.includes(r))) {
+    await supabase.auth.signOut();
+    return { message: "Your password has been changed. Sign in on the Admin Portal." };
+  }
+  redirect(clientHomeFor(roles));
+}
+
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();

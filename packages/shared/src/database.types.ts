@@ -3956,6 +3956,7 @@ export type Database = {
       set_tutor_competency: { Args: Record<string, unknown>; Returns: unknown };
       set_tutor_pay_rate: { Args: Record<string, unknown>; Returns: unknown };
       start_thread: { Args: Record<string, unknown>; Returns: unknown };
+      thread_people: { Args: { p_thread_id: string }; Returns: { profile_id: string; full_name: string }[] };
       update_user_for_admin: { Args: Record<string, unknown>; Returns: unknown };
     };
     Enums: {

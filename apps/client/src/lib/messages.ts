@@ -26,7 +26,11 @@ export async function getThread(threadId: string) {
       .select("profile_id, profiles(full_name)")
       .eq("thread_id", threadId),
   ]);
-  return { thread, messages: messages ?? [], participants: participants ?? [] };
+  // profiles RLS hides most people from each other, so the joined names above come back empty
+  // for anyone who isn't a tutor. thread_people returns just the names, to the thread's members.
+  const { data: people } = await supabase.rpc("thread_people", { p_thread_id: threadId });
+  const names = new Map((people ?? []).map((p) => [p.profile_id, p.full_name]));
+  return { thread, messages: messages ?? [], participants: participants ?? [], names };
 }
 
 /** Who this person can start a conversation with. */

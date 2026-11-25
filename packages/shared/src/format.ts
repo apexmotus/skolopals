@@ -145,6 +145,56 @@ export const DELIVERY_MODE_LABEL = {
   hybrid: "Hybrid",
 } as const;
 
+export const SESSION_STATUS_LABEL = {
+  scheduled: "Scheduled",
+  held: "Held",
+  cancelled: "Cancelled",
+} as const;
+
+export const PAYMENT_METHOD_LABEL = {
+  eft: "EFT",
+  cash: "Cash",
+  card_offline: "Card (in person)",
+  payshap: "PayShap",
+  other: "Other",
+} as const;
+
+export const ENQUIRY_SOURCE_LABEL = {
+  website: "Website",
+  whatsapp: "WhatsApp",
+  facebook: "Facebook",
+  walk_in: "Walk-in",
+  phone: "Phone",
+  referral: "Referral",
+  flyer: "Flyer",
+  other: "Other",
+} as const;
+
+export const ENQUIRY_STATUS_LABEL = {
+  new: "New",
+  contacted: "Contacted",
+  enrolled: "Enrolled",
+  closed: "Closed",
+} as const;
+
+/** A code's label from one of the maps above, or the code itself if the map doesn't know it. */
+export function labelFor<T extends Record<string, string>>(labels: T, code: string | null | undefined) {
+  return code ? ((labels as Record<string, string>)[code] ?? code) : "";
+}
+
+/** "November 2026" from a "2026-11" month key or a date in that month. */
+export function monthLabel(month: string) {
+  const [year, mm] = month.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(
+    new Date(Date.UTC(year!, mm! - 1, 1)),
+  );
+}
+
+/** "Mother" from "mother": guardians typed in by parents arrive in lower case. */
+export function capitalise(text: string) {
+  return text ? text[0]!.toUpperCase() + text.slice(1) : text;
+}
+
 const MEETING_PLATFORMS: [RegExp, string][] = [
   [/(^|\.)zoom\.(us|com)$/, "Zoom"],
   [/(^|\.)teams\.(microsoft|live)\.com$/, "Teams"],

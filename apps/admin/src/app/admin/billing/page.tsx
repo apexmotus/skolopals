@@ -1,7 +1,7 @@
 import { Badge, Card, CardTitle, DataTable, PageHeading, StatCard } from "@skolopals/ui/ui";
 import { InvoiceRunForm, LateFeeForm, PayshapSettingsForm, PaymentForm } from "./billing-forms";
 import { createClient } from "@skolopals/shared/supabase/server";
-import { INVOICE_STATE_LABEL, money, shortDate } from "@skolopals/shared/format";
+import { INVOICE_STATE_LABEL, PAYMENT_METHOD_LABEL, labelFor, money, shortDate } from "@skolopals/shared/format";
 
 export const metadata = { title: "Billing" };
 
@@ -130,7 +130,7 @@ export default async function BillingPage() {
               primary: true,
             },
             { header: "Date", cell: (p) => shortDate(p.paid_on) },
-            { header: "Method", cell: (p) => p.method },
+            { header: "Method", cell: (p) => labelFor(PAYMENT_METHOD_LABEL, p.method) },
             { header: "Reference", cell: (p) => p.reference || "—" },
             { header: "Amount", cell: (p) => money(p.amount_cents) },
           ]}

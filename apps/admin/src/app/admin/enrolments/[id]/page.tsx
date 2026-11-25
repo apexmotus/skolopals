@@ -11,7 +11,7 @@ import {
 } from "../approve-form";
 import { getCapacityHint, getEnrolment } from "@/lib/admin";
 import { api } from "@skolopals/shared/api";
-import { age, dateTime, money, shortDate } from "@skolopals/shared/format";
+import { age, capitalise, dateTime, money, shortDate } from "@skolopals/shared/format";
 import { createClient } from "@skolopals/shared/supabase/server";
 
 /** `GET /aptitude/attempts/:id/result` as an administrator sees it (API `AptitudeResultDto`). */
@@ -146,7 +146,7 @@ export default async function EnrolmentReviewPage({ params }: PageProps<"/admin/
               : guardians
                   .map((g) => {
                     const p = g.guardians?.profiles;
-                    return `${p?.full_name ?? "Guardian"} (${g.relationship}${g.is_primary ? ", primary" : ""})${p?.phone ? ` · ${p.phone}` : ""}`;
+                    return `${p?.full_name ?? "Guardian"} (${capitalise(g.relationship)}${g.is_primary ? ", primary" : ""})${p?.phone ? ` · ${p.phone}` : ""}`;
                   })
                   .join(", ")
           }
@@ -185,7 +185,7 @@ export default async function EnrolmentReviewPage({ params }: PageProps<"/admin/
       <Card>
         <CardTitle>Report card</CardTitle>
         {!reportCard ? (
-          <p className="text-[13px] text-danger">No report card on file. It is required before accepting (D3).</p>
+          <p className="text-[13px] text-danger">No report card on file. You need one before you can accept this application.</p>
         ) : (
           <>
             <DetailRow

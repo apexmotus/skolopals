@@ -16,7 +16,7 @@ export function ExpenseForm({
     <Card>
       <CardTitle>Record an expense</CardTitle>
       <p className="text-[11px] text-muted">
-        Recording expenses is what turns the business plan&rsquo;s illustrative surplus into a computed one.
+        Record every expense so the operating surplus on the dashboard is accurate.
       </p>
       <form action={action} className="flex flex-col gap-3">
         <div className="flex flex-col gap-3 md:flex-row">

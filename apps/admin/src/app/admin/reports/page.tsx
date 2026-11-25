@@ -1,6 +1,6 @@
 import { Card, CardTitle, DataTable, PageHeading, StatCard } from "@skolopals/ui/ui";
 import { getKpis } from "@/lib/admin";
-import { money } from "@skolopals/shared/format";
+import { ENQUIRY_SOURCE_LABEL, labelFor, money, monthLabel } from "@skolopals/shared/format";
 
 export const metadata = { title: "KPIs" };
 
@@ -11,7 +11,7 @@ export default async function KpiPage() {
     <>
       <PageHeading
         title="Key performance indicators"
-        description="Financial, academic and business measures from the business plan, section 24."
+        description="How the centre is doing on money, attendance, retention and enquiries."
       />
 
       {k.breakEven && (
@@ -36,7 +36,7 @@ export default async function KpiPage() {
           rowKey={(r) => String(r.month)}
           empty="No invoices or expenses recorded yet."
           columns={[
-            { header: "Month", cell: (r) => String(r.month).slice(0, 7), primary: true },
+            { header: "Month", cell: (r) => monthLabel(String(r.month)), primary: true },
             { header: "Invoiced", cell: (r) => money(Number(r.invoiced_cents ?? 0)) },
             { header: "Collected", cell: (r) => money(Number(r.collected_cents ?? 0)) },
             { header: "Expenses", cell: (r) => money(Number(r.expense_cents ?? 0)) },
@@ -52,7 +52,7 @@ export default async function KpiPage() {
           rowKey={(r) => String(r.month)}
           empty="No registers marked yet."
           columns={[
-            { header: "Month", cell: (r) => String(r.month).slice(0, 7), primary: true },
+            { header: "Month", cell: (r) => monthLabel(String(r.month)), primary: true },
             { header: "Sessions", cell: (r) => String(r.sessions_recorded ?? 0) },
             { header: "Attended", cell: (r) => String(r.attended ?? 0) },
             { header: "Rate", cell: (r) => (r.attendance_rate_pct == null ? "—" : `${r.attendance_rate_pct}%`) },
@@ -67,7 +67,7 @@ export default async function KpiPage() {
           rowKey={(r) => String(r.month)}
           empty="No learner history yet."
           columns={[
-            { header: "Month", cell: (r) => String(r.month).slice(0, 7), primary: true },
+            { header: "Month", cell: (r) => monthLabel(String(r.month)), primary: true },
             { header: "Active", cell: (r) => String(r.active_learners ?? 0) },
             { header: "New", cell: (r) => String(r.new_learners ?? 0) },
             { header: "Left", cell: (r) => String(r.departed_learners ?? 0) },
@@ -83,8 +83,8 @@ export default async function KpiPage() {
           rowKey={(r) => `${r.month}-${r.source}`}
           empty="No enquiries yet."
           columns={[
-            { header: "Month", cell: (r) => String(r.month).slice(0, 7), primary: true },
-            { header: "Source", cell: (r) => r.source ?? "" },
+            { header: "Month", cell: (r) => monthLabel(String(r.month)), primary: true },
+            { header: "Source", cell: (r) => labelFor(ENQUIRY_SOURCE_LABEL, r.source) },
             { header: "Enquiries", cell: (r) => String(r.enquiries ?? 0) },
             { header: "Enrolled", cell: (r) => String(r.converted ?? 0) },
             { header: "Conversion", cell: (r) => (r.conversion_pct == null ? "—" : `${r.conversion_pct}%`) },
