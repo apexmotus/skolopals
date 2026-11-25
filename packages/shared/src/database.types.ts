@@ -3937,6 +3937,7 @@ export type Database = {
       activate_enrolment: { Args: Record<string, unknown>; Returns: unknown };
       apply_late_fees: { Args: Record<string, unknown>; Returns: unknown };
       configure_invited_user: { Args: Record<string, unknown>; Returns: unknown };
+      centre_staff_ids: { Args: Record<string, never>; Returns: string[] };
       create_learning_plan: { Args: Record<string, unknown>; Returns: unknown };
       create_tutor: { Args: Record<string, unknown>; Returns: unknown };
       decline_enrolment: { Args: Record<string, unknown>; Returns: unknown };

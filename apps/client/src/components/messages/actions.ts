@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@skolopals/shared/supabase/server";
 import { requireUser } from "@skolopals/shared/auth";
+import { CENTRE_RECIPIENT } from "@/lib/messages";
 
 export type MessageState = { error?: string; ok?: boolean };
 
@@ -14,12 +15,20 @@ export async function startThread(_prev: MessageState, formData: FormData): Prom
   const subject = text(formData, "subject");
   const body = text(formData, "body");
   const learnerId = text(formData, "learner_id");
-  const participants = formData.getAll("participant").map(String).filter(Boolean);
+  const chosen = formData.getAll("participant").map(String).filter(Boolean);
 
   if (!body) return { error: "Write a message first." };
-  if (participants.length === 0) return { error: "Choose who to send it to." };
+  if (chosen.length === 0) return { error: "Choose who to send it to." };
 
   const supabase = await createClient();
+  // "The centre" means every active administrator, whose ids only the database can look up.
+  let participants = chosen.filter((id) => id !== CENTRE_RECIPIENT);
+  if (chosen.includes(CENTRE_RECIPIENT)) {
+    const { data: centre } = await supabase.rpc("centre_staff_ids");
+    if (!centre?.length) return { error: "The centre can't receive messages right now. Please phone us instead." };
+    participants = [...participants, ...centre];
+  }
+
   const { error } = await supabase.rpc("start_thread", {
     p_subject: subject,
     p_body: body,

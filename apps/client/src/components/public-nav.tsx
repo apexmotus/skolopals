@@ -18,11 +18,21 @@ const LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
+/** Public pages that aren't in the menu, named in the phone top bar instead of "Skolopals". */
+const OTHER_PAGES = [
+  { href: "/enrol", label: "Enrol" },
+  { href: "/about", label: "About" },
+  { href: "/safeguarding", label: "Keeping learners safe" },
+  { href: "/careers", label: "Work with us" },
+  { href: "/terms", label: "Terms" },
+  { href: "/privacy", label: "Privacy" },
+];
+
 export function PublicNav() {
   return (
     <>
       {/* Phones and tablets: a top bar and a drawer. Seven links and two buttons need ~1100px in a row. */}
-      <MobileNav items={LINKS} workspace="Skolopals" breakpoint="lg">
+      <MobileNav items={LINKS} titles={OTHER_PAGES} workspace="Skolopals" breakpoint="lg">
         <nav aria-label="Main" className="flex flex-col gap-[6px]">
           {LINKS.map((l) => (
             <NavLink

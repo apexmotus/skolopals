@@ -174,7 +174,7 @@ function AddPersonForm({
         </Field>
       </div>
       {withId ? (
-        <Field label="Last 4 digits of their ID (optional)" htmlFor={`${prefix}id_number_last4`}>
+        <Field label="Last 4 digits of their ID" htmlFor={`${prefix}id_number_last4`}>
           <Input
             id={`${prefix}id_number_last4`}
             name="id_number_last4"
@@ -182,6 +182,7 @@ function AddPersonForm({
             pattern="[0-9]{4}"
             maxLength={4}
             placeholder="4821"
+            required
           />
         </Field>
       ) : null}

@@ -33,14 +33,26 @@ export async function getThread(threadId: string) {
   return { thread, messages: messages ?? [], participants: participants ?? [], names };
 }
 
-/** Who this person can start a conversation with. */
+/** The "To" value that means every active administrator; startThread expands it. */
+export const CENTRE_RECIPIENT = "centre";
+
+/** Who a parent can start a conversation with: the centre, and the tutors who teach their
+ * children. RLS limits class placements to the parent's own learners. */
 export async function getContactableStaff() {
   const supabase = await createClient();
   const { data } = await supabase
-    .from("tutors")
-    .select("profile_id, profiles(full_name)")
-    .eq("status", "active");
-  return (data ?? []).flatMap((t) =>
-    t.profile_id && t.profiles ? [{ id: t.profile_id, name: t.profiles.full_name }] : [],
-  );
+    .from("class_enrolments")
+    .select("class_groups(tutors(profile_id, status, profiles(full_name)))")
+    .is("left_on", null);
+  const tutors = new Map<string, string>();
+  for (const placement of data ?? []) {
+    const tutor = placement.class_groups?.tutors;
+    if (tutor?.status === "active" && tutor.profile_id && tutor.profiles) {
+      tutors.set(tutor.profile_id, tutor.profiles.full_name);
+    }
+  }
+  return [
+    { id: CENTRE_RECIPIENT, name: "The centre (Skolopals office)" },
+    ...[...tutors].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+  ];
 }

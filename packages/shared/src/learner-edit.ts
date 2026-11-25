@@ -145,7 +145,8 @@ export async function addCollector(formData: FormData): Promise<LearnerEditState
   if (!text(formData, "first_name") || !text(formData, "last_name") || !phone) {
     return { error: "Enter a first name, last name and phone number." };
   }
-  if (last4 && !/^[0-9]{4}$/.test(last4)) return { error: "The ID check is the last four digits only." };
+  // Staff check these digits at the door before handing a child to anyone but the parent.
+  if (!/^[0-9]{4}$/.test(last4)) return { error: "Enter the last four digits of their ID, so staff can check them at the door." };
 
   const supabase = await createClient();
   const { error } = await supabase.from("authorised_collectors").insert({
@@ -153,7 +154,7 @@ export async function addCollector(formData: FormData): Promise<LearnerEditState
     full_name: `${text(formData, "first_name")} ${text(formData, "last_name")}`,
     relationship: text(formData, "relationship") || "family",
     phone,
-    id_number_last4: last4 || null,
+    id_number_last4: last4,
   });
   if (error) return { error: clean(error.message) };
   return { ok: "Collector added." };

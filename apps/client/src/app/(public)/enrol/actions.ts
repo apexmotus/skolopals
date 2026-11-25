@@ -77,6 +77,10 @@ export async function submitEnrolment(_prev: EnrolState, formData: FormData): Pr
   if (colName && !values.col_phone) {
     return { error: "Add a phone number for the person authorised to collect.", values };
   }
+  // Staff check these digits at the door before handing a child to anyone but the parent.
+  if (colName && !/^[0-9]{4}$/.test(values.col_id4)) {
+    return { error: `Add the last four digits of ${colName}’s ID, so staff can check them at the door.`, values };
+  }
 
   const emergency = [
     ...(ecSelf ? [{ full_name: selfName, relationship: selfRelationship, phone: selfPhone }] : []),

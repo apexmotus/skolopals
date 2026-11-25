@@ -29,10 +29,13 @@ export function MobileNav({
   workspace,
   breakpoint = "md",
   actions,
+  titles,
   children,
 }: {
   items: Item[];
   workspace: string;
+  /** Titles for pages that aren't in the menu, so the bar names them rather than the workspace. */
+  titles?: Item[];
   /** Width from which the page shows its own full navigation and this bar disappears. */
   breakpoint?: keyof typeof HIDE_FROM;
   /** Shown in the bar beside the menu button, e.g. a notifications bell. */
@@ -67,7 +70,7 @@ export function MobileNav({
           <Logo height={28} />
         </Link>
         <p className="min-w-0 flex-1 truncate text-center text-[15px] font-semibold text-white">
-          {activeLabel(items, pathname) ?? workspace}
+          {activeLabel([...items, ...(titles ?? [])], pathname) ?? workspace}
         </p>
         {actions}
         <button

@@ -34,7 +34,8 @@ export function NotificationBell({ portal, initialCount }: { portal: Portal; ini
   return (
     <Link
       href={`/${portal}/notifications`}
-      aria-label={count > 0 ? `Notifications, ${count} need attention` : "Notifications"}
+      // The count is things to do plus unread updates, so "new" fits both.
+      aria-label={count > 0 ? `Notifications, ${count} new` : "Notifications"}
       className="relative flex size-11 shrink-0 items-center justify-center rounded-full text-white hover:bg-white/[0.09]"
     >
       <Bell aria-hidden size={20} strokeWidth={1.5} />

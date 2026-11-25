@@ -22,13 +22,14 @@ export async function markAttendance(_prev: ActionState, formData: FormData): Pr
   // A register is marked on the day of the session or after it, never ahead of time.
   const { data: session } = await supabase
     .from("class_sessions")
-    .select("session_date")
+    .select("session_date, status")
     .eq("id", sessionId)
     .maybeSingle();
   if (!session) return { error: "Could not find that session." };
   if (session.session_date > todayAtCentre()) {
     return { error: "This session hasn't happened yet. Mark the register on the day." };
   }
+  if (session.status === "cancelled") return { error: "This session was cancelled, so there is no register to mark." };
 
   // RLS allows this only for a session this tutor actually teaches.
   const { error } = await supabase.from("attendance_records").upsert(

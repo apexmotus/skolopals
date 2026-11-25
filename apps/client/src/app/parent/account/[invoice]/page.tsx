@@ -90,7 +90,7 @@ export default async function InvoicePage({ params }: PageProps<"/parent/account
             ]}
           />
           <p className="text-[11px] text-muted">
-            This serves as your receipt. Fees are paid by EFT or cash — we never take card details.
+            This serves as your receipt. Fees are paid by PayShap, EFT or cash. We never ask for card details.
           </p>
         </Card>
       ) : null}
