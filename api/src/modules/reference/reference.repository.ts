@@ -79,9 +79,10 @@ export class ReferenceRepository {
     );
   }
 
+  /** Retired consent types stay for the consents already given under them, but are no longer asked for. */
   listConsentTypes(): Promise<ConsentTypeRow[]> {
     return this.sp.selectMany<ConsentTypeRow>(
-      'select code, name, description, statute_ref, is_required, sort_order from public.consent_types order by sort_order',
+      'select code, name, description, statute_ref, is_required, sort_order from public.consent_types where is_active order by sort_order',
     );
   }
 

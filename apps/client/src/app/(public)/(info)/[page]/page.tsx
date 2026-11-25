@@ -18,7 +18,7 @@ const PAGES: Record<string, { title: string; description: string; body: string[]
     description: "How we look after the children in our care.",
     body: [
       "Learners sign in when they arrive and sign out when they leave. A child is only released to a parent, guardian or someone on the authorised collector list the family has given us.",
-      "We keep emergency contact details and any allergy or medical information for every learner. That information is held by the centre manager and is not shared with tutors through the system.",
+      "We keep emergency contact details for every learner, held by the centre manager. We don't keep health or medical records, so if your child has a need we should know about to keep them safe, please tell the centre manager in person.",
       "Our tutors provide identity documents, qualification certificates, references and a police clearance before they teach. To raise a concern, please contact the centre manager.",
     ],
   },

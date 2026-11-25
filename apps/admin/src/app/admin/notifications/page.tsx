@@ -1,16 +1,20 @@
 import { DataTable, EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { createClient } from "@skolopals/shared/supabase/server";
 import { dateTime } from "@skolopals/shared/format";
+import { AnnouncementForm } from "./announcement-form";
 
 export const metadata = { title: "Announcements" };
 
 export default async function AnnouncementsPage() {
   const supabase = await createClient();
-  const { data: notifications } = await supabase
-    .from("notifications")
-    .select("*, notification_recipients(profile_id, read_at)")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const [{ data: notifications }, { data: classes }] = await Promise.all([
+    supabase
+      .from("notifications")
+      .select("*, notification_recipients(profile_id, read_at)")
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase.from("class_groups").select("id, name").eq("is_active", true).order("name"),
+  ]);
 
   const rows = notifications ?? [];
 
@@ -20,6 +24,7 @@ export default async function AnnouncementsPage() {
         title="Announcements"
         description="Messages sent to parents, learners or staff. Read state is tracked per recipient."
       />
+      <AnnouncementForm classes={classes ?? []} />
       {rows.length === 0 ? (
         <EmptyState title="Nothing sent yet" description="Announcements you send to families appear here." />
       ) : (

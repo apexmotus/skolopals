@@ -18,16 +18,23 @@ export default async function RegisterPage({ searchParams }: PageProps<"/tutor/r
   // Today's sessions and the recent past, so a tutor can mark a register they missed.
   // Future sessions are left out: a register can't be marked before the day of the session.
   // Cancelled ones too, since nobody attended a class that didn't run.
-  const { data: sessions } = await supabase
-    .from("class_sessions")
-    .select("id, session_date, starts_at, status, meeting_url, class_groups!inner(id, name, tutor_id, delivery_mode, rooms(name))")
-    .eq("class_groups.tutor_id", tutor.id)
-    .lte("session_date", todayAtCentre())
-    .neq("status", "cancelled")
-    .order("starts_at", { ascending: false })
-    .limit(30);
+  // The tutor's sessions are their own classes' (unless a substitute covers one) plus any they cover.
+  const sessionsQuery = () =>
+    supabase
+      .from("class_sessions")
+      .select("id, session_date, starts_at, status, meeting_url, tutor_id, class_groups!inner(id, name, tutor_id, delivery_mode, rooms(name))")
+      .lte("session_date", todayAtCentre())
+      .neq("status", "cancelled")
+      .order("starts_at", { ascending: false })
+      .limit(30);
+  const [{ data: own }, { data: covering }] = await Promise.all([
+    sessionsQuery().eq("class_groups.tutor_id", tutor.id).is("tutor_id", null),
+    sessionsQuery().eq("tutor_id", tutor.id),
+  ]);
 
-  const list = sessions ?? [];
+  const list = [...(own ?? []), ...(covering ?? [])]
+    .sort((a, b) => b.starts_at.localeCompare(a.starts_at))
+    .slice(0, 30);
   // Open the session that started most recently; if none of today's has started yet, the earliest of them.
   const current = list.find((s) => new Date(s.starts_at).getTime() <= nowMs()) ?? list[list.length - 1];
   const session = (chosen && list.find((s) => s.id === chosen)) || current;

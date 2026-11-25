@@ -109,13 +109,12 @@ export default async function PrivacyPage() {
       <Card>
         <CardTitle>Health information</CardTitle>
         <p className="text-[13px] leading-[1.7] text-ink">
-          Allergies and medical conditions are <strong>special personal information</strong> under section
-          26 of POPIA. We collect them only so we can look after your child safely on our premises.
+          We <strong>do not collect</strong> information about your child&rsquo;s health, allergies or
+          medical conditions, and we don&rsquo;t keep it in our system.
         </p>
         <p className="text-[13px] leading-[1.7] text-ink">
-          Health information is visible <strong>only to the centre manager and administrators</strong>.
-          Tutors are not given access to it through our system. Where a tutor must know something to keep
-          a child safe during a session, the centre manager tells them directly.
+          If your child has a need we should know about to keep them safe at the centre, please tell the
+          centre manager in person.
         </p>
       </Card>
 
@@ -127,8 +126,8 @@ export default async function PrivacyPage() {
         <DataTable
           rows={[
             { who: "You", sees: "Your own children: attendance, assessments, reports, invoices and messages" },
-            { who: "Your child's tutor", sees: "Their name, grade, academic records and attendance — not your fees, not their health notes" },
-            { who: "The centre manager", sees: "Everything, including health notes and collection arrangements" },
+            { who: "Your child's tutor", sees: "Their name, grade, academic records and attendance — not your fees" },
+            { who: "The centre manager", sees: "Everything, including emergency contacts and collection arrangements" },
             { who: "Another parent", sees: "Nothing about your family at all" },
             { who: "A visitor to this site", sees: "Our tutors, fees, timetable and programmes. No learner information" },
           ]}

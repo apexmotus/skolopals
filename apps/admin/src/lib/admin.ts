@@ -265,3 +265,20 @@ export async function getEnquiries() {
     .limit(100);
   return data ?? [];
 }
+
+/** The guardians of every learner currently placed in a class: who to tell about that class. */
+export async function getClassFamilyIds(classGroupId: string): Promise<string[]> {
+  const supabase = await createClient();
+  const { data: placed } = await supabase
+    .from("class_enrolments")
+    .select("learner_id")
+    .eq("class_group_id", classGroupId)
+    .is("left_on", null);
+  const learnerIds = (placed ?? []).map((p) => p.learner_id);
+  if (learnerIds.length === 0) return [];
+  const { data: guardians } = await supabase
+    .from("learner_guardians")
+    .select("guardian_id")
+    .in("learner_id", learnerIds);
+  return [...new Set((guardians ?? []).map((g) => g.guardian_id))];
+}

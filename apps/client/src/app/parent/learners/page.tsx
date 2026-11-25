@@ -9,9 +9,12 @@ export default async function LearnersPage() {
 
   return (
     <>
-      <PageHeading title="My learners" description="The children registered under your account." />
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <PageHeading title="My learners" description="The children registered under your account." />
+        <ButtonLink href="/enrol">{learners.length === 0 ? "Enrol a child" : "Enrol another child"}</ButtonLink>
+      </div>
       {learners.length === 0 ? (
-        <EmptyState title="No learners yet" description="Register a learner from the enrolment page." />
+        <EmptyState title="No learners yet" description="Use “Enrol a child” to send your first application." />
       ) : (
         <div className="flex flex-col gap-4">
           {learners.map((l) => (

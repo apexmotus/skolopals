@@ -11,7 +11,7 @@ export default async function TutorLearnersPage() {
     <>
       <PageHeading
         title="My learners"
-        description="Learners currently placed in your classes. You see their academic record, not their family's billing or health information."
+        description="Learners currently placed in your classes. You see their academic record, not their family's billing information."
       />
       {learners.length === 0 ? (
         <EmptyState title="No learners yet" description="Learners appear once an administrator places them in your classes." />

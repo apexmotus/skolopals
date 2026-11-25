@@ -152,7 +152,6 @@ begin
     p_learner, p_package, p_subjects, p_emergency, p_collectors,
     jsonb_build_array(
       jsonb_build_object('consent_type_code', 'enrolment_s35',     'granted', true),
-      jsonb_build_object('consent_type_code', 'health_s27',        'granted', true),
       jsonb_build_object('consent_type_code', 'cross_border_s72',  'granted', true),
       jsonb_build_object('consent_type_code', 'marketing_photos',  'granted', p_marketing),
       jsonb_build_object('consent_type_code', 'marketing_updates', 'granted', p_marketing)),
