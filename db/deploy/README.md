@@ -38,10 +38,12 @@ Editor. They are ordered and must be applied in sequence.
 
 ### 4. Seed
 
-Run `db/seed/01_reference.sql` … `05_expenses.sql` in order. All are
-idempotent and safe in production: CAPS curriculum, the plan's price list,
-POPIA consent types and retention periods, assessment domains, expense
-categories.
+Run every file in `db/seed/` in order (`01_reference.sql` … `06_aptitude.sql`),
+or `DATABASE_URL=<url> ./scripts/seed.sh`. All are idempotent and safe in
+production: CAPS curriculum, the plan's price list, POPIA consent types and
+retention periods, assessment domains, expense categories, and the aptitude
+item bank. Without `06_aptitude.sql` every application stops at "No aptitude
+test is available".
 
 **Do not run** `seed/04_test_users.sql` — it is local-only and git-ignored.
 
@@ -67,8 +69,14 @@ select id, 'admin' from auth.users where email = 'you@example.com';
 ## Later deploys
 
 ```bash
-cd db && supabase db push
+cd db
+DATABASE_URL=<url> ./scripts/migrate.sh   # applies what public.schema_migrations lacks
+DATABASE_URL=<url> ./scripts/seed.sh      # picks up new or changed seed files
 ```
+
+Not `supabase db push`: its history table is separate and empty, so it would
+try to re-run every migration. Do both for every environment (dev and UAT are
+separate Supabase projects).
 
 Migrations are append-only from the first deploy onward. Never edit one that
 has been applied; add a new file.

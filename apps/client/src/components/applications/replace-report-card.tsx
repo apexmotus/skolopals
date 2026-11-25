@@ -1,12 +1,27 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button, Field, FormMessage, Select } from "@skolopals/ui/ui";
 import { Dialog } from "@skolopals/ui/dialog";
 import { UploadField, type UploadedFile } from "@/components/uploads/upload-field";
 import { replaceReportCard } from "./actions";
 
-export function ReplaceReportCard({ enrolmentId, currentYear }: { enrolmentId: string; currentYear: number }) {
+/**
+ * "replace": swap the report card while the application is under review.
+ * "upload": the application has none yet; once saved, carry on to the next step (the aptitude test).
+ */
+export function ReplaceReportCard({
+  enrolmentId,
+  currentYear,
+  mode = "replace",
+}: {
+  enrolmentId: string;
+  currentYear: number;
+  mode?: "replace" | "upload";
+}) {
+  const router = useRouter();
+  const upload = mode === "upload";
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<UploadedFile | null>(null);
   const [year, setYear] = useState(String(currentYear));
@@ -25,21 +40,26 @@ export function ReplaceReportCard({ enrolmentId, currentYear }: { enrolmentId: s
         term: term ? Number(term) : undefined,
       });
       if (result.error) return setError(result.error);
+      if (upload) return router.push(`/enrol/${enrolmentId}/assessment`);
       setDone(true);
     });
   }
 
   return (
     <>
-      <Button type="button" variant="secondary" className="w-fit" onClick={() => setOpen(true)}>
-        Replace report card
+      <Button type="button" variant={upload ? "primary" : "secondary"} className="w-fit" onClick={() => setOpen(true)}>
+        {upload ? "Upload report card" : "Replace report card"}
       </Button>
       {open ? (
         <Dialog
           open
           onClose={() => setOpen(false)}
-          title="Replace the report card"
-          description="The centre will see the new copy straight away. The old one is kept for the record."
+          title={upload ? "Upload the report card" : "Replace the report card"}
+          description={
+            upload
+              ? "Your child’s most recent school report. Next comes the short aptitude test."
+              : "The centre will see the new copy straight away. The old one is kept for the record."
+          }
           footer={
             <div className="flex justify-end gap-3">
               {done ? (
@@ -48,7 +68,7 @@ export function ReplaceReportCard({ enrolmentId, currentYear }: { enrolmentId: s
                 </Button>
               ) : (
                 <Button type="button" onClick={save} disabled={pending || !file}>
-                  {pending ? "Saving…" : "Save"}
+                  {pending ? "Saving…" : upload ? "Save and continue" : "Save"}
                 </Button>
               )}
             </div>

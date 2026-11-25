@@ -52,7 +52,7 @@ export async function ApplicationCard({ app, currentYear }: { app: Application; 
   if (stage === "declined") {
     const lapsed = app.decline_reason === "Offer lapsed";
     return (
-      <Card>
+      <Card id={`application-${id}`} className="scroll-mt-6 target:ring-2 target:ring-accent">
         <CardTitle>{lapsed ? `${name}’s offer has lapsed` : `Update on ${name}’s application`}</CardTitle>
         <p className="text-[13px] leading-[1.6] text-ink">
           {lapsed
@@ -67,12 +67,17 @@ export async function ApplicationCard({ app, currentYear }: { app: Application; 
   }
 
   return (
-    <Card className="border-l-4 border-l-accent">
+    <Card id={`application-${id}`} className="scroll-mt-6 border-l-4 border-l-accent target:ring-2 target:ring-accent">
       <CardTitle>{stage === "needs_placement" || stage === "activation" ? `${name} is enrolled` : `Continue ${name}’s application`}</CardTitle>
       <Stepper steps={JOURNEY} current={JOURNEY_STEP[stage] ?? 0} label={`${name}’s application`} />
 
       {stage === "details" ? (
-        <p className="text-[13px] leading-[1.6] text-ink">We still need {name}’s school report card. Please contact the centre.</p>
+        <>
+          <p className="text-[13px] leading-[1.6] text-ink">
+            We still need {name}’s most recent school report card. Upload it here, then {name} does the short aptitude test.
+          </p>
+          <ReplaceReportCard enrolmentId={id} currentYear={currentYear} mode="upload" />
+        </>
       ) : null}
 
       {stage === "assessment" ? (

@@ -29,15 +29,16 @@ async function unreadThreads(portal: Portal): Promise<AttentionItem[]> {
 }
 
 /** The one thing each application waits on the parent for (stages from `v_enrolment_progress`). */
-async function applicationTasks(): Promise<AttentionItem[]> {
-  const apps = await getApplications();
+function applicationTasks(apps: Awaited<ReturnType<typeof getApplications>>): AttentionItem[] {
   return apps.flatMap((app): AttentionItem[] => {
     const name = firstName(app.learnerName);
     const by = app.offer_expires_on ? ` by ${shortDate(app.offer_expires_on)}` : "";
+    // The application's own card on the overview, which carries the action for its stage.
+    const card = `/parent#application-${app.enrolment_id}`;
     const base = { id: `application:${app.enrolment_id}`, at: app.created_at };
     switch (app.stage) {
       case "details":
-        return [{ ...base, title: `${name}’s application needs a report card`, detail: "Please contact the centre.", href: "/contact" }];
+        return [{ ...base, title: `${name}’s application needs a report card`, detail: "Upload the most recent school report to continue.", href: card }];
       case "assessment":
         return [{ ...base, title: `${name} still needs to do the aptitude test`, detail: "About 20 minutes. Answers so far are saved.", href: `/enrol/${app.enrolment_id}/assessment` }];
       case "payment":
@@ -45,10 +46,10 @@ async function applicationTasks(): Promise<AttentionItem[]> {
           ...base,
           title: `${name}’s application was accepted`,
           detail: `Pay${app.offer_balance_cents ? ` ${money(app.offer_balance_cents)}` : ""}${by} to secure the place.`,
-          href: "/parent",
+          href: card,
         }];
       case "proof":
-        return [{ ...base, title: `Upload proof of payment for ${name}`, detail: `So the centre can confirm it${by}.`, href: "/parent" }];
+        return [{ ...base, title: `Upload proof of payment for ${name}`, detail: `So the centre can confirm it${by}.`, href: card }];
       default:
         return [];
     }
@@ -69,10 +70,12 @@ export async function getUpdates(): Promise<Update[]> {
 export async function getAttention(portal: Portal): Promise<AttentionItem[]> {
   if (portal !== "parent") return unreadThreads(portal);
 
-  const [threads, tasks, account] = await Promise.all([unreadThreads(portal), applicationTasks(), getAccount()]);
+  const [threads, apps, account] = await Promise.all([unreadThreads(portal), getApplications(), getAccount()]);
+  const tasks = applicationTasks(apps);
   // An unpaid offer is already in the balance; only flag fees when no application covers them.
+  const offers = apps.some((a) => a.stage === "payment" || a.stage === "proof");
   const fees: AttentionItem[] =
-    account.outstanding > 0 && !tasks.some((t) => t.href === "/parent")
+    account.outstanding > 0 && !offers
       ? [{ id: "fees", title: `${money(account.outstanding)} is due`, detail: "See your statement and pay.", href: "/parent/account", at: null }]
       : [];
   return [...tasks, ...fees, ...threads];
