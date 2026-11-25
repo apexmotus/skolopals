@@ -28,12 +28,15 @@ export function MobileNav({
   items,
   workspace,
   breakpoint = "md",
+  actions,
   children,
 }: {
   items: Item[];
   workspace: string;
   /** Width from which the page shows its own full navigation and this bar disappears. */
   breakpoint?: keyof typeof HIDE_FROM;
+  /** Shown in the bar beside the menu button, e.g. a notifications bell. */
+  actions?: ReactNode;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -66,6 +69,7 @@ export function MobileNav({
         <p className="min-w-0 flex-1 truncate text-center text-[15px] font-semibold text-white">
           {activeLabel(items, pathname) ?? workspace}
         </p>
+        {actions}
         <button
           type="button"
           onClick={() => setOpen(true)}

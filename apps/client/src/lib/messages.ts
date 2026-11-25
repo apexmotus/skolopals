@@ -14,9 +14,11 @@ export async function getThread(threadId: string) {
   const supabase = await createClient();
   const [{ data: thread }, { data: messages }, { data: participants }] = await Promise.all([
     supabase.from("message_threads").select("*, learners(full_name)").eq("id", threadId).maybeSingle(),
+    // Named FK: message_reads also links messages to profiles, so a bare
+    // `profiles(...)` is ambiguous (PGRST201) and returns no messages at all.
     supabase
       .from("messages")
-      .select("*, profiles(full_name)")
+      .select("*, profiles!messages_sender_id_fkey(full_name)")
       .eq("thread_id", threadId)
       .order("created_at"),
     supabase

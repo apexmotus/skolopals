@@ -117,6 +117,7 @@ export function AppShell({
   signOutAction,
   helpHref,
   badges,
+  notifications,
   children,
 }: {
   profile: Row<"profiles">;
@@ -126,6 +127,8 @@ export function AppShell({
   helpHref?: string | null;
   /** A count beside a nav item, by href (e.g. proofs of payment to check). Zero shows nothing. */
   badges?: Record<string, number>;
+  /** The notifications bell, beside the logo and in the phone top bar. */
+  notifications?: ReactNode;
   children: ReactNode;
 }) {
   const nav = NAV[role];
@@ -212,13 +215,17 @@ export function AppShell({
       <MobileNav
         items={nav.items.map(({ href, label, exact }) => ({ href, label, exact }))}
         workspace={nav.workspace}
+        actions={notifications}
       >
         {body(false)}
       </MobileNav>
       <aside className="hidden shrink-0 flex-col gap-[22px] bg-night p-5 md:sticky md:top-0 md:flex md:h-screen md:w-[84px] md:overflow-y-auto md:px-3 lg:w-[220px] lg:px-5">
-        <Link href="/" className="w-fit md:max-lg:self-center" aria-label="Home">
-          <Logo height={38} />
-        </Link>
+        <div className="flex items-center justify-between gap-2 md:max-lg:flex-col">
+          <Link href="/" className="w-fit" aria-label="Home">
+            <Logo height={38} />
+          </Link>
+          {notifications}
+        </div>
         {body(true)}
       </aside>
       <main className="flex min-w-0 flex-1 flex-col gap-5 p-4 md:p-[30px]">{children}</main>

@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { Badge, Card, CardTitle, EmptyState } from "@skolopals/ui/ui";
 import { ReplyForm } from "./message-forms";
+import { markRead } from "./actions";
 import { getThread, getThreads } from "@/lib/messages";
 import { dateTime, initials, relativeDay } from "@skolopals/shared/format";
 
@@ -16,15 +18,16 @@ export async function MessagesView({ openThreadId }: { openThreadId?: string }) 
   }
 
   const current = openThreadId ?? threads[0]?.id ?? undefined;
-  const { thread, messages } = current
-    ? await getThread(current)
-    : { thread: null, messages: [] };
+  // Opening a thread reads it, which clears its badge and the bell's count.
+  const [{ thread, messages }] = current
+    ? await Promise.all([getThread(current), markRead(current)])
+    : [{ thread: null, messages: [] }];
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row">
       <div className="flex min-w-0 flex-col gap-2 lg:w-[280px]">
         {threads.map((t) => (
-          <a
+          <Link
             key={t.id}
             href={`?thread=${t.id}`}
             className={`flex flex-col gap-1 rounded-[8px] border p-3 ${
@@ -33,7 +36,7 @@ export async function MessagesView({ openThreadId }: { openThreadId?: string }) 
           >
             <span className="flex items-center justify-between gap-2">
               <span className="truncate text-[13px] font-semibold text-ink">{t.subject}</span>
-              {Number(t.unread_count ?? 0) > 0 ? (
+              {t.id !== current && Number(t.unread_count ?? 0) > 0 ? (
                 <Badge tone="brand">{String(t.unread_count)}</Badge>
               ) : null}
             </span>
@@ -44,7 +47,7 @@ export async function MessagesView({ openThreadId }: { openThreadId?: string }) 
             <span className="text-[10px] text-muted">
               {t.last_message_at ? relativeDay(t.last_message_at) : ""}
             </span>
-          </a>
+          </Link>
         ))}
       </div>
 
