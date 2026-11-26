@@ -54,7 +54,7 @@ do $$ begin
   perform dev.assert((select count(*) from public.enrolment_subjects) = 2, 'two subjects on a 2-subject package');
   perform dev.assert((select count(*) from public.learner_emergency_contacts) = 1, 'emergency contact recorded');
   perform dev.assert((select count(*) from public.authorised_collectors) = 1, 'authorised collector recorded');
-  perform dev.assert((select count(*) from public.consents where granted) = 3, 'three required consents recorded');
+  perform dev.assert((select count(*) from public.consents where granted) = 2, 'both required consents recorded');
   perform dev.assert((select status from public.enrolments) = 'pending', 'enrolment is pending, not active');
   perform dev.assert((select status from public.learners) = 'prospective', 'learner is prospective until approved');
   perform dev.assert((select preferred_tutor_id from public.enrolments) is not null, 'preferred tutor recorded');

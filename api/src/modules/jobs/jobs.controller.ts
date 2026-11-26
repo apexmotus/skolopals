@@ -43,11 +43,18 @@ export class JobsController {
     return { alerted };
   }
 
-  /** Uploads never submitted (an abandoned enrol form or payment) are deleted after 24 hours (SPEC §4.1). */
+  /**
+   * Uploads never submitted (an abandoned enrol form, payment or tutor application) are deleted
+   * after 24 hours (SPEC §4.1). An abandoned tutor application leaves an ID photo and a selfie.
+   */
   @Get('staging-cleanup')
   async stagingCleanup(): Promise<{ removed: number }> {
     let removed = 0;
-    for (const bucket of [STORAGE_BUCKETS.learnerDocuments, STORAGE_BUCKETS.paymentProofs]) {
+    for (const bucket of [
+      STORAGE_BUCKETS.learnerDocuments,
+      STORAGE_BUCKETS.paymentProofs,
+      STORAGE_BUCKETS.tutorDocuments,
+    ]) {
       removed += await this.storage.removeStaleStaging(bucket, STAGING_MAX_AGE_MS);
     }
     this.logger.log(`staging cleanup: ${removed} removed`);

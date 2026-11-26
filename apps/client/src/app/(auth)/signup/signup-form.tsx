@@ -6,11 +6,13 @@ import { Button, Field, FormMessage, Input, PageHeading } from "@skolopals/ui/ui
 import { signup, type AuthState } from "../actions";
 
 /**
- * Parents and guardians register themselves. There is no account-type
- * choice: tutors and administrators are created by the centre, so a role
- * can never be self-selected here (BR-23).
+ * Parents and guardians register themselves, and so do people applying to
+ * teach (who arrive with next=/teach). There is no account-type choice:
+ * only the centre makes someone a tutor or administrator, so a role can
+ * never be self-selected here (BR-23).
  */
-export function SignupForm() {
+export function SignupForm({ next = "" }: { next?: string }) {
+  const applying = next.startsWith("/teach");
   const [state, action, pending] = useActionState<AuthState, FormData>(signup, {});
   const dialog = useRef<HTMLDialogElement>(null);
 
@@ -22,6 +24,7 @@ export function SignupForm() {
 
   return (
     <form action={action} className="flex flex-col gap-4">
+      <input type="hidden" name="next" value={next} />
       <dialog
         ref={dialog}
         aria-labelledby="check-email-title"
@@ -36,7 +39,9 @@ export function SignupForm() {
               rather than a log-in button that would fail until the account is activated. */}
           <p className="w-full rounded-[10px] border-l-4 border-brand bg-brand-soft px-4 py-3 text-left text-[14px] leading-[1.6] text-ink">
             We sent a confirmation link to <span className="font-bold">{state.email}</span>.
-            Click the link to activate your account, then log in.
+            {applying
+              ? "Click the link to activate your account. It brings you back to your tutor application."
+              : "Click the link to activate your account, then log in."}
           </p>
           <p className="text-[12px] text-muted">
             Can’t see it? Check your spam or promotions folder.
@@ -50,7 +55,11 @@ export function SignupForm() {
       </dialog>
       <PageHeading
         title="Create your account"
-        description="For parents and guardians. You can register your learners once you are signed in."
+        description={
+          applying
+            ? "First, an account. Once you’re signed in you’ll fill in your tutor application."
+            : "For parents and guardians. You can register your learners once you are signed in."
+        }
       />
       <div className="flex flex-col gap-4 sm:flex-row">
         <Field label="First name" htmlFor="first_name" className="flex-1">
@@ -94,7 +103,10 @@ export function SignupForm() {
       </Button>
       <p className="text-center text-[12px] text-muted">
         Already have an account?{" "}
-        <Link href="/login" className="text-accent underline-offset-2 hover:underline">
+        <Link
+          href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
+          className="text-accent underline-offset-2 hover:underline"
+        >
           Log in
         </Link>
       </p>

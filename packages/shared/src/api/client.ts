@@ -66,10 +66,11 @@ async function send(path: string, init?: RequestInit): Promise<Envelope<unknown>
 }
 
 /** How long a public read stays cached, by how often its data changes. */
-export type PublicFreshness = "reference" | "catalogue";
+export type PublicFreshness = "reference" | "catalogue" | "live";
 const REVALIDATE_SECONDS: Record<PublicFreshness, number> = {
   reference: 3600, // phases, grades, subjects, operating hours: change a few times a year
   catalogue: 300, // tutors, packages, prices, timetable, programmes: admins edit these
+  live: 60, // switches an admin flips and expects to see take effect, e.g. tutor applications open
 };
 
 /**

@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, Card, CardTitle, DetailRow, PageHeading } from "@skolopals/ui/ui";
+import { Badge, Card, CardTitle, DetailRow, FormMessage, PageHeading } from "@skolopals/ui/ui";
+import { RequestPoliceClearanceButton } from "../../tutor-applications/review-forms";
 import {
   CompetencyForm,
   PayRateForm,
@@ -19,15 +21,15 @@ const BASIS_LABEL: Record<string, string> = {
   per_hour: "Per hour",
 };
 
-export default async function AdminTutorPage({ params }: PageProps<"/admin/tutors/[id]">) {
-  const { id } = await params;
+export default async function AdminTutorPage({ params, searchParams }: PageProps<"/admin/tutors/[id]">) {
+  const [{ id }, { from, skipped }] = await Promise.all([params, searchParams]);
   const supabase = await createClient();
 
   const [{ data: tutor }, subjects, grades, languages] = await Promise.all([
     supabase
       .from("tutors")
       .select(
-        "*, profiles(full_name, phone), tutor_competencies(id, subject_code, grade_code, subjects(name), grades(name, sort_order), tutor_competency_media(languages(code, name))), tutor_spoken_languages(language_code), tutor_qualifications(*), tutor_references(*), tutor_pay_rates(*)",
+        "*, profiles(full_name, phone), tutor_competencies(id, subject_code, grade_code, subjects(name), grades(name, sort_order), tutor_competency_media(languages(code, name))), tutor_spoken_languages(language_code), tutor_qualifications(*), tutor_references(*), tutor_pay_rates(*), tutor_documents(doc_type, uploaded_at)",
       )
       .eq("id", id)
       .maybeSingle(),
@@ -48,10 +50,23 @@ export default async function AdminTutorPage({ params }: PageProps<"/admin/tutor
     b.effective_from.localeCompare(a.effective_from),
   );
   const spoken = (tutor.tutor_spoken_languages ?? []).map((l) => l.language_code);
+  const clearance = (tutor.tutor_documents ?? [])
+    .filter((d) => d.doc_type === "police_clearance")
+    .sort((a, b) => b.uploaded_at.localeCompare(a.uploaded_at))[0];
+  const skippedCount = typeof skipped === "string" ? Number(skipped) : 0;
 
   return (
     <>
       <PageHeading title={tutor.profiles?.full_name ?? tutor.slug} description={tutor.headline} />
+      {from === "application" ? (
+        <FormMessage tone="success">
+          Approved. Their subjects, documents and references are below. Set a pay rate, check their references, then
+          activate them.
+          {skippedCount > 0
+            ? ` ${skippedCount} subject${skippedCount === 1 ? "" : "s"} could not be copied because the centre no longer offers ${skippedCount === 1 ? "it" : "them"} at that grade.`
+            : ""}
+        </FormMessage>
+      ) : null}
 
       <Card>
         <CardTitle>Details</CardTitle>
@@ -62,6 +77,16 @@ export default async function AdminTutorPage({ params }: PageProps<"/admin/tutor
         <DetailRow label="Employment" value={tutor.employment_type === "salaried" ? "Salaried" : "Sessional"} />
         <DetailRow label="Phone" value={tutor.profiles?.phone ?? "—"} />
         <DetailRow label="Started" value={shortDate(tutor.started_on)} />
+        {tutor.application_id ? (
+          <DetailRow
+            label="Applied through the website"
+            value={
+              <Link href={`/admin/tutor-applications/${tutor.application_id}`} className="text-link hover:underline">
+                Open application
+              </Link>
+            }
+          />
+        ) : null}
         <StatusForm tutorId={tutor.id} status={tutor.status} />
       </Card>
 
@@ -120,6 +145,19 @@ export default async function AdminTutorPage({ params }: PageProps<"/admin/tutor
           label="References checked"
           value={String((tutor.tutor_references ?? []).filter((r) => r.checked_at).length)}
         />
+        <DetailRow
+          label="Police clearance"
+          value={
+            clearance
+              ? `Received ${shortDate(clearance.uploaded_at)}`
+              : tutor.police_clearance_requested_at
+                ? `Requested ${shortDate(tutor.police_clearance_requested_at)}, waiting`
+                : "None on file"
+          }
+        />
+        {clearance ? null : (
+          <RequestPoliceClearanceButton tutorId={tutor.id} again={!!tutor.police_clearance_requested_at} />
+        )}
         <SpokenLanguagesForm
           tutorId={tutor.id}
           languages={languages.map((l) => ({ code: l.code, name: l.name }))}

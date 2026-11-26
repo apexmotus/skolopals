@@ -121,12 +121,15 @@ export function Field({
   htmlFor,
   className,
   error,
+  hint,
   children,
 }: {
   label: string;
   htmlFor: string;
   className?: string;
   error?: string;
+  /** One line under the label, e.g. what format to type. */
+  hint?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -134,6 +137,7 @@ export function Field({
       <label htmlFor={htmlFor} className="text-[12px] text-ink">
         {label}
       </label>
+      {hint ? <p className="-mt-[2px] text-[12px] text-muted">{hint}</p> : null}
       {children}
       {error ? <p className="text-[12px] text-danger">{error}</p> : null}
     </div>
@@ -182,6 +186,31 @@ export function FormMessage({ tone = "danger", children }: { tone?: "danger" | "
     >
       {children}
     </p>
+  );
+}
+
+/**
+ * An on/off switch. A real checkbox underneath (role="switch"), so it posts
+ * with the form ("on" when checked) and works with the keyboard and screen readers.
+ */
+export function Switch({
+  label,
+  hint,
+  className,
+  ...props
+}: Omit<ComponentProps<"input">, "type"> & { label: ReactNode; hint?: ReactNode }) {
+  return (
+    <label className={cx("flex cursor-pointer items-start gap-3", className)}>
+      <input type="checkbox" role="switch" className="peer sr-only" {...props} />
+      <span
+        aria-hidden
+        className="relative mt-[1px] inline-flex h-6 w-11 shrink-0 rounded-full border border-white/25 bg-canvas transition-colors after:absolute after:left-[3px] after:top-[3px] after:size-4 after:rounded-full after:bg-muted after:transition-transform peer-checked:border-accent peer-checked:bg-accent peer-checked:after:translate-x-5 peer-checked:after:bg-plum-950 peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface peer-disabled:opacity-50"
+      />
+      <span className="flex flex-col gap-[2px]">
+        <span className="text-[13px] font-semibold text-ink">{label}</span>
+        {hint ? <span className="text-[12px] text-muted">{hint}</span> : null}
+      </span>
+    </label>
   );
 }
 

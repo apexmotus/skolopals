@@ -936,6 +936,7 @@ export type Database = {
           statute_ref: string;
           is_required: boolean;
           sort_order: number;
+          is_active: boolean;
         };
         Insert: {
           code: string;
@@ -944,6 +945,7 @@ export type Database = {
           statute_ref?: string;
           is_required?: boolean;
           sort_order: number;
+          is_active?: boolean;
         };
         Update: {
           code?: string;
@@ -952,6 +954,7 @@ export type Database = {
           statute_ref?: string;
           is_required?: boolean;
           sort_order?: number;
+          is_active?: boolean;
         };
         Relationships: [];
       };
@@ -1959,6 +1962,8 @@ export type Database = {
           left_on?: string | null;
           created_at?: string;
           may_leave_alone?: boolean;
+          may_leave_alone_set_by?: string | null;
+          may_leave_alone_set_at?: string | null;
         };
         Update: {
           id?: string;
@@ -1973,6 +1978,8 @@ export type Database = {
           left_on?: string | null;
           created_at?: string;
           may_leave_alone?: boolean;
+          may_leave_alone_set_by?: string | null;
+          may_leave_alone_set_at?: string | null;
         };
         Relationships: [
           {
@@ -1995,6 +2002,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "languages";
             referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "learners_may_leave_alone_set_by_fkey";
+            columns: ["may_leave_alone_set_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
           },
         ];
       };
@@ -3194,6 +3208,8 @@ export type Database = {
           note?: string;
           collected_by_guardian?: string | null;
           left_alone?: boolean;
+          late_alert_sent_at?: string | null;
+          collected_by_name?: string | null;
         };
         Update: {
           id?: string;
@@ -3290,6 +3306,13 @@ export type Database = {
             columns: ["learner_id"];
             isOneToOne: false;
             referencedRelation: "learners";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_joins_joined_by_fkey";
+            columns: ["joined_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -3404,6 +3427,274 @@ export type Database = {
             columns: ["profile_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tutor_application_competencies: {
+        Row: {
+          id: string;
+          application_id: string;
+          subject_code: string;
+          grade_code: string;
+        };
+        Insert: {
+          id?: string;
+          application_id: string;
+          subject_code: string;
+          grade_code: string;
+        };
+        Update: {
+          id?: string;
+          application_id?: string;
+          subject_code?: string;
+          grade_code?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tutor_application_competencies_application_id_fkey";
+            columns: ["application_id"];
+            isOneToOne: false;
+            referencedRelation: "tutor_applications";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tutor_application_competencies_subject_code_grade_code_fkey";
+            columns: ["subject_code", "grade_code"];
+            isOneToOne: false;
+            referencedRelation: "subject_offerings";
+            referencedColumns: ["subject_code", "grade_code"];
+          },
+        ];
+      };
+      tutor_application_competency_media: {
+        Row: {
+          competency_id: string;
+          language_code: string;
+        };
+        Insert: {
+          competency_id: string;
+          language_code: string;
+        };
+        Update: {
+          competency_id?: string;
+          language_code?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tutor_application_competency_media_competency_id_fkey";
+            columns: ["competency_id"];
+            isOneToOne: false;
+            referencedRelation: "tutor_application_competencies";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tutor_application_competency_media_language_code_fkey";
+            columns: ["language_code"];
+            isOneToOne: false;
+            referencedRelation: "languages";
+            referencedColumns: ["code"];
+          },
+        ];
+      };
+      tutor_application_documents: {
+        Row: {
+          id: string;
+          application_id: string;
+          doc_type: string;
+          storage_path: string;
+          original_name: string;
+          mime_type: string;
+          size_bytes: number;
+          title: string;
+          institution: string;
+          year_awarded: number | null;
+          uploaded_at: string;
+        };
+        Insert: {
+          id?: string;
+          application_id: string;
+          doc_type: string;
+          storage_path: string;
+          original_name?: string;
+          mime_type: string;
+          size_bytes: number;
+          title?: string;
+          institution?: string;
+          year_awarded?: number | null;
+          uploaded_at?: string;
+        };
+        Update: {
+          id?: string;
+          application_id?: string;
+          doc_type?: string;
+          storage_path?: string;
+          original_name?: string;
+          mime_type?: string;
+          size_bytes?: number;
+          title?: string;
+          institution?: string;
+          year_awarded?: number | null;
+          uploaded_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tutor_application_documents_application_id_fkey";
+            columns: ["application_id"];
+            isOneToOne: false;
+            referencedRelation: "tutor_applications";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tutor_application_references: {
+        Row: {
+          application_id: string;
+          position: number;
+          full_name: string;
+          relationship: string;
+          phone: string;
+          email: string;
+        };
+        Insert: {
+          application_id: string;
+          position: number;
+          full_name: string;
+          relationship: string;
+          phone: string;
+          email?: string;
+        };
+        Update: {
+          application_id?: string;
+          position?: number;
+          full_name?: string;
+          relationship?: string;
+          phone?: string;
+          email?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tutor_application_references_application_id_fkey";
+            columns: ["application_id"];
+            isOneToOne: false;
+            referencedRelation: "tutor_applications";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tutor_applications: {
+        Row: {
+          id: string;
+          round_id: string;
+          applicant_id: string;
+          first_name: string;
+          last_name: string;
+          phone: string;
+          whatsapp_number: string;
+          address_line_1: string;
+          address_line_2: string;
+          city: string;
+          province: string;
+          country: string;
+          status: string;
+          decision_note: string;
+          police_clearance_required: boolean;
+          police_clearance_requested_at: string | null;
+          police_clearance_request_note: string;
+          identity_checked_by: string | null;
+          identity_checked_at: string | null;
+          popia_consent_at: string;
+          submitted_at: string;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          tutor_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          round_id: string;
+          applicant_id: string;
+          first_name: string;
+          last_name: string;
+          phone: string;
+          whatsapp_number: string;
+          address_line_1: string;
+          address_line_2?: string;
+          city: string;
+          province: string;
+          country?: string;
+          status?: string;
+          decision_note?: string;
+          police_clearance_required: boolean;
+          police_clearance_requested_at?: string | null;
+          police_clearance_request_note?: string;
+          identity_checked_by?: string | null;
+          identity_checked_at?: string | null;
+          popia_consent_at: string;
+          submitted_at?: string;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          tutor_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          round_id?: string;
+          applicant_id?: string;
+          first_name?: string;
+          last_name?: string;
+          phone?: string;
+          whatsapp_number?: string;
+          address_line_1?: string;
+          address_line_2?: string;
+          city?: string;
+          province?: string;
+          country?: string;
+          status?: string;
+          decision_note?: string;
+          police_clearance_required?: boolean;
+          police_clearance_requested_at?: string | null;
+          police_clearance_request_note?: string;
+          identity_checked_by?: string | null;
+          identity_checked_at?: string | null;
+          popia_consent_at?: string;
+          submitted_at?: string;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          tutor_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tutor_applications_round_id_fkey";
+            columns: ["round_id"];
+            isOneToOne: false;
+            referencedRelation: "tutor_recruitment_rounds";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tutor_applications_applicant_id_fkey";
+            columns: ["applicant_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tutor_applications_identity_checked_by_fkey";
+            columns: ["identity_checked_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tutor_applications_reviewed_by_fkey";
+            columns: ["reviewed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tutor_applications_tutor_id_fkey";
+            columns: ["tutor_id"];
+            isOneToOne: false;
+            referencedRelation: "tutors";
             referencedColumns: ["id"];
           },
         ];
@@ -3619,6 +3910,84 @@ export type Database = {
           },
         ];
       };
+      tutor_recruitment_needs: {
+        Row: {
+          round_id: string;
+          subject_code: string;
+        };
+        Insert: {
+          round_id: string;
+          subject_code: string;
+        };
+        Update: {
+          round_id?: string;
+          subject_code?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tutor_recruitment_needs_round_id_fkey";
+            columns: ["round_id"];
+            isOneToOne: false;
+            referencedRelation: "tutor_recruitment_rounds";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tutor_recruitment_needs_subject_code_fkey";
+            columns: ["subject_code"];
+            isOneToOne: false;
+            referencedRelation: "subjects";
+            referencedColumns: ["code"];
+          },
+        ];
+      };
+      tutor_recruitment_rounds: {
+        Row: {
+          id: string;
+          opened_at: string;
+          opened_by: string;
+          closes_at: string | null;
+          closed_at: string | null;
+          closed_by: string | null;
+          message: string;
+          police_clearance_required: boolean;
+        };
+        Insert: {
+          id?: string;
+          opened_at?: string;
+          opened_by: string;
+          closes_at?: string | null;
+          closed_at?: string | null;
+          closed_by?: string | null;
+          message?: string;
+          police_clearance_required?: boolean;
+        };
+        Update: {
+          id?: string;
+          opened_at?: string;
+          opened_by?: string;
+          closes_at?: string | null;
+          closed_at?: string | null;
+          closed_by?: string | null;
+          message?: string;
+          police_clearance_required?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tutor_recruitment_rounds_opened_by_fkey";
+            columns: ["opened_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tutor_recruitment_rounds_closed_by_fkey";
+            columns: ["closed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       tutor_references: {
         Row: {
           id: string;
@@ -3713,6 +4082,9 @@ export type Database = {
           started_on: string;
           ended_on: string | null;
           created_at: string;
+          application_id: string | null;
+          police_clearance_requested_at: string | null;
+          police_clearance_request_note: string;
         };
         Insert: {
           id?: string;
@@ -3726,6 +4098,9 @@ export type Database = {
           started_on?: string;
           ended_on?: string | null;
           created_at?: string;
+          application_id?: string | null;
+          police_clearance_requested_at?: string | null;
+          police_clearance_request_note?: string;
         };
         Update: {
           id?: string;
@@ -3739,6 +4114,9 @@ export type Database = {
           started_on?: string;
           ended_on?: string | null;
           created_at?: string;
+          application_id?: string | null;
+          police_clearance_requested_at?: string | null;
+          police_clearance_request_note?: string;
         };
         Relationships: [
           {
@@ -3746,6 +4124,13 @@ export type Database = {
             columns: ["profile_id"];
             isOneToOne: true;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tutors_application_id_fkey";
+            columns: ["application_id"];
+            isOneToOne: false;
+            referencedRelation: "tutor_applications";
             referencedColumns: ["id"];
           },
         ];
@@ -4131,15 +4516,23 @@ export type Reviews = Database["public"]["Tables"]["reviews"]["Row"];
 export type Rooms = Database["public"]["Tables"]["rooms"]["Row"];
 export type SchoolPhases = Database["public"]["Tables"]["school_phases"]["Row"];
 export type SessionCheckIns = Database["public"]["Tables"]["session_check_ins"]["Row"];
+export type SessionJoins = Database["public"]["Tables"]["session_joins"]["Row"];
 export type SubjectOfferings = Database["public"]["Tables"]["subject_offerings"]["Row"];
 export type Subjects = Database["public"]["Tables"]["subjects"]["Row"];
 export type Terms = Database["public"]["Tables"]["terms"]["Row"];
 export type ThreadParticipants = Database["public"]["Tables"]["thread_participants"]["Row"];
+export type TutorApplicationCompetencies = Database["public"]["Tables"]["tutor_application_competencies"]["Row"];
+export type TutorApplicationCompetencyMedia = Database["public"]["Tables"]["tutor_application_competency_media"]["Row"];
+export type TutorApplicationDocuments = Database["public"]["Tables"]["tutor_application_documents"]["Row"];
+export type TutorApplicationReferences = Database["public"]["Tables"]["tutor_application_references"]["Row"];
+export type TutorApplications = Database["public"]["Tables"]["tutor_applications"]["Row"];
 export type TutorCompetencies = Database["public"]["Tables"]["tutor_competencies"]["Row"];
 export type TutorCompetencyMedia = Database["public"]["Tables"]["tutor_competency_media"]["Row"];
 export type TutorDocuments = Database["public"]["Tables"]["tutor_documents"]["Row"];
 export type TutorPayRates = Database["public"]["Tables"]["tutor_pay_rates"]["Row"];
 export type TutorQualifications = Database["public"]["Tables"]["tutor_qualifications"]["Row"];
+export type TutorRecruitmentNeeds = Database["public"]["Tables"]["tutor_recruitment_needs"]["Row"];
+export type TutorRecruitmentRounds = Database["public"]["Tables"]["tutor_recruitment_rounds"]["Row"];
 export type TutorReferences = Database["public"]["Tables"]["tutor_references"]["Row"];
 export type TutorSpokenLanguages = Database["public"]["Tables"]["tutor_spoken_languages"]["Row"];
 export type Tutors = Database["public"]["Tables"]["tutors"]["Row"];

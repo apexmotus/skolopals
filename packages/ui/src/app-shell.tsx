@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import {
   Banknote,
   Bell,
+  BriefcaseBusiness,
   Wallet,
   BookOpen,
   Calendar,
@@ -79,6 +80,7 @@ const NAV: Record<AppRole, { workspace: string; items: NavItem[] }> = {
       { href: "/admin/payments", label: "Payments", icon: { lucide: Wallet } },
       { href: "/admin/learners", label: "Learners", icon: { lucide: GraduationCap } },
       { href: "/admin/tutors", label: "Tutors", icon: { lucide: Users } },
+      { href: "/admin/tutor-applications", label: "Tutor applications", icon: { lucide: BriefcaseBusiness } },
       { href: "/admin/timetable", label: "Timetable", icon: { lucide: Calendar } },
       { href: "/admin/sessions", label: "Sessions", icon: { lucide: CalendarClock } },
       { href: "/admin/door", label: "At the door", icon: { lucide: DoorOpen } },
@@ -98,6 +100,7 @@ const NAV: Record<AppRole, { workspace: string; items: NavItem[] }> = {
       { href: "/admin/payments", label: "Payments", icon: { lucide: Wallet } },
       { href: "/admin/learners", label: "Learners", icon: { lucide: GraduationCap } },
       { href: "/admin/tutors", label: "Tutors", icon: { lucide: Users } },
+      { href: "/admin/tutor-applications", label: "Tutor applications", icon: { lucide: BriefcaseBusiness } },
       { href: "/admin/timetable", label: "Timetable", icon: { lucide: Calendar } },
       { href: "/admin/sessions", label: "Sessions", icon: { lucide: CalendarClock } },
       { href: "/admin/door", label: "At the door", icon: { lucide: DoorOpen } },

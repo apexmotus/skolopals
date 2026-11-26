@@ -5,6 +5,8 @@ import { PublicFooter } from "@/components/public-nav";
 import { TutorCard } from "@/components/tutor-card";
 import { formatRandSpaced } from "@skolopals/shared/format";
 import { getPackages, getSubjectsByPhase, searchTutors } from "@/lib/queries";
+import { getRecruitmentStatus } from "@/lib/tutor-applications";
+import { shortDate } from "@skolopals/shared/format";
 
 // The plan's core value chain, styled per the UI redesign specification.
 const CHAIN = [
@@ -31,10 +33,11 @@ const CHAIN = [
 ] as const;
 
 export default async function HomePage() {
-  const [tutors, phases, packages] = await Promise.all([
+  const [tutors, phases, packages, recruitment] = await Promise.all([
     searchTutors(),
     getSubjectsByPhase(),
     getPackages(),
+    getRecruitmentStatus(),
   ]);
   const featured = tutors.slice(0, 3);
   const fromPriceCents = packages.find((p) => p.code === "group_1")?.amountCents;
@@ -71,6 +74,15 @@ export default async function HomePage() {
               >
                 See our fees
               </Link>
+              {/* Only while the centre has tutor applications open (SPEC-2026-11-tutor-applications.md §3.1). */}
+              {recruitment.isOpen ? (
+                <Link
+                  href="/teach"
+                  className="inline-flex items-center justify-center rounded-[8px] border-[1.5px] border-white/40 bg-transparent px-[24px] py-[12px] text-[14px] font-bold leading-none text-ink transition-colors hover:bg-white/[0.06]"
+                >
+                  Apply to teach
+                </Link>
+              ) : null}
             </div>
           </div>
 
@@ -189,6 +201,34 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {recruitment.isOpen ? (
+        <section className="mt-[40px] flex flex-col items-start justify-between gap-4 rounded-[12px] border border-line border-l-[4px] border-l-brand bg-surface px-[28px] py-[22px] md:flex-row md:items-center">
+          <div className="flex min-w-0 flex-col gap-2">
+            <h2 className="text-[22px] font-extrabold leading-[1.3] tracking-[-0.01em] text-ink">
+              We’re looking for <span className="text-brand-light">tutors</span>
+            </h2>
+            {recruitment.message ? (
+              <p className="max-w-[640px] text-[14px] leading-[1.5] text-muted">{recruitment.message}</p>
+            ) : null}
+            {recruitment.needs && recruitment.needs.length > 0 ? (
+              <ul aria-label="Subjects we need" className="flex flex-wrap gap-2">
+                {recruitment.needs.map((n) => (
+                  <li key={n.code} className="rounded-full bg-subtle px-3 py-1 text-[12px] font-semibold text-ink">
+                    {n.name}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {recruitment.closesAt ? (
+              <p className="text-[12px] text-muted">Applications close {shortDate(recruitment.closesAt)}.</p>
+            ) : null}
+          </div>
+          <ButtonLink href="/teach" variant="sun">
+            Apply to teach
+          </ButtonLink>
+        </section>
+      ) : null}
 
       {/* Featured Tutors */}
       {featured.length > 0 ? (

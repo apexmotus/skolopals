@@ -62,15 +62,18 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   if (password.length < 8) return { error: "Use at least 8 characters for your password.", email };
   if (password !== confirm) return { error: "Passwords don’t match.", email };
 
+  const next = safeNext(formData.get("next"));
+
   const supabase = await createClient();
   // No role is selectable at sign-up. Everyone who registers is a parent or
-  // guardian; tutors and administrators are created by the centre.
+  // guardian; tutors and administrators are created by the centre (a tutor
+  // applicant signs up the same way and is only made a tutor on approval).
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { first_name: firstName, last_name: lastName, full_name: fullName, phone },
-      emailRedirectTo: `${await requestOrigin()}/auth/confirm`,
+      emailRedirectTo: `${await requestOrigin()}/auth/confirm${next ? `?next=${encodeURIComponent(next)}` : ""}`,
     },
   });
   if (error) return { error: error.message, email };
@@ -79,7 +82,7 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   if (!data.session) {
     return { message: `Check ${email} for a link to confirm your account, then log in.`, email };
   }
-  redirect("/parent");
+  redirect(next ?? "/parent");
 }
 
 export async function completeRegistration(_prev: AuthState, formData: FormData): Promise<AuthState> {

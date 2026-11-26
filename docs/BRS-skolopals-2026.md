@@ -25,6 +25,7 @@
 | Ver | Date | Change |
 | --- | --- | --- |
 | 1.0 | 2026-10-20 | Initial issue |
+| 1.1 | 2026-11-26 | BR-23 amended and BR-23a, BR-23b added: tutor applications open and close at the administrator's discretion (`SPEC-2026-11-tutor-applications.md`) |
 
 ---
 
@@ -84,8 +85,8 @@ The RFQ is retained here as traceability — it explains the shape of the existi
 | RFQ §3 item | Disposition |
 | --- | --- |
 | 1. Website — marketplace features | **Superseded.** Replaced by the centre model in §6 |
-| — Become a Tutor page + application | **Withdrawn.** Tutor onboarding is admin-only (BR-23) |
-| — Admin Tutor Approval System | **Withdrawn** with the above |
+| — Become a Tutor page + application | **Reinstated (v1.1)** as "Apply to teach", shown only while the administrator has applications open (BR-23, BR-23a) |
+| — Admin Tutor Approval System | **Reinstated (v1.1)** with the above. Approval creates a suspended tutor (BR-23b) |
 | — Booking page with card payment | **Withdrawn.** Invoice-based billing (BR-42) |
 | — 40% platform fee, weekly tutor payouts | **Withdrawn.** Tutors are centre staff (BR-26) |
 | — Price filter, hourly rate on profile | **Changed.** Package pricing (BR-12) |
@@ -233,7 +234,9 @@ Priority: **M** = Must (Year 1 viability) · **S** = Should · **C** = Could.
 | BR-20 | Medium of instruction shall be recorded against each teaching ability — a tutor may teach Physical Sciences in Afrikaans and Mathematics in English | M | §5 |
 | BR-21 | Languages a tutor speaks for parent communication shall be recorded separately from medium of instruction | S | §14 |
 | BR-22 | Tutor qualifications, references, identity documents and police clearance shall be recorded, with verification status | M | §13 |
-| BR-23 | **Only an administrator shall create a tutor.** No public tutor application | M | §13 |
+| BR-23 | **Only an administrator shall create a tutor.** The public may apply while the centre has applications open; an application creates nothing until an administrator approves it | M | §13 |
+| BR-23a | The administrator shall be able to open and close tutor applications at any time, optionally with a closing date, the subjects needed, and whether a police clearance certificate is required with the application | M | §13 |
+| BR-23b | A tutor created from an application shall start suspended, and become active only when an administrator activates them. An applicant's ID photo and selfie shall be compared by an administrator before approval | M | §13 |
 | BR-24 | Tutor profiles shall be publicly viewable as a staff directory, without prices | M | §10 |
 | BR-25 | Parents shall be able to rate and review a tutor; reviews are published only after moderation | S | §10 |
 | BR-26 | Tutors shall be paid as centre staff, on a monthly salary or a per-session rate, with effective dates | M | §13, §17 |

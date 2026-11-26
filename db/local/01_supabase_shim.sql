@@ -18,8 +18,13 @@ create table if not exists auth.users (
   id                 uuid primary key default gen_random_uuid(),
   email              text unique,
   raw_user_meta_data jsonb not null default '{}'::jsonb,
-  created_at         timestamptz not null default now()
+  created_at         timestamptz not null default now(),
+  banned_until       timestamptz
 );
+
+-- Columns Supabase has that later migrations read; added for databases built
+-- before they were in the table above.
+alter table auth.users add column if not exists banned_until timestamptz;
 
 -- auth helpers -------------------------------------------------------------
 -- Bodies copied from Supabase so local RLS behaves identically. They read the

@@ -142,10 +142,12 @@ check "medical notes carry no tutor-visible policy" "
   select count(*) = 0 from pg_policies
   where schemaname='public' and tablename='learner_medical_notes'
     and qual like '%tutor%'"
-check "three required consent types" "
-  select count(*) = 3 from public.consent_types where is_required"
+check "two required consent types (health retired 2026-11-25)" "
+  select count(*) = 2 from public.consent_types where is_required and is_active"
 check "optional consents exist and are not required" "
-  select count(*) = 2 from public.consent_types where not is_required"
+  select count(*) = 2 from public.consent_types where not is_required and is_active"
+check "the retired health consent is neither active nor required" "
+  select not is_active and not is_required from public.consent_types where code = 'health_s27'"
 check "retention policies cover learner and financial records" "
   select count(*) = 2 from public.data_retention_policies
   where record_class in ('learner_records','financial_records')

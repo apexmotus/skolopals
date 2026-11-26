@@ -23,9 +23,44 @@ export const UPLOAD_PURPOSES = {
     roles: ['parent'],
     maxBytes: TEN_MB,
   },
+  // Tutor applications (SPEC-2026-11-tutor-applications.md §3.4). An applicant
+  // is an ordinary self-signup account, so a parent (or learner) role; the
+  // police clearance can also come from a tutor after approval (§4.4).
+  tutor_cv: {
+    bucket: STORAGE_BUCKETS.tutorDocuments,
+    roles: ['parent', 'learner'],
+    maxBytes: TEN_MB,
+  },
+  tutor_qualification: {
+    bucket: STORAGE_BUCKETS.tutorDocuments,
+    roles: ['parent', 'learner'],
+    maxBytes: TEN_MB,
+  },
+  tutor_id_document: {
+    bucket: STORAGE_BUCKETS.tutorDocuments,
+    roles: ['parent', 'learner'],
+    maxBytes: TEN_MB,
+  },
+  tutor_selfie: {
+    bucket: STORAGE_BUCKETS.tutorDocuments,
+    roles: ['parent', 'learner'],
+    maxBytes: TEN_MB,
+    imagesOnly: true,
+  },
+  tutor_police_clearance: {
+    bucket: STORAGE_BUCKETS.tutorDocuments,
+    roles: ['parent', 'learner', 'tutor'],
+    maxBytes: TEN_MB,
+  },
 } as const satisfies Record<
   string,
-  { bucket: StorageBucket; roles: readonly string[]; maxBytes: number }
+  {
+    bucket: StorageBucket;
+    roles: readonly string[];
+    maxBytes: number;
+    /** Refuse a PDF: the file must be a photo (a selfie). */
+    imagesOnly?: boolean;
+  }
 >;
 
 export type UploadPurpose = keyof typeof UPLOAD_PURPOSES;

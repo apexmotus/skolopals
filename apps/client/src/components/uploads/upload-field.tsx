@@ -22,14 +22,20 @@ export function UploadField({
   value,
   onChange,
   capture,
+  photoOnly,
 }: {
   purpose: UploadPurpose;
   label: string;
   hint?: string;
   value: UploadedFile | null;
   onChange: (file: UploadedFile | null) => void;
-  /** Offer the camera on phones (proof of payment). */
-  capture?: boolean;
+  /**
+   * Open the camera straight away on phones: "environment" for the rear camera
+   * (proof of payment, ID), "user" for the front one (selfie). `true` means rear.
+   */
+  capture?: boolean | "environment" | "user";
+  /** A photo only, no PDF (a selfie). The API refuses a PDF for these anyway. */
+  photoOnly?: boolean;
 }) {
   const id = useId();
   const [busy, setBusy] = useState(false);
@@ -74,8 +80,8 @@ export function UploadField({
         <input
           id={id}
           type="file"
-          accept="image/*,application/pdf,.heic,.heif"
-          capture={capture ? "environment" : undefined}
+          accept={photoOnly ? "image/*,.heic,.heif" : "image/*,application/pdf,.heic,.heif"}
+          capture={capture === true ? "environment" : capture || undefined}
           className="sr-only"
           disabled={busy}
           onChange={(e) => {
@@ -93,8 +99,10 @@ export function UploadField({
           </>
         ) : (
           <>
-            <span className="font-semibold">Choose a file or take a photo</span>
-            <span className="text-[12px] text-muted">PDF, JPG, PNG or iPhone photo, up to 10 MB</span>
+            <span className="font-semibold">{photoOnly ? "Take or choose a photo" : "Choose a file or take a photo"}</span>
+            <span className="text-[12px] text-muted">
+              {photoOnly ? "JPG, PNG or iPhone photo, up to 10 MB" : "PDF, JPG, PNG or iPhone photo, up to 10 MB"}
+            </span>
           </>
         )}
       </label>

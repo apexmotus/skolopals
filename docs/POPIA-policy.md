@@ -42,11 +42,12 @@ Skolopals Tutoring Centre (`[TO CONFIRM: registered name and registration number
 
 ### A2. Who this notice is about
 
-We process personal information about four groups:
+We process personal information about five groups:
 
 - **Learners** — the children who attend our centre, from Grade R to Grade 12
 - **Parents and guardians** — the adults who register learners and pay fees
 - **Tutors and staff** — the people we employ
+- **Tutor applicants** — people who apply to teach at the centre while applications are open
 - **Enquirers** — anyone who contacts us through our website
 
 ### A3. What we collect
@@ -62,6 +63,7 @@ We process personal information about four groups:
 | Attendance | Presence, absence, lateness and excused absence per session | Learners |
 | Financial | Invoices, payments, payment method and reference, account balance | Guardians |
 | Employment | Qualifications, references, identity documents, police clearance, pay rate | Tutors |
+| Application | Name, phone and WhatsApp number, physical address, CV, qualifications, the subjects and grades they can teach, three references' names and contact details, a photo of their ID, a selfie, and (when asked for) a police clearance certificate | Tutor applicants |
 | Communication | Messages exchanged through the portal, enquiries submitted | All |
 | Technical | Login credentials (passwords are stored hashed, never in readable form), session records | Account holders |
 
@@ -97,6 +99,7 @@ Health information is visible **only to the centre manager and administrators**.
 | Health and allergy management | Explicit consent (s27(1)(a)); vital interest (s27(1)(d)) |
 | Invoicing, collecting fees and keeping accounts | Performance of a contract; legal obligation (tax) |
 | Employing and paying tutors | Performance of a contract; legal obligation |
+| Assessing a tutor application, including confirming the applicant's identity and contacting their references | Steps taken at the applicant's request before a contract (s11(1)(b)); the applicant's consent, given on the application form |
 | Responding to enquiries | Legitimate interest (s11(1)(f)) |
 | Marketing to existing parents | Legitimate interest, with opt-out on every message |
 | Using a learner's photograph or work in marketing | **Separate, specific, opt-in consent.** Never bundled with enrolment |
@@ -118,6 +121,7 @@ We do not sell personal information. We share it only as set out here.
 
 - **A learner's own guardians** — each guardian linked to a learner can see that learner's attendance, assessments and reports.
 - **The tutor teaching your child** — sees the learner's name, grade, academic records and attendance for the classes they teach. Tutors cannot see your billing information, your other children, or health notes.
+- **A tutor applicant's references** — we tell a reference that the applicant has applied and ask about their work. The applicant confirms on the form that their references have agreed to be contacted.
 - **Authorities** — where we are legally obliged to disclose, or where a child's safety requires it.
 
 We do not disclose a learner's information to anyone else, including a person claiming to be a relative, unless they appear on the authorised collector list you gave us.
@@ -141,6 +145,8 @@ We keep learner and account records for **5 years** after a learner leaves the c
 | Invoices, payments and accounting records | 5 years from the end of the tax year |
 | Tutor employment records | 5 years after employment ends |
 | Enquiries that do not become enrolments | 12 months |
+| Tutor applications that are not successful, with the ID, selfie and documents sent with them | 12 months after the decision (or after the applicant withdraws) |
+| Tutor applications that are successful | As tutor employment records |
 | Portal messages | 5 years |
 | Marketing consent records | Until withdrawn, then 3 years as proof of the withdrawal |
 
@@ -240,6 +246,7 @@ Retention is enforced by the system, not by memory.
 - `learners.left_on` starts the clock; `v_retention_due` lists what is now past its period
 - A scheduled purge job runs monthly, writes to `data_retention_log`, and **requires admin confirmation before deleting** — nothing is destroyed silently
 - Deletion anonymises rather than drops rows where a record is needed for aggregate KPIs, so historical attendance and revenue figures survive the purge
+- **Tutor applications** (`SPEC-2026-11-tutor-applications.md`): `v_tutor_application_retention_due` lists rejected and withdrawn applications 12 months after the decision. The Tutor applications page shows them under **Due for deletion**; an administrator confirms each one, and `purge_tutor_application` deletes the application, its ID photo, selfie and other files, and writes `data_retention_log`. The log entry records the submission date and outcome, not the applicant's name. An approved application is kept with the tutor record it became. Uploads from an application that was never sent are deleted after 24 hours by the staging clean-up job
 
 > **Worth revisiting.** POPIA's minimality principle (s10) argues for holding children's health notes and authorised-collector details for less than 5 years, since neither serves the tax purpose that justifies the 5-year period. You chose a single 5-year rule for simplicity, which is defensible. If you later want the stronger position, shortening just those two record classes is a one-row change to `data_retention_policies`.
 
@@ -250,7 +257,8 @@ Retention is enforced by the system, not by memory.
 | Access control | Row-level security on every table. Parent sees only their learners; tutor only their classes; health notes and tutor documents admin-only |
 | Authentication | Supabase Auth; hashed passwords; **enable leaked-password protection** (currently off — see the README) |
 | Encryption | TLS in transit; encryption at rest by the host |
-| Private storage | Tutor documents in a private bucket, admin-read only |
+| Private storage | Tutor documents (including applicants' ID photos and selfies) in a private bucket, admin-read only, reached only through 5-minute signed links |
+| Identity check | An administrator compares an applicant's ID photo with their selfie by eye. No face-matching software is used, so the selfie is not processed as biometric information (s26). Adding such software would need a fresh assessment |
 | Audit trail | `marked_by`, `recorded_by`, `published_at`, `set_by` on registers, payments, reports and pro-rata overrides |
 | Least privilege | Tutors have no billing access at all; learner logins are the narrowest role |
 | Backups | Supabase automated backups; restore tested before go-live |

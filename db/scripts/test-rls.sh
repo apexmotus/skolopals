@@ -296,7 +296,7 @@ do $$ begin
   perform dev.assert((select count(*) from public.learners) = 2, 'sees all learners');
   perform dev.assert((select count(*) from public.learner_medical_notes) = 2, 'sees all health notes');
   perform dev.assert((select count(*) from public.billing_settings) = 1, 'sees billing settings');
-  perform dev.assert((select count(*) from public.consents) = 3, 'sees consent records');
+  perform dev.assert((select count(*) from public.consents) = 2, 'sees consent records (the two required ones)');
   perform dev.assert((select count(*) from public.invoices) = 1, 'sees invoices');
   perform dev.assert((select count(*) from public.contact_enquiries) = 2, 'sees enquiries');
   perform dev.assert((select count(*) from public.reviews) = 1, 'sees unmoderated reviews');

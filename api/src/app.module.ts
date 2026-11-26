@@ -26,6 +26,7 @@ import { ReferenceModule } from './modules/reference/reference.module.js';
 import { ResourcesModule } from './modules/resources/resources.module.js';
 import { ReviewsModule } from './modules/reviews/reviews.module.js';
 import { TimetableModule } from './modules/timetable/timetable.module.js';
+import { TutorApplicationsModule } from './modules/tutor-applications/tutor-applications.module.js';
 import { TutorsModule } from './modules/tutors/tutors.module.js';
 import { UploadsModule } from './modules/uploads/uploads.module.js';
 
@@ -68,6 +69,7 @@ import { UploadsModule } from './modules/uploads/uploads.module.js';
     ReferenceModule,
     PeopleModule,
     TutorsModule,
+    TutorApplicationsModule,
     PackagesModule,
     EnrolmentModule,
     AptitudeModule,

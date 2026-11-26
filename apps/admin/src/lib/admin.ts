@@ -186,6 +186,16 @@ export async function countProofsToCheck() {
   return count ?? 0;
 }
 
+/** New tutor applications nobody has looked at yet, for the nav badge. */
+export async function countNewTutorApplications() {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("tutor_applications")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "submitted");
+  return count ?? 0;
+}
+
 /** One submission with what verifying it needs: the invoice, the account and earlier attempts. */
 export async function getPaymentSubmission(id: string) {
   const supabase = await createClient();

@@ -87,6 +87,14 @@ export class UploadsManager {
       );
     }
 
+    if (type.kind === 'pdf' && 'imagesOnly' in purpose) {
+      await this.storage.remove(purpose.bucket, [dto.path]);
+      throw new BusinessRuleException(
+        'UPLOAD_PHOTO_REQUIRED',
+        'This needs a photo, not a PDF. Please take or choose a photo.',
+      );
+    }
+
     const base = dto.path.slice(0, dto.path.lastIndexOf('.'));
 
     if (type.kind === 'heic') {

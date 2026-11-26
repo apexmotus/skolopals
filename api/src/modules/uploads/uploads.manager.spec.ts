@@ -149,6 +149,26 @@ describe('UploadsManager.confirm', () => {
     expect(result.path).toBe(staged('jpeg'));
   });
 
+  it('deletes and rejects a PDF sent as a selfie', async () => {
+    const { manager, storage } = setup(PDF);
+    await expect(
+      manager.confirm(parent, { purpose: 'tutor_selfie', path: staged('pdf') }),
+    ).rejects.toMatchObject({ code: 'UPLOAD_PHOTO_REQUIRED' });
+    expect(storage.remove).toHaveBeenCalledWith('tutor-documents', [
+      staged('pdf'),
+    ]);
+  });
+
+  it('accepts a photo as a selfie, in the tutor documents bucket', async () => {
+    const { manager, storage } = setup(JPEG);
+    const result = await manager.confirm(parent, {
+      purpose: 'tutor_selfie',
+      path: staged('jpg'),
+    });
+    expect(storage.download).toHaveBeenCalledWith('tutor-documents', staged('jpg'));
+    expect(result.mimeType).toBe('image/jpeg');
+  });
+
   it('deletes and rejects a file that is not an accepted type', async () => {
     const { manager, storage } = setup(Buffer.from('MZ executable'));
     await expect(

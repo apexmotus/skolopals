@@ -2,7 +2,14 @@
 
 import { api, ApiError } from "@skolopals/shared/api";
 
-export type UploadPurpose = "report_card" | "payment_proof";
+export type UploadPurpose =
+  | "report_card"
+  | "payment_proof"
+  | "tutor_cv"
+  | "tutor_qualification"
+  | "tutor_id_document"
+  | "tutor_selfie"
+  | "tutor_police_clearance";
 
 export type SignedUpload = { uploadToken: string; path: string; bucket: string } | { error: string };
 export type ConfirmedUpload =
@@ -12,6 +19,11 @@ export type ConfirmedUpload =
 const BUCKET: Record<UploadPurpose, string> = {
   report_card: "learner-documents",
   payment_proof: "payment-proofs",
+  tutor_cv: "tutor-documents",
+  tutor_qualification: "tutor-documents",
+  tutor_id_document: "tutor-documents",
+  tutor_selfie: "tutor-documents",
+  tutor_police_clearance: "tutor-documents",
 };
 
 function message(err: unknown) {
