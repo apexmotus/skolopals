@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { capitalise } from "@skolopals/shared/format";
 import { Button, Card, CardTitle, Field, FormMessage, Input, Select } from "./ui";
 
 /** Edit forms for a learner record, shared by the parent and admin portals. Each app passes its own server actions. */
@@ -236,7 +237,7 @@ function PeopleCard({
                   {p.full_name}
                 </span>
                 <span className="text-[12px] text-muted">
-                  {p.relationship} · {p.phone}
+                  {capitalise(p.relationship)} · {p.phone}
                 </span>
               </span>
               <RemoveButton

@@ -2,10 +2,12 @@ import { redirect } from "next/navigation";
 import { Card, CardTitle, EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { getSession } from "@skolopals/shared/auth";
 import { createClient } from "@skolopals/shared/supabase/server";
-import { dateTime, time } from "@skolopals/shared/format";
+import { dateTime, nowMs, time } from "@skolopals/shared/format";
 import { JoinForm } from "./join-form";
 
 export const metadata = { title: "Join a class" };
+
+const JOIN_OPENS_MINUTES = 15;
 
 /**
  * The family's way into an online or hybrid class. Opening it records nothing; pressing Join
@@ -43,17 +45,42 @@ export default async function JoinPage({ params }: PageProps<"/join/[sessionId]"
   }
 
   const name = classSession.class_groups?.name ?? "Class";
+  // Same window as public.join_session, which enforces it.
+  const now = nowMs();
+  const opensAt = new Date(classSession.starts_at).getTime() - JOIN_OPENS_MINUTES * 60_000;
+  const state =
+    classSession.status === "cancelled"
+      ? "cancelled"
+      : now > new Date(classSession.ends_at).getTime()
+        ? "ended"
+        : now < opensAt
+          ? "early"
+          : "open";
+
   return (
     <>
       <PageHeading title={`Join ${name}`} description={dateTime(classSession.starts_at)} />
       <Card>
-        <CardTitle>Ready to join?</CardTitle>
+        <CardTitle>
+          {state === "open"
+            ? "Ready to join?"
+            : state === "early"
+              ? "Not open yet"
+              : state === "ended"
+                ? "This class has ended"
+                : "This class was cancelled"}
+        </CardTitle>
         <p className="text-[13px] leading-[1.6] text-ink">
-          The link opens 15 minutes before the class starts ({time(classSession.starts_at)}) and closes when it ends (
-          {time(classSession.ends_at)}). Joining lets the tutor see you&rsquo;re there; they confirm the register at the
-          end of the class.
+          {state === "early"
+            ? `Come back from ${dateTime(new Date(opensAt).toISOString())}. `
+            : state === "cancelled"
+              ? "The centre cancelled this session. Check your notifications for the reason. "
+              : ""}
+          The link opens {JOIN_OPENS_MINUTES} minutes before the class starts ({time(classSession.starts_at)}) and closes
+          when it ends ({time(classSession.ends_at)}). Joining lets the tutor see you&rsquo;re there; they confirm the
+          register at the end of the class.
         </p>
-        <JoinForm sessionId={classSession.id} learners={learners} />
+        {state === "open" ? <JoinForm sessionId={classSession.id} learners={learners} /> : null}
       </Card>
     </>
   );

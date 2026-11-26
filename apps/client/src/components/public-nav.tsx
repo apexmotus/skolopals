@@ -26,6 +26,7 @@ const OTHER_PAGES = [
   { href: "/careers", label: "Work with us" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
+  { href: "/join", label: "Join a class" },
 ];
 
 export function PublicNav() {

@@ -257,3 +257,17 @@ Guardian signs up → confirms email → logs in
 - [ ] Decide whether the POPIA go-live features are built before the manual.
 - [ ] Confirm the centre contact details for the back page (phone 067 244 7296; Information Officer email still pending from the client).
 - [ ] Confirm the branding assets: logo file and colour values.
+
+### Phase 3 — Capture and write (2026-11-25)
+
+**First full draft built:** `docs/manual/Skolopals-User-Manual.pdf` (64 pages, A4, branded). Source: `docs/manual/build.py` (HTML → WeasyPrint CLI); screenshots in `docs/manual/images/`, captured from UAT by the Playwright scripts in `apps/client/scripts/manual/` (`UAT_PASSWORD=… node scripts/manual/<scene>.mjs`, run from `apps/client`).
+
+- **Story family:** seed guardian Thuli Mthembu enrols Amahle (Gr 6, Maths + Afrikaans), test done, accepted, paid with PayShap, verified (SKP-2026-0030). The sample-data accounts in the decisions table were not used: their passwords weren't available to the capture scripts.
+- **Created in UAT for the manual:** Johan's competency Afrikaans (in Afrikaans) Gr 4–7; online class *Afrikaans Gr 4-7 (Online)* (Wed + Thu 15:00–16:00, Meet link placeholder) with Amahle placed. Door test on Karabo's 17:00 one-on-one: signed in 21:52 (Late), signed out to Lerato 21:53. This also sent Lerato and the admins a "still at the centre" alert, because the class had ended at 18:00.
+- **Users screenshot** hides every row that isn't a `@uat.skolopals.test` account (real people's emails are in UAT).
+
+**Found while capturing (open):**
+- A learner login can't be linked to a learner: Users → Add user with role Learner creates an account, but nothing sets `learners.profile_id`. The manual says "the centre sets it up".
+- Parent Timetable / Overview and tutor Overview still list today's sessions after they've ended.
+- Fixed in code, awaiting deploy: the join page now says "Not open yet" / "This class has ended" / "cancelled" instead of always offering Join; `/join` gets a phone top-bar title; collector/contact relationships are capitalised ("mother" → "Mother").
+- Not yet captured: a real online join ("Joined 15:02"): needs a session in its join window (next: Thu 26 Nov 14:45–16:00). Retake `g28`, `t04` then.
