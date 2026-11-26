@@ -93,13 +93,22 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - name: Install Playwright (with retry — apt mirrors are occasionally flaky on GitHub-hosted runners)
+      # System deps are installed separately from the browser: install-deps runs
+      # apt as root via sudo, and nick-fields/retry cannot kill a root process on
+      # timeout (crashes with `kill EPERM` instead of retrying). apt retries its
+      # own flaky mirror downloads instead.
+      - name: Install Playwright system deps
+        timeout-minutes: 15
+        run: |
+          printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' | sudo tee /etc/apt/apt.conf.d/80-retries
+          pnpm --filter @skolopals/client exec playwright install-deps chromium
+      - name: Install Playwright browser (with retry)
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 15
-          command: pnpm --filter @skolopals/client exec playwright install --with-deps chromium
+          command: pnpm --filter @skolopals/client exec playwright install chromium
       - name: Smoke test api
         run: curl -sf --retry 5 --retry-delay 5 --retry-connrefused https://skolopals-api-dev.vercel.app/api/health/live
       - name: Smoke test client web
@@ -262,13 +271,22 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - name: Install Playwright (with retry — apt mirrors are occasionally flaky on GitHub-hosted runners)
+      # System deps are installed separately from the browser: install-deps runs
+      # apt as root via sudo, and nick-fields/retry cannot kill a root process on
+      # timeout (crashes with `kill EPERM` instead of retrying). apt retries its
+      # own flaky mirror downloads instead.
+      - name: Install Playwright system deps
+        timeout-minutes: 15
+        run: |
+          printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' | sudo tee /etc/apt/apt.conf.d/80-retries
+          pnpm --filter @skolopals/client exec playwright install-deps chromium
+      - name: Install Playwright browser (with retry)
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 15
-          command: pnpm --filter @skolopals/client exec playwright install --with-deps chromium
+          command: pnpm --filter @skolopals/client exec playwright install chromium
       - name: Smoke test client web
         run: pnpm --filter @skolopals/client run smoke https://skolopals-web-uat.vercel.app
       - name: Smoke test admin web
