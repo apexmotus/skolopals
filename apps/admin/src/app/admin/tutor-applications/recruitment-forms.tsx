@@ -90,7 +90,8 @@ export function RecruitmentCard({ isOpen, round, lastRound, subjects }: Recruitm
           ) : null}
         </div>
       ) : null}
-      <Result state={closeState} />
+      {/* "Applications are closed" is stale once they have been opened again. */}
+      <Result state={isOpen ? { error: closeState.error } : closeState} />
 
       {dialog ? (
         <RecruitmentDialog

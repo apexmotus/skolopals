@@ -28,7 +28,7 @@ const PAGES: Record<string, { title: string; description: string; body: string[]
     body: [
       "We look for tutors with a teaching qualification or a strong academic background, knowledge of CAPS, experience with children, patience and reliable references.",
       "Tutors are employed by the centre on a salary or a per-session rate. We do not take a share of what families pay.",
-      "We do not have an online application. If you would like to teach with us, please get in touch through the contact page.",
+      "When we are recruiting, you can apply online: look for Apply to teach on the home page. At other times, please get in touch through the contact page.",
     ],
   },
   terms: {

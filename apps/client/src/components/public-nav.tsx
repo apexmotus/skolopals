@@ -24,6 +24,7 @@ const OTHER_PAGES = [
   { href: "/about", label: "About" },
   { href: "/safeguarding", label: "Keeping learners safe" },
   { href: "/careers", label: "Work with us" },
+  { href: "/teach", label: "Apply to teach" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
   { href: "/join", label: "Join a class" },

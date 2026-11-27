@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { Card, CardTitle, EmptyState, PageHeading } from "@skolopals/ui/ui";
 import { getSession } from "@skolopals/shared/auth";
@@ -37,10 +38,12 @@ export default async function JoinPage({ params }: PageProps<"/join/[sessionId]"
 
   if (!classSession || learners.length === 0) {
     return (
-      <EmptyState
-        title="This class isn’t one of yours"
-        description="Open the join link from your timetable, signed in as the learner’s parent or the learner."
-      />
+      <Shell>
+        <EmptyState
+          title="This class isn’t one of yours"
+          description="Open the join link from your timetable, signed in as the learner’s parent or the learner."
+        />
+      </Shell>
     );
   }
 
@@ -58,7 +61,7 @@ export default async function JoinPage({ params }: PageProps<"/join/[sessionId]"
           : "open";
 
   return (
-    <>
+    <Shell>
       <PageHeading title={`Join ${name}`} description={dateTime(classSession.starts_at)} />
       <Card>
         <CardTitle>
@@ -82,6 +85,11 @@ export default async function JoinPage({ params }: PageProps<"/join/[sessionId]"
         </p>
         {state === "open" ? <JoinForm sessionId={classSession.id} learners={learners} /> : null}
       </Card>
-    </>
+    </Shell>
   );
+}
+
+/** The public pages' gutter, so the card doesn't touch the edge of a phone screen. */
+function Shell({ children }: { children: ReactNode }) {
+  return <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5 px-4 py-6 md:px-[24px]">{children}</div>;
 }

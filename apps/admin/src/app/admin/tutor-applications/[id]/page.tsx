@@ -106,7 +106,7 @@ export default async function TutorApplicationPage({ params }: PageProps<"/admin
               identityChecked={!!app.identityCheckedAt}
               missingClearance={missingClearance}
             />
-            {app.status === "submitted" ? <ShortlistButton applicationId={app.id} /> : null}
+            <ShortlistButton applicationId={app.id} done={app.status !== "submitted"} />
             <RejectButton applicationId={app.id} />
           </div>
         </Card>
@@ -138,7 +138,7 @@ export default async function TutorApplicationPage({ params }: PageProps<"/admin
             <Photo doc={idBack} label="ID (back)" />
           </div>
         ) : null}
-        {underReview && !app.identityCheckedAt ? <IdentityCheckedButton applicationId={app.id} /> : null}
+        {underReview ? <IdentityCheckedButton applicationId={app.id} done={!!app.identityCheckedAt} /> : null}
       </Card>
 
       <Card>

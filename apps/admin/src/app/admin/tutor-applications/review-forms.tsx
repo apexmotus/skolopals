@@ -18,8 +18,13 @@ function Result({ state }: { state: TutorApplicationState }) {
   return null;
 }
 
-export function ShortlistButton({ applicationId }: { applicationId: string }) {
+/**
+ * `done` hides the button once the step is done. The component stays mounted, so the confirmation
+ * ("The applicant has been told") is still shown after the page refreshes without the button.
+ */
+export function ShortlistButton({ applicationId, done }: { applicationId: string; done: boolean }) {
   const [state, action, pending] = useActionState<TutorApplicationState, FormData>(setApplicationStatus, {});
+  if (done) return <Result state={state} />;
   return (
     <form action={action} className="flex flex-col gap-2">
       <input type="hidden" name="application_id" value={applicationId} />
@@ -32,8 +37,9 @@ export function ShortlistButton({ applicationId }: { applicationId: string }) {
   );
 }
 
-export function IdentityCheckedButton({ applicationId }: { applicationId: string }) {
+export function IdentityCheckedButton({ applicationId, done }: { applicationId: string; done: boolean }) {
   const [state, action, pending] = useActionState<TutorApplicationState, FormData>(markIdentityChecked, {});
+  if (done) return <Result state={state} />;
   return (
     <form action={action} className="flex flex-col gap-2">
       <input type="hidden" name="application_id" value={applicationId} />

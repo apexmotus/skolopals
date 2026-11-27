@@ -26,8 +26,8 @@ export function CreateTutorForm() {
     <Card>
       <CardTitle>Add a tutor</CardTitle>
       <p className="text-[11px] text-muted">
-        The person signs up on the website first, then you add them here. There is no public tutor
-        application.
+        For someone you already know: they sign up on the website first, then you add them here. To
+        recruit, open applications under Tutor applications.
       </p>
       <form action={action} className="flex flex-col gap-3">
         <Field label="Their account email" htmlFor="email">

@@ -17,6 +17,8 @@ export const PHONE = { viewport: { width: 390, height: 844 }, deviceScaleFactor:
 export const DESKTOP = { viewport: { width: 1366, height: 860 }, deviceScaleFactor: 2 };
 
 export const email = (who) => `${who}@uat.skolopals.test`;
+// Tutor guide applicant: a Gmail plus-address, so its confirmation email reaches Mollo.
+export const APPLICANT = "mollodagod+tutor@gmail.com";
 
 export async function open(device = DESKTOP) {
   if (!PASSWORD) throw new Error("Set UAT_PASSWORD");
@@ -54,6 +56,8 @@ export async function settle(page) {
  * `full` captures the whole page instead of the viewport. `clip` is a locator to crop to.
  */
 export async function shot(page, name, callouts = [], { full = false, clip } = {}) {
+  // A focused field's ring looks like a callout.
+  await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur());
   const boxes = [];
   let i = 0;
   for (const c of callouts) {
@@ -69,7 +73,8 @@ export async function shot(page, name, callouts = [], { full = false, clip } = {
     const [sx, sy] = await page.evaluate(() => [window.scrollX, window.scrollY]);
     boxes.push({ ...b, x: b.x + sx, y: b.y + sy, n: c.n ?? i });
   }
-  if (!full && !clip && boxes.length) {
+  const modal = await page.locator("dialog[open]").count();
+  if (!full && !clip && boxes.length && !modal) {
     // Scroll so the callouts are in view, the first near the top.
     const top = Math.min(...boxes.map((b) => b.y));
     await page.evaluate((y) => window.scrollTo(0, Math.max(0, y - 120)), top);
@@ -78,6 +83,7 @@ export async function shot(page, name, callouts = [], { full = false, clip } = {
   await page.evaluate(
     ({ boxes }) => {
       document.querySelectorAll("[data-manual-callout]").forEach((n) => n.remove());
+      const dialog = document.querySelector("dialog[open]");
       for (const b of boxes) {
         const ring = document.createElement("div");
         ring.setAttribute("data-manual-callout", "");
@@ -113,7 +119,17 @@ export async function shot(page, name, callouts = [], { full = false, clip } = {
           zIndex: 2147483647,
           pointerEvents: "none",
         });
-        document.body.append(ring, badge);
+        // A modal <dialog> sits in the top layer, above any z-index: draw inside it, fixed to the viewport.
+        if (dialog) {
+          for (const n of [ring, badge]) {
+            n.style.position = "fixed";
+            n.style.left = `${parseFloat(n.style.left) - window.scrollX}px`;
+            n.style.top = `${parseFloat(n.style.top) - window.scrollY}px`;
+          }
+          dialog.append(ring, badge);
+        } else {
+          document.body.append(ring, badge);
+        }
       }
     },
     { boxes },
